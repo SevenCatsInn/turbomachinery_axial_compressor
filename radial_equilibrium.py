@@ -214,12 +214,14 @@ L_eul = U * (V_t2 - V_t1)
 chi = (W_1**2 - W_2**2)/(2*L_eul)
 
 
-# Plot input and output velocity triangles at hub, mean radius and tip
-fig, axs = plt.subplots(3,1, sharex=True, sharey=True)
+# Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # P stands for plotting
 
-j = 0
+fig, axs = plt.subplots(3,1, sharex=True, sharey=True) # Create figure
+
+j = 0 # Index used to move through the subplots
 for i in [R_h, R_m, R_t]:
+    # Evaluate the quantities to plot on the desired radius
     U_P   = float(U.subs(r,   i).evalf())
     V_a1P = float(V_a1.subs(r,i).evalf())
     V_t1P = float(V_t1.subs(r,i).evalf())
@@ -230,15 +232,16 @@ for i in [R_h, R_m, R_t]:
     W_a2P = float(W_a2.subs(r,i).evalf())
     W_t2P = float(W_t2.subs(r,i).evalf())
 
+    # axs[j].grid() #Add grid
     
-    axs[j].grid()
+    #Plot inlet and outlet triangles
+    axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
+    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red","red"])
     
-    axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0)
-    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.0)
+    axs.flat[j].set_xlim(-50, 300) #Set the limits for the x axis
+    axs.flat[j].set_ylim(-5, 200)  #Set the limits for the y axis
     
-    axs.flat[j].set_xlim(-50, 300)
-    
-    axs[j].set_aspect('equal')
+    axs[j].set_aspect('equal') #Equal aspect ratio axes
 
     j = j+1
 
