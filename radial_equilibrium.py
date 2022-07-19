@@ -3,6 +3,8 @@
 from sympy import *
 from sympy import init_printing
 import numpy as np
+import matplotlib.pyplot as plt
+
 init_printing() 
 
 
@@ -211,8 +213,33 @@ while abs(err) > tol:
 L_eul = U * (V_t2 - V_t1)
 chi = (W_1**2 - W_2**2)/(2*L_eul)
 
-# print((rho_1.subs(r,R_t)).evalf())
-# print((rho_2.subs(r,R_t)).evalf())
-# print((V_t1.subs(r,R_t)).evalf())
 
-plot(s_2,(r,R_h,R_t),show=True)
+# Plot input and output velocity triangles at hub, mean radius and tip
+fig, axs = plt.subplots(3,1, sharex=True, sharey=True)
+# P stands for plotting
+
+j = 0
+for i in [R_h, R_m, R_t]:
+    U_P   = float(U.subs(r,   i).evalf())
+    V_a1P = float(V_a1.subs(r,i).evalf())
+    V_t1P = float(V_t1.subs(r,i).evalf())
+    W_a1P = float(W_a1.subs(r,i).evalf())
+    W_t1P = float(W_t1.subs(r,i).evalf())
+    V_a2P = float(V_a2.subs(r,i).evalf())
+    V_t2P = float(V_t2.subs(r,i).evalf())
+    W_a2P = float(W_a2.subs(r,i).evalf())
+    W_t2P = float(W_t2.subs(r,i).evalf())
+
+    
+    axs[j].grid()
+    
+    axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0)
+    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.0)
+    
+    axs.flat[j].set_xlim(-50, 300)
+    
+    axs[j].set_aspect('equal')
+
+    j = j+1
+
+plt.show()
