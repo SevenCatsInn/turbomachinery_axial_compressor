@@ -57,8 +57,8 @@ print("")
 print("########## INLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 0.01
-iter=1
+tol = 0.001
+iter= 1
 
 # This loop can be eliminated by varying b_1 to accomodate for m_dot_req
 while abs(err) > tol: 
@@ -105,7 +105,7 @@ while abs(err) > tol:
     for radius in rr:
         integrand_1.append(2 * np.pi * radius * (V_a1.subs(r,radius)).evalf() * (rho_1.subs(r,radius)).evalf() ) 
 
-    m_dot_trap = np.trapz(integrand_1, rr)
+    m_dot_trap = np.trapz(integrand_1,rr)
     
     err  = 1 - m_dot_trap/m_dot_req # Error
     V_a1m = V_a1m * (1 + err) # New axial velocity
@@ -125,7 +125,8 @@ iter= 1
 
 # Inputs
 ds_2dr = ds_1dr # Initial assumption, negligible s variation
-s_2 = 0
+s_2m = 0   # Reference arbitrary value at mean radius
+s_2 = s_2m # Initial radial entropy distribution in 2
 V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vortex)
 
 h_t2 = h_t1 + U * (V_t2 - V_t1)
@@ -167,29 +168,29 @@ while abs(err) > tol:
     M_2r = W_2 / sqrt(gamma * R * T_2)
     p_t2 = p_2*(1 + (gamma-1) / 2 * M_2**2 ) ** (gamma/(gamma-1))
     
-    # TODO : Add entropy s_2 logic
+    # ENTROPY EVALUATION
 
     ds2_dr = -R * diff(p_t2,r) / p_t2 + c_p * diff(T_t2,r) / T_t2 # New entropy derivative
     
-    s_2m = 0 # Reference arbitrary value at mean radius
-    s_2l = [ s_2m ] 
-    s_2u = [ s_2m ] 
+    points = 8 // 2  * 2 # Number of points in which we compute s_2, rounded to the nearest even integer
+    s_2l = [ s_2m ] # From R_m to tip
+    s_2u = [ s_2m ] # From hub to R_m
     
-    deltaR = (R_t - R_h)/ 12
+    deltaR = (R_t - R_h)/ points
     i = 0
-    for radius in np.linspace(R_m, R_t, 12 // 2):
+    for radius in np.linspace(R_m, R_t, points // 2):
         s_2u.append(s_2u[i] + deltaR * (ds2_dr.subs(r,radius)).evalf())
         i=i+1
     i = 0
-    for radius in np.linspace(R_m, R_h, 12 // 2):
+    for radius in np.linspace(R_m, R_h, points // 2):
         s_2l.append(s_2l[i] - deltaR * (ds2_dr.subs(r,radius)).evalf())
         i=i+1
-    s_2l = list(reversed(s_2l))
+    s_2l = list(reversed(s_2l)) # The list was built in reverse, invert it
 
-    s_2_points = s_2l + s_2u[1:]
-
-    s_2 = interpolating_spline(1, r, np.linspace(R_h,R_t,12 + 1), s_2_points)
+    s_2_points = s_2l + s_2u[1:] # Sum the two lists into one
     
+    # Generate a spline f(r) to keep on using symbolic computations below
+    s_2 = interpolating_spline(1, r, np.linspace(R_h, R_t, points + 1), s_2_points)
 
     ## Compute the mass flow at the inlet
     rr = np.linspace(R_h, R_t, 100) # Extremes of integration
@@ -213,3 +214,5 @@ chi = (W_1**2 - W_2**2)/(2*L_eul)
 # print((rho_1.subs(r,R_t)).evalf())
 # print((rho_2.subs(r,R_t)).evalf())
 # print((V_t1.subs(r,R_t)).evalf())
+
+plot(s_2,(r,R_h,R_t),show=True)
