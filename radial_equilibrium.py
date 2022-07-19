@@ -217,7 +217,7 @@ chi = (W_1**2 - W_2**2)/(2*L_eul)
 # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # P stands for plotting
 
-fig, axs = plt.subplots(3,1, sharex=True, sharey=True) # Create figure
+fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(3, 6), dpi=65) # Create figure
 
 j = 0 # Index used to move through the subplots
 for i in [R_h, R_m, R_t]:
@@ -244,5 +244,5 @@ for i in [R_h, R_m, R_t]:
     axs[j].set_aspect('equal') #Equal aspect ratio axes
 
     j = j+1
-
 plt.show()
+
