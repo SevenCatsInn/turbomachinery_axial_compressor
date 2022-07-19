@@ -167,10 +167,16 @@ while abs(err) > tol:
     M_2r = W_2 / sqrt(gamma * R * T_2)
     p_t2 = p_2*(1 + (gamma-1) / 2 * M_2**2 ) ** (gamma/(gamma-1))
 
-    # TODO: Add logic for a s_2 radial distribution
+    # TODO : Add entropy s_2 logic
+
+    ds2_dr = -R * diff(p_t2,r) / p_t2 + c_p * diff(T_t2,r) / T_t2
     
-    entr2 = Eq( diff(s_2,r), -R * diff(p_t2,r) / p_t2 + c_p * diff(T_t2,r) / T_t2)
-    pprint(entr2)
+    pprint(ds2_dr)
+
+    s_2m = 0 # Reference arbitrary value
+
+    for :
+        s = s_2m 
 
 
     ## Compute the mass flow at the inlet
