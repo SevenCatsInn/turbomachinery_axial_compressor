@@ -119,12 +119,13 @@ print("")
 print("########## OUTLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 0.01
+tol = 0.001
 iter= 1
 
 
 # Inputs
 ds_2dr = ds_1dr # Initial assumption, negligible s variation
+s_2 = 0
 V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vortex)
 
 h_t2 = h_t1 + U * (V_t2 - V_t1)
@@ -133,7 +134,6 @@ T_t2 = h_t2 / c_p
 # This loop can be avoided using flaired blades b_2 != b_1
 while abs(err) > tol:
     V_a2 = Function('V_a2') # Declare the function to solve in the O.D.E.
-    s_2  = Function('s_2') 
 
     # Non isentropic radial equilibrium in station 2
     nisre_2 = Eq(V_a2(r)*V_a2(r).diff(r) + V_t2 / r * diff(r*V_t2,r) + T_2m * ds_2dr, diff(h_t2,r) ) 
@@ -161,31 +161,40 @@ while abs(err) > tol:
 
     # Thermodynamics
     T_2 = T_t2 - V_2**2 / (2 * c_p)
-    p_2 = p_2m * (T_2 / T_2m)**(gamma/(gamma-1))
+    p_2 = p_2m * (T_2 / T_2m)**(gamma/(gamma-1)) * exp(- (s_2 - s_2m) / R)
     rho_2 = p_2 / (R*T_2)
     M_2  = V_2 / sqrt(gamma * R * T_2)
     M_2r = W_2 / sqrt(gamma * R * T_2)
     p_t2 = p_2*(1 + (gamma-1) / 2 * M_2**2 ) ** (gamma/(gamma-1))
-
+    
     # TODO : Add entropy s_2 logic
 
-    ds2_dr = -R * diff(p_t2,r) / p_t2 + c_p * diff(T_t2,r) / T_t2
+    ds2_dr = -R * diff(p_t2,r) / p_t2 + c_p * diff(T_t2,r) / T_t2 # New entropy derivative
     
-    pprint(ds2_dr)
+    s_2m = 0 # Reference arbitrary value at mean radius
+    s_2l = [ s_2m ] 
+    s_2u = [ s_2m ] 
+    
+    deltaR = (R_t - R_h)/ 12
+    i = 0
+    for radius in np.linspace(R_m, R_t, 12 // 2):
+        s_2u.append(s_2u[i] + deltaR * (ds2_dr.subs(r,radius)).evalf())
+        i=i+1
+    i = 0
+    for radius in np.linspace(R_m, R_h, 12 // 2):
+        s_2l.append(s_2l[i] - deltaR * (ds2_dr.subs(r,radius)).evalf())
+        i=i+1
+    s_2l = list(reversed(s_2l))
 
-    s_2m = 0 # Reference arbitrary value
+    s_2_points = s_2l + s_2u[1:]
 
-    for :
-        s = s_2m 
-
+    s_2 = interpolating_spline(1, r, np.linspace(R_h,R_t,12 + 1), s_2_points)
+    
 
     ## Compute the mass flow at the inlet
-
     rr = np.linspace(R_h, R_t, 100) # Extremes of integration
-
+    
     integrand_2 = [] # 2 * pi * r * V_a2 * rho_2
-    
-    
     for radius in rr:
         integrand_2.append(2 * np.pi * radius * (V_a2.subs(r,radius)).evalf() * (rho_2.subs(r,radius)).evalf() ) 
 
@@ -201,6 +210,6 @@ while abs(err) > tol:
 L_eul = U * (V_t2 - V_t1)
 chi = (W_1**2 - W_2**2)/(2*L_eul)
 
-print((rho_1.subs(r,R_t)).evalf())
-print((rho_2.subs(r,R_t)).evalf())
-print((V_t1.subs(r,R_t)).evalf())
+# print((rho_1.subs(r,R_t)).evalf())
+# print((rho_2.subs(r,R_t)).evalf())
+# print((V_t1.subs(r,R_t)).evalf())
