@@ -212,7 +212,7 @@ for j in list(range(pts)):
     M_2[j]  = V_2[j] / sqrt(gamma * R * T_2[j])
     M_2r[j] = W_2[j] / sqrt(gamma * R * T_2[j])
     p_t2[j] = p_2[j]*(1 + (gamma-1) / 2 * M_2[j]**2 ) ** (gamma/(gamma-1))
-    p_t2r[j] = p_2[j]*(1 + (gamma-1) / 2 * M_2[j]**2 ) ** (gamma/(gamma-1))
+
     
     #Evaluate the q.ties in section 1 (expressions) at the current radius
     p_1 = p_1.subs(r,rr[j]).evalf()
@@ -222,8 +222,15 @@ for j in list(range(pts)):
 
     # ENTROPY EVALUATION
 
-    s_2[j] = s_1 - R * ln(p_t2r[j] / p_t1r)
-    
+    s_2[j]  = s_1 - R * ln(p_t2r[j] / p_t1r)
+
+ds_2 = []
+[ds_2.append( (s_2[i-1] - s_2[i+1]) / (2*deltaR) ) for i in range(1,len(s_2) - 1)]
+
+ds_2 = [(s_2[1] - s_2[0]) / deltaR] + ds_2 + [(s_2[-2] - s_2[-1]) / deltaR]
+
+print(T_2)
+
 #     points = 8 // 2  * 2 # Number of points in which we compute s_2, rounded to the nearest even integer
 #     s_2l = [ s_2m ] # From R_m to tip
 #     s_2u = [ s_2m ] # From hub to R_m
