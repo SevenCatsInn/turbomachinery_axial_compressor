@@ -116,7 +116,6 @@ while abs(err) > tol:
     print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
     print("err = "+ str(err))
 
-# quit()
 
 print("")
 print("########## OUTLET ##########")
@@ -131,9 +130,11 @@ iter= 1
 pts = 101  # Total number of points across the radius, uneven!
 rr = np.linspace(R_h, R_t, pts ) # Extremes of integration
 deltaR = (R_t - R_h)/ (pts - 1)
+mean_index = pts//2  # Index of the various list corresponding to mean radius quantities
+
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss = 0.5
+omega_loss = 0.0
 s_1 = 0
 s_2 = list(s_1 * ones(1,pts)) # Initial radial entropy distribution in 2
 ds_2 = list(ds_1 * ones(1,pts)) # Initial assumption, negligible s variation
@@ -161,111 +162,84 @@ V_t2 = V_t2_lst
 drV_t2 = drV_t2_lst
 
 # This loop can be avoided using flaired blades b_2 != b_1
-##### while abs(err) > tol:
+while abs(err) > tol:
 
+    V_a2 = list(zeros(1,pts))
+    V_a2[mean_index] = V_a2m # Initial value for forward integration
+    dV_a2 = list(zeros(1,pts))
 
-mean_index = pts//2  # Index of the various list corresponding to mean radius quantities
+    # Variable index to generate the lists 
+    # TODO: Rework the upper and lower portion into one line with for q in [m_i +- j]
+    for j in list(range(0,mean_index)):
+        # Upper portion
+        
+        dV_a2[mean_index + j] = 1 / V_a2[mean_index + j] * ( dh_t2[mean_index + j] - T_2[mean_index + j] * ds_2[mean_index + j] - V_t2[mean_index + j] / rr[mean_index + j] * drV_t2[mean_index + j] )
+        
+        dV_a2[mean_index - j] = 1 / V_a2[mean_index - j] * ( dh_t2[mean_index - j] - T_2[mean_index - j] * ds_2[mean_index - j] - V_t2[mean_index - j] / rr[mean_index - j] * drV_t2[mean_index - j] )
+        
+        V_a2[mean_index + j + 1] = V_a2[mean_index + j] + dV_a2[mean_index + j] * deltaR 
+        
+        V_a2[mean_index - j - 1] = V_a2[mean_index - j] - dV_a2[mean_index - j] * deltaR 
 
-V_a2 = list(zeros(1,pts))
-V_a2[mean_index] = V_a2m # Initial value for forward integration
-dV_a2 = list(zeros(1,pts))
+    V_2 = list(zeros(1,pts))
+    alpha_2 = list(zeros(1,pts))
+    W_t2 = list(zeros(1,pts))
+    W_a2 = list(zeros(1,pts))
+    W_2 = list(zeros(1,pts))
+    beta_2 = list(zeros(1,pts))
+    p_2 = list(zeros(1,pts))
+    rho_2 = list(zeros(1,pts))
+    M_2 = list(zeros(1,pts))
+    M_2r = list(zeros(1,pts))
+    p_t2 = list(zeros(1,pts))
+    p_t2r = list(zeros(1,pts))
+    integrand_2 = list(zeros(1,pts))
 
-# Variable index to generate the lists 
-# TODO: Rework the upper and lower portion into one line with for q in [m_i +- j]
-for j in list(range(0,mean_index)):
-    # Upper portion
-    
-    dV_a2[mean_index + j] = 1 / V_a2[mean_index + j] * ( dh_t2[mean_index + j] - T_2[mean_index + j] * ds_2[mean_index + j] - V_t2[mean_index + j] / rr[mean_index + j] * drV_t2[mean_index + j] )
-    
-    dV_a2[mean_index - j] = 1 / V_a2[mean_index - j] * ( dh_t2[mean_index - j] - T_2[mean_index - j] * ds_2[mean_index - j] - V_t2[mean_index - j] / rr[mean_index - j] * drV_t2[mean_index - j] )
-    
-    V_a2[mean_index + j + 1] = V_a2[mean_index + j] + dV_a2[mean_index + j] * deltaR 
-    
-    V_a2[mean_index - j - 1] = V_a2[mean_index - j] - dV_a2[mean_index - j] * deltaR 
+    for j in list(range(pts)): # Compute quantities along the radius
+        # Kinematics
+        V_2[j] = sqrt(V_a2[j]**2 + V_t2[j]**2)
+        alpha_2[j] = atan(V_t2[j]/V_a2[j])
+        W_t2[j] = V_t2[j] - U.subs(r,rr[j])
+        W_a2[j] = V_a2[j]
+        W_2[j] = sqrt(W_t2[j]**2 + W_a2[j]**2)
+        beta_2[j] = atan(W_t2[j]/W_a2[j])
 
-V_2 = list(zeros(1,pts))
-alpha_2 = list(zeros(1,pts))
-W_t2 = list(zeros(1,pts))
-W_a2 = list(zeros(1,pts))
-W_2 = list(zeros(1,pts))
-beta_2 = list(zeros(1,pts))
-p_2 = list(zeros(1,pts))
-rho_2 = list(zeros(1,pts))
-M_2 = list(zeros(1,pts))
-M_2r = list(zeros(1,pts))
-p_t2 = list(zeros(1,pts))
-p_t2r = list(zeros(1,pts))
+        # Thermodynamics
+        T_2[j] = T_t2[j] - V_2[j]**2 / (2 * c_p)
+        p_2[j] = p_2m * (T_2[j] / T_2m)**(gamma/(gamma-1)) * exp(- (s_2[j] - s_2[mean_index]) / R)
+        rho_2[j] = p_2[j] / (R*T_2[j])
+        M_2[j]  = V_2[j] / sqrt(gamma * R * T_2[j])
+        M_2r[j] = W_2[j] / sqrt(gamma * R * T_2[j])
+        p_t2[j] = p_2[j]*(1 + (gamma-1) / 2 * M_2[j]**2 ) ** (gamma/(gamma-1))
 
-for j in list(range(pts)):
-    # Kinematics
-    V_2[j] = sqrt(V_a2[j]**2 + V_t2[j]**2)
-    alpha_2[j] = atan(V_t2[j]/V_a2[j])
-    W_t2[j] = V_t2[j] - U.subs(r,rr[j])
-    W_a2[j] = V_a2[j]
-    W_2[j] = sqrt(W_t2[j]**2 + W_a2[j]**2)
-    beta_2[j] = atan(W_t2[j]/W_a2[j])
+        integrand_2[j] = 2 * np.pi * rr[j] * rho_2[j] * V_a2[j] 
+        
+        #Evaluate the q.ties in section 1 (expressions) at the current radius
+        # tmp = overwritten at every iteration, no need for a new array for _1 quantities
+        p_1_tmp = p_1.subs(r,rr[j]).evalf()
+        p_t1r_tmp = p_t1r.subs(r,rr[j]).evalf()
+        
+        p_t2r[j] = p_t1r_tmp - omega_loss * (p_t1r_tmp - p_1_tmp)
 
-    # Thermodynamics
-    T_2[j] = T_t2[j] - V_2[j]**2 / (2 * c_p)
-    p_2[j] = p_2m * (T_2[j] / T_2m)**(gamma/(gamma-1)) * exp(- (s_2[j] - s_2[mean_index]) / R)
-    rho_2[j] = p_2[j] / (R*T_2[j])
-    M_2[j]  = V_2[j] / sqrt(gamma * R * T_2[j])
-    M_2r[j] = W_2[j] / sqrt(gamma * R * T_2[j])
-    p_t2[j] = p_2[j]*(1 + (gamma-1) / 2 * M_2[j]**2 ) ** (gamma/(gamma-1))
+        # ENTROPY EVALUATION
 
-    
-    #Evaluate the q.ties in section 1 (expressions) at the current radius
-    p_1 = p_1.subs(r,rr[j]).evalf()
-    p_t1r = p_t1r.subs(r,rr[j]).evalf()
-    
-    p_t2r[j] = p_t1r - omega_loss * (p_t1r - p_1)
+        s_2[j]  = s_1 - R * ln(p_t2r[j] / p_t1r_tmp)
 
-    # ENTROPY EVALUATION
+    ds_2 = []
+    [ds_2.append( (s_2[i-1] - s_2[i+1]) / (2*deltaR) ) for i in range(1,len(s_2) - 1)]
 
-    s_2[j]  = s_1 - R * ln(p_t2r[j] / p_t1r)
+    ds_2 = [(s_2[1] - s_2[0]) / deltaR] + ds_2 + [(s_2[-2] - s_2[-1]) / deltaR]
 
-ds_2 = []
-[ds_2.append( (s_2[i-1] - s_2[i+1]) / (2*deltaR) ) for i in range(1,len(s_2) - 1)]
+    # print(ds_2)
+    # plot(p_t1r, (r,R_h,R_t))
 
-ds_2 = [(s_2[1] - s_2[0]) / deltaR] + ds_2 + [(s_2[-2] - s_2[-1]) / deltaR]
+    m_dot_trap = np.trapz(integrand_2, rr)
 
-print(T_2)
-
-#     points = 8 // 2  * 2 # Number of points in which we compute s_2, rounded to the nearest even integer
-#     s_2l = [ s_2m ] # From R_m to tip
-#     s_2u = [ s_2m ] # From hub to R_m
-    
-#     deltaR = (R_t - R_h)/ points
-#     i = 0
-#     for radius in np.linspace(R_m, R_t, points // 2):
-#         s_2u.append(s_2u[i] + deltaR * (ds2_dr.subs(r,radius)).evalf())
-#         i=i+1
-#     i = 0
-#     for radius in np.linspace(R_m, R_h, points // 2):
-#         s_2l.append(s_2l[i] - deltaR * (ds2_dr.subs(r,radius)).evalf())
-#         i=i+1
-#     s_2l = list(reversed(s_2l)) # The list was built in reverse, invert it
-
-#     s_2_points = s_2l + s_2u[1:] # Sum the two lists into one
-    
-#     # Generate a spline f(r) to keep on using symbolic computations below
-#     s_2 = interpolating_spline(1, r, np.linspace(R_h, R_t, points + 1), s_2_points)
-
-#     ## Compute the mass flow at the inlet
-#    
-    
-#     integrand_2 = [] # 2 * pi * r * V_a2 * rho_2
-#     for radius in rr:
-#         integrand_2.append(2 * np.pi * radius * (V_a2.subs(r,radius)).evalf() * (rho_2.subs(r,radius)).evalf() ) 
-
-
-#     m_dot_trap = np.trapz(integrand_2, rr)
-
-#     err  = 1 - m_dot_trap/m_dot_req # Error
-#     V_a2m = V_a2m*(1 + err) # New axial velocity
-#     iter += 1
-#     print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
-#     print("err = "+ str(err))
+    err  = 1 - m_dot_trap/m_dot_req # Error
+    V_a2m = V_a2m*(1 + err) # New axial velocity
+    iter += 1
+    print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+    print("err = "+ str(err))
 
 # L_eul = U * (V_t2 - V_t1)
 # chi = (W_1**2 - W_2**2)/(2*L_eul)
