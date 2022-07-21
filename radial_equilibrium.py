@@ -141,7 +141,7 @@ V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vort
 h_t2 = h_t1 + U * (V_t2 - V_t1)
 T_t2 = h_t2 / c_p
 
-T_2_lst = list(T_2m * ones(1,pts) )
+T_2 = list(T_2m * ones(1,pts) )
 
 dh_t2_lst = []
 T_t2_lst = []
@@ -153,6 +153,11 @@ for radius in rr:
     T_t2_lst.append(T_t2.subs(r,radius).evalf())
     V_t2_lst.append(V_t2.subs(r,radius).evalf())
     drV_t2_lst.append(diff(r*V_t2,r).subs(r,radius).evalf())
+
+dh_t2_lst = dh_t2
+T_t2_lst = T_t2
+V_t2_lst = V_t2
+drV_t2_lst = drV_t2
 
 # This loop can be avoided using flaired blades b_2 != b_1
 ##### while abs(err) > tol:
@@ -176,45 +181,17 @@ for j in list(range(0,mean_index)):
     
     V_a2[mean_index - j - 1] = V_a2[mean_index - j] - dV_a2[mean_index - j] * deltaR 
 
-    
-print(V_a2)
+print(len(V_a2))
+print(pts)
 
-    
-
-
-
-
-# domU = np.linspace(R_m,R_t, pts//2 - 1)
-# 
-# dV_2aU= []
-# T_2U = T_2[pts//2:]
-# j=0
-# for radius in domU:
-#     dV_2a_new = 1 / V_2aU[j] * ( diff(h_t2,r).subs(r,radius).evalf() - T_2U[j] * diff(s_2,r).subs(r,radius).evalf() - V_t2.subs(r,radius).evalf() / radius * diff(r*V_t2,r).subs(r,radius).evalf() )
-#     dV_2aU.append(dV_2a_new)
-#     V_2aU.append(V_2aU[j] + deltaR * dV_2aU[j])
-#     j+=1
-
-# domL = np.linspace(R_m,R_h, pts//2 - 1)
-# V_2aL = [V_a2m]
-# dV_2aL= []
-# T_2L = T_2[0:pts//2]
-# j=0
-# for radius in domL:
-#     dV_2a_new = 1 / V_2aL[j] * ( diff(h_t2,r).subs(r,radius).evalf() - T_2L[j] * diff(s_2,r).subs(r,radius).evalf() - V_t2.subs(r,radius).evalf() / radius * diff(r*V_t2,r).subs(r,radius).evalf() )
-#     dV_2aL.append(dV_2a_new)
-#     V_2aL.append(V_2aL[j] - deltaR * dV_2aL[j])
-#     j+=1
-
-
-# TODO:
-# # Kinematics
-# V_2 = sqrt(V_a2**2 + V_t2**2)
-# alpha_2 = atan(V_t2/V_a2)
-# W_t2 = V_t2 - U
-# W_a2 = V_a2
-# W_2 = sqrt(W_t2**2 + W_a2**2)
-# beta_2 = atan(W_t2/W_a2)
+for j in list(range(pts)):
+    # Kinematics
+    V_2[j] = sqrt(V_a2[j]**2 + V_t2_lst[j]**2)
+    alpha_2[j] = atan(V_t2_lst[j]/V_a2[j])
+    W_t2[j] = V_t2_lst[j] - U.subs(r,rr[j])
+    W_a2[j] = V_a2[j]
+    W_2[j] = sqrt(W_t2[j]**2 + W_a2[j]**2)
+    beta_2[j] = atan(W_t2[j]/W_a2[j])
 
 # # Thermodynamics
 # T_2 = T_t2 - V_2**2 / (2 * c_p)
