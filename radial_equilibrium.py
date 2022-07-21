@@ -122,7 +122,8 @@ print("########## OUTLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
 tol = 0.001
-iter= 1
+rel = 0.7 # Relaxation factor
+iter = 1
 
 
 # Inputs
@@ -134,7 +135,7 @@ mean_index = pts//2  # Index of the various list corresponding to mean radius qu
 
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss = 0.0
+omega_loss = 1.2
 s_1 = 0
 s_2 = list(s_1 * ones(1,pts)) # Initial radial entropy distribution in 2
 ds_2 = list(ds_1 * ones(1,pts)) # Initial assumption, negligible s variation
@@ -172,13 +173,12 @@ while abs(err) > tol:
     # TODO: Rework the upper and lower portion into one line with for q in [m_i +- j]
     for j in list(range(0,mean_index)):
         # Upper portion
-        
         dV_a2[mean_index + j] = 1 / V_a2[mean_index + j] * ( dh_t2[mean_index + j] - T_2[mean_index + j] * ds_2[mean_index + j] - V_t2[mean_index + j] / rr[mean_index + j] * drV_t2[mean_index + j] )
-        
+        # Lower portion
         dV_a2[mean_index - j] = 1 / V_a2[mean_index - j] * ( dh_t2[mean_index - j] - T_2[mean_index - j] * ds_2[mean_index - j] - V_t2[mean_index - j] / rr[mean_index - j] * drV_t2[mean_index - j] )
-        
+        # Upper portion
         V_a2[mean_index + j + 1] = V_a2[mean_index + j] + dV_a2[mean_index + j] * deltaR 
-        
+        # Lower portion
         V_a2[mean_index - j - 1] = V_a2[mean_index - j] - dV_a2[mean_index - j] * deltaR 
 
     V_2 = list(zeros(1,pts))
@@ -236,14 +236,17 @@ while abs(err) > tol:
     m_dot_trap = np.trapz(integrand_2, rr)
 
     err  = 1 - m_dot_trap/m_dot_req # Error
-    V_a2m = V_a2m*(1 + err) # New axial velocity
-    iter += 1
+    V_a2m = V_a2m*(1 + err * rel) # New axial velocity
+    
+    
+    print("")
+    print("---Iteration no. " + str(iter))
     print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
     print("err = "+ str(err))
+    iter += 1
 
-# L_eul = U * (V_t2 - V_t1)
-# chi = (W_1**2 - W_2**2)/(2*L_eul)
-
+print("Va_a2m = " + str(V_a2m))
+print(p_2)
 
 # # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # # P stands for plotting
