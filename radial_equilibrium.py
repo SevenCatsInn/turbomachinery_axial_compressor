@@ -50,7 +50,7 @@ m_dot_req = 100 # Required mass flow [kg/s]
 # Computed Quantities
 h_t1 = c_p * T_t1 # Total enthalpy [J/kg]
 
-ds_1dr  = -R * diff(p_t1,r) / p_t1 + c_p * diff(T_t1,r) / T_t1 # Derivative over r of entropy [J/(kg K)]
+ds_1  = -R * diff(p_t1,r) / p_t1 + c_p * diff(T_t1,r) / T_t1 # Derivative over r of entropy [J/(kg K)]
 
 # Set the design choice for tangential velocity distribution in the radial direction
 V_t1 = R_m * V_t1m / r # e.g. Free vortex distribution r * V_t = const
@@ -68,7 +68,7 @@ while abs(err) > tol:
     V_a1 = Function('V_a1') # Declare the function to solve in the O.D.E.
     
     # Non isentropic radial equilibrium in station 1
-    nisre_1 = Eq(V_a1(r)*V_a1(r).diff(r) + V_t1 / r * diff(r*V_t1,r) + T_1m * ds_1dr, diff(h_t1,r) ) 
+    nisre_1 = Eq(V_a1(r)*V_a1(r).diff(r) + V_t1 / r * diff(r*V_t1,r) + T_1m * ds_1, diff(h_t1,r) ) 
     sol_nisre_1 = dsolve(nisre_1, ics = {V_a1(R_m):V_a1m})
     V_a1 = sol_nisre_1.rhs # Extract the value of the NISRE solution, assign to V_a1(r)
 
@@ -128,52 +128,68 @@ iter= 1
 
 # Inputs
 # Discretization
-pts = 100 // 2 * 2  # Total number of points across the radius
-rr = np.linspace(R_h, R_t, pts - 1) # Extremes of integration
-deltaR = (R_t - R_h)/(pts - 1 )
+pts = 101  # Total number of points across the radius, uneven!
+rr = np.linspace(R_h, R_t, pts ) # Extremes of integration
+deltaR = (R_t - R_h)/ (pts - 1)
 
 omega_loss = 0.5
-ds_2dr = ds_1dr # Initial assumption, negligible s variation
+ds_2 = list(ds_1 * ones(1,pts) ) # Initial assumption, negligible s variation
 s_2m = 0   # Reference arbitrary value at mean radius
 s_2 = s_2m # Initial radial entropy distribution in 2
 
 V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vortex)
-T_2 = list(T_2m * ones(1,pts) )
 h_t2 = h_t1 + U * (V_t2 - V_t1)
 T_t2 = h_t2 / c_p
 
+T_2 = list(T_2m * ones(1,pts) )
 
+for radius in rr:
+    h_t2_lst.append(h_t2.subs(r,radius).evalf())
+    T_t2_lst.append(T_t2.subs(r,radius).evalf())
+    V_t2_lst.append(V_t2.subs(r,radius).evalf())
+    dV_t2_lst.append(diff(V_t2,r).subs(r,radius).evalf())
+    
 
 
 # This loop can be avoided using flaired blades b_2 != b_1
-#while abs(err) > tol:
-    
-    
-domU = np.linspace(R_m,R_t, pts//2 - 1)
-V_2aU = [V_a2m]
-dV_2aU= []
-T_2U = T_2[pts//2:]
-j=0
-for radius in domU:
-    dV_2a_new = 1 / V_2aU[j] * ( diff(h_t2,r).subs(r,radius).evalf() - T_2U[j] * diff(s_2,r).subs(r,radius).evalf() - V_t2.subs(r,radius).evalf() / radius * diff(r*V_t2,r).subs(r,radius).evalf() )
-    dV_2aU.append(dV_2a_new)
-    V_2aU.append(V_2aU[j] + deltaR * dV_2aU[j])
-    j+=1
+##### while abs(err) > tol:
 
-domL = np.linspace(R_m,R_h, pts//2 - 1)
-V_2aL = [V_a2m]
-dV_2aL= []
-T_2L = T_2[0:pts//2]
-j=0
-for radius in domL:
-    dV_2a_new = 1 / V_2aL[j] * ( diff(h_t2,r).subs(r,radius).evalf() - T_2L[j] * diff(s_2,r).subs(r,radius).evalf() - V_t2.subs(r,radius).evalf() / radius * diff(r*V_t2,r).subs(r,radius).evalf() )
-    dV_2aL.append(dV_2a_new)
-    V_2aL.append(V_2aL[j] - deltaR * dV_2aL[j])
-    j+=1
 
-V_2a = list(reversed(V_2aL)) + V_2aU[1:]
 
-print(len(V_2a))
+mean_index = pts//2 + 1
+V_2a = [V_a2m]
+
+j = 0
+for radius in rr:
+    dV_a[mean_index + j] = 1 / V_2aU[j] * ( h_t2[mean_index + j] - T_2[mean_index+j] * ds_2.subs(r,radius).evalf() - V_t2.subs(r,radius).evalf() / radius * diff(r*V_t2,r).subs(r,radius).evalf() )
+
+
+    j = j + 1
+
+
+# domU = np.linspace(R_m,R_t, pts//2 - 1)
+# 
+# dV_2aU= []
+# T_2U = T_2[pts//2:]
+# j=0
+# for radius in domU:
+#     dV_2a_new = 1 / V_2aU[j] * ( diff(h_t2,r).subs(r,radius).evalf() - T_2U[j] * diff(s_2,r).subs(r,radius).evalf() - V_t2.subs(r,radius).evalf() / radius * diff(r*V_t2,r).subs(r,radius).evalf() )
+#     dV_2aU.append(dV_2a_new)
+#     V_2aU.append(V_2aU[j] + deltaR * dV_2aU[j])
+#     j+=1
+
+# domL = np.linspace(R_m,R_h, pts//2 - 1)
+# V_2aL = [V_a2m]
+# dV_2aL= []
+# T_2L = T_2[0:pts//2]
+# j=0
+# for radius in domL:
+#     dV_2a_new = 1 / V_2aL[j] * ( diff(h_t2,r).subs(r,radius).evalf() - T_2L[j] * diff(s_2,r).subs(r,radius).evalf() - V_t2.subs(r,radius).evalf() / radius * diff(r*V_t2,r).subs(r,radius).evalf() )
+#     dV_2aL.append(dV_2a_new)
+#     V_2aL.append(V_2aL[j] - deltaR * dV_2aL[j])
+#     j+=1
+
+
 # TODO:
 # # Kinematics
 # V_2 = sqrt(V_a2**2 + V_t2**2)
