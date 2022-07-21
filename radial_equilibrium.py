@@ -132,10 +132,11 @@ pts = 101  # Total number of points across the radius, uneven!
 rr = np.linspace(R_h, R_t, pts ) # Extremes of integration
 deltaR = (R_t - R_h)/ (pts - 1)
 
+# Entropy inputs, NOTE: absolute values are meaningless
 omega_loss = 0.5
-ds_2_lst = list(ds_1 * ones(1,pts) ) # Initial assumption, negligible s variation
-s_2m = 0   # Reference arbitrary value at mean radius
-s_2 = s_2m # Initial radial entropy distribution in 2
+s_1 = 0
+s_2 = list(s_1 * ones(1,pts)) # Initial radial entropy distribution in 2
+ds_2 = list(ds_1 * ones(1,pts)) # Initial assumption, negligible s variation
 
 V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vortex)
 h_t2 = h_t1 + U * (V_t2 - V_t1)
@@ -154,10 +155,10 @@ for radius in rr:
     V_t2_lst.append(V_t2.subs(r,radius).evalf())
     drV_t2_lst.append(diff(r*V_t2,r).subs(r,radius).evalf())
 
-dh_t2_lst = dh_t2
-T_t2_lst = T_t2
-V_t2_lst = V_t2
-drV_t2_lst = drV_t2
+dh_t2 = dh_t2_lst
+T_t2 = T_t2_lst
+V_t2 = V_t2_lst
+drV_t2 = drV_t2_lst
 
 # This loop can be avoided using flaired blades b_2 != b_1
 ##### while abs(err) > tol:
@@ -169,42 +170,59 @@ V_a2 = list(zeros(1,pts))
 V_a2[mean_index] = V_a2m # Initial value for forward integration
 dV_a2 = list(zeros(1,pts))
 
-# Variable index to generate the lists
+# Variable index to generate the lists 
+# TODO: Rework the upper and lower portion into one line with for q in [m_i +- j]
 for j in list(range(0,mean_index)):
     # Upper portion
     
-    dV_a2[mean_index + j] = 1 / V_a2[mean_index + j] * ( dh_t2_lst[mean_index + j] - T_2_lst[mean_index + j] * ds_2_lst[mean_index + j] - V_t2_lst[mean_index + j] / rr[mean_index + j] * drV_t2_lst[mean_index + j] )
+    dV_a2[mean_index + j] = 1 / V_a2[mean_index + j] * ( dh_t2[mean_index + j] - T_2[mean_index + j] * ds_2[mean_index + j] - V_t2[mean_index + j] / rr[mean_index + j] * drV_t2[mean_index + j] )
     
-    dV_a2[mean_index - j] = 1 / V_a2[mean_index - j] * ( dh_t2_lst[mean_index - j] - T_2_lst[mean_index - j] * ds_2_lst[mean_index - j] - V_t2_lst[mean_index - j] / rr[mean_index - j] * drV_t2_lst[mean_index - j] )
+    dV_a2[mean_index - j] = 1 / V_a2[mean_index - j] * ( dh_t2[mean_index - j] - T_2[mean_index - j] * ds_2[mean_index - j] - V_t2[mean_index - j] / rr[mean_index - j] * drV_t2[mean_index - j] )
     
     V_a2[mean_index + j + 1] = V_a2[mean_index + j] + dV_a2[mean_index + j] * deltaR 
     
     V_a2[mean_index - j - 1] = V_a2[mean_index - j] - dV_a2[mean_index - j] * deltaR 
 
-print(len(V_a2))
-print(pts)
+V_2 = list(zeros(1,pts))
+alpha_2 = list(zeros(1,pts))
+W_t2 = list(zeros(1,pts))
+W_a2 = list(zeros(1,pts))
+W_2 = list(zeros(1,pts))
+beta_2 = list(zeros(1,pts))
+p_2 = list(zeros(1,pts))
+rho_2 = list(zeros(1,pts))
+M_2 = list(zeros(1,pts))
+M_2r = list(zeros(1,pts))
+p_t2 = list(zeros(1,pts))
+p_t2r = list(zeros(1,pts))
 
 for j in list(range(pts)):
     # Kinematics
-    V_2[j] = sqrt(V_a2[j]**2 + V_t2_lst[j]**2)
-    alpha_2[j] = atan(V_t2_lst[j]/V_a2[j])
-    W_t2[j] = V_t2_lst[j] - U.subs(r,rr[j])
+    V_2[j] = sqrt(V_a2[j]**2 + V_t2[j]**2)
+    alpha_2[j] = atan(V_t2[j]/V_a2[j])
+    W_t2[j] = V_t2[j] - U.subs(r,rr[j])
     W_a2[j] = V_a2[j]
     W_2[j] = sqrt(W_t2[j]**2 + W_a2[j]**2)
     beta_2[j] = atan(W_t2[j]/W_a2[j])
 
-# # Thermodynamics
-# T_2 = T_t2 - V_2**2 / (2 * c_p)
-# p_2 = p_2m * (T_2 / T_2m)**(gamma/(gamma-1)) * exp(- (s_2 - s_2m) / R)
-# rho_2 = p_2 / (R*T_2)
-# M_2  = V_2 / sqrt(gamma * R * T_2)
-# M_2r = W_2 / sqrt(gamma * R * T_2)
-# p_t2 = p_2*(1 + (gamma-1) / 2 * M_2**2 ) ** (gamma/(gamma-1))
+    # Thermodynamics
+    T_2[j] = T_t2[j] - V_2[j]**2 / (2 * c_p)
+    p_2[j] = p_2m * (T_2[j] / T_2m)**(gamma/(gamma-1)) * exp(- (s_2[j] - s_2[mean_index]) / R)
+    rho_2[j] = p_2[j] / (R*T_2[j])
+    M_2[j]  = V_2[j] / sqrt(gamma * R * T_2[j])
+    M_2r[j] = W_2[j] / sqrt(gamma * R * T_2[j])
+    p_t2[j] = p_2[j]*(1 + (gamma-1) / 2 * M_2[j]**2 ) ** (gamma/(gamma-1))
+    p_t2r[j] = p_2[j]*(1 + (gamma-1) / 2 * M_2[j]**2 ) ** (gamma/(gamma-1))
     
-#     p_t2r = p_t1r - omega_loss * (p_t1r - p_1)
+    #Evaluate the q.ties in section 1 (expressions) at the current radius
+    p_1 = p_1.subs(r,rr[j]).evalf()
+    p_t1r = p_t1r.subs(r,rr[j]).evalf()
+    
+    p_t2r[j] = p_t1r - omega_loss * (p_t1r - p_1)
 
-#     # ENTROPY EVALUATION
-#     s_2 = s_1 - R * ln(p_t2r / p_t1r) 
+    # ENTROPY EVALUATION
+
+    s_2[j] = s_1 - R * ln(p_t2r[j] / p_t1r)
     
 #     points = 8 // 2  * 2 # Number of points in which we compute s_2, rounded to the nearest even integer
 #     s_2l = [ s_2m ] # From R_m to tip
