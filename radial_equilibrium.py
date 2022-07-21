@@ -97,7 +97,8 @@ while abs(err) > tol:
     rho_1 = p_1 / (R*T_1)
     M_1  = V_1 / sqrt(gamma * R * T_1)
     M_1r = W_1 / sqrt(gamma * R * T_1)
-    p_t1 = p_1*(1 + (gamma-1) / 2 * M_1**2 ) ** (gamma/(gamma-1))
+    p_t1  = p_1*(1 + (gamma-1) / 2 * M_1**2  ) ** (gamma/(gamma-1))
+    p_t1r = p_1*(1 + (gamma-1) / 2 * M_1r**2 ) ** (gamma/(gamma-1))
 
     ## Compute the mass flow at the inlet
 
@@ -126,123 +127,144 @@ iter= 1
 
 
 # Inputs
+# Discretization
+pts = 100 // 2 * 2  # Total number of points across the radius
+rr = np.linspace(R_h, R_t, pts - 1) # Extremes of integration
+deltaR = (R_t - R_h)/(pts - 1 )
+
+omega_loss = 0.5
 ds_2dr = ds_1dr # Initial assumption, negligible s variation
 s_2m = 0   # Reference arbitrary value at mean radius
 s_2 = s_2m # Initial radial entropy distribution in 2
-V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vortex)
 
+V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vortex)
+T_2 = list(T_2m * ones(1,pts) )
 h_t2 = h_t1 + U * (V_t2 - V_t1)
 T_t2 = h_t2 / c_p
 
+
+
+
 # This loop can be avoided using flaired blades b_2 != b_1
-while abs(err) > tol:
-    V_a2 = Function('V_a2') # Declare the function to solve in the O.D.E.
-
-    # Non isentropic radial equilibrium in station 2
-    nisre_2 = Eq(V_a2(r)*V_a2(r).diff(r) + V_t2 / r * diff(r*V_t2,r) + T_2m * ds_2dr, diff(h_t2,r) ) 
-    sol_nisre_2 = dsolve(nisre_2, ics = {V_a2(R_m):V_a2m})
-    V_a2 = sol_nisre_2.rhs # Extract the value of the NISRE solution, assign to V_a2(r)
-
-    # Prints
-    print("")
-    print("---Iteration no. " + str(iter))
-    print("N.I.S.R.E. in Station 2")
-    # pprint(nisre_2)
-    print("Solution:")
-    pprint(sol_nisre_2)
-    print("")
-
-    ## Compute quantities in station 2 --> f(r)
-
-    # Kinematics
-    V_2 = sqrt(V_a2**2 + V_t2**2)
-    alpha_2 = atan(V_t2/V_a2)
-    W_t2 = V_t2 - U
-    W_a2 = V_a2
-    W_2 = sqrt(W_t2**2 + W_a2**2)
-    beta_2 = atan(W_t2/W_a2)
-
-    # Thermodynamics
-    T_2 = T_t2 - V_2**2 / (2 * c_p)
-    p_2 = p_2m * (T_2 / T_2m)**(gamma/(gamma-1)) * exp(- (s_2 - s_2m) / R)
-    rho_2 = p_2 / (R*T_2)
-    M_2  = V_2 / sqrt(gamma * R * T_2)
-    M_2r = W_2 / sqrt(gamma * R * T_2)
-    p_t2 = p_2*(1 + (gamma-1) / 2 * M_2**2 ) ** (gamma/(gamma-1))
+#while abs(err) > tol:
     
-    # ENTROPY EVALUATION
-
-    ds2_dr = -R * diff(p_t2,r) / p_t2 + c_p * diff(T_t2,r) / T_t2 # New entropy derivative
     
-    points = 8 // 2  * 2 # Number of points in which we compute s_2, rounded to the nearest even integer
-    s_2l = [ s_2m ] # From R_m to tip
-    s_2u = [ s_2m ] # From hub to R_m
+domU = np.linspace(R_m,R_t, pts//2 - 1)
+V_2aU = [V_a2m]
+dV_2aU= []
+T_2U = T_2[pts//2:]
+j=0
+for radius in domU:
+    dV_2a_new = 1 / V_2aU[j] * ( diff(h_t2,r).subs(r,radius).evalf() - T_2U[j] * diff(s_2,r).subs(r,radius).evalf() - V_t2.subs(r,radius).evalf() / radius * diff(r*V_t2,r).subs(r,radius).evalf() )
+    dV_2aU.append(dV_2a_new)
+    V_2aU.append(V_2aU[j] + deltaR * dV_2aU[j])
+    j+=1
+
+domL = np.linspace(R_m,R_h, pts//2 - 1)
+V_2aL = [V_a2m]
+dV_2aL= []
+T_2L = T_2[0:pts//2]
+j=0
+for radius in domL:
+    dV_2a_new = 1 / V_2aL[j] * ( diff(h_t2,r).subs(r,radius).evalf() - T_2L[j] * diff(s_2,r).subs(r,radius).evalf() - V_t2.subs(r,radius).evalf() / radius * diff(r*V_t2,r).subs(r,radius).evalf() )
+    dV_2aL.append(dV_2a_new)
+    V_2aL.append(V_2aL[j] - deltaR * dV_2aL[j])
+    j+=1
+
+V_2a = list(reversed(V_2aL)) + V_2aU[1:]
+
+print(len(V_2a))
+# TODO:
+# # Kinematics
+# V_2 = sqrt(V_a2**2 + V_t2**2)
+# alpha_2 = atan(V_t2/V_a2)
+# W_t2 = V_t2 - U
+# W_a2 = V_a2
+# W_2 = sqrt(W_t2**2 + W_a2**2)
+# beta_2 = atan(W_t2/W_a2)
+
+# # Thermodynamics
+# T_2 = T_t2 - V_2**2 / (2 * c_p)
+# p_2 = p_2m * (T_2 / T_2m)**(gamma/(gamma-1)) * exp(- (s_2 - s_2m) / R)
+# rho_2 = p_2 / (R*T_2)
+# M_2  = V_2 / sqrt(gamma * R * T_2)
+# M_2r = W_2 / sqrt(gamma * R * T_2)
+# p_t2 = p_2*(1 + (gamma-1) / 2 * M_2**2 ) ** (gamma/(gamma-1))
     
-    deltaR = (R_t - R_h)/ points
-    i = 0
-    for radius in np.linspace(R_m, R_t, points // 2):
-        s_2u.append(s_2u[i] + deltaR * (ds2_dr.subs(r,radius)).evalf())
-        i=i+1
-    i = 0
-    for radius in np.linspace(R_m, R_h, points // 2):
-        s_2l.append(s_2l[i] - deltaR * (ds2_dr.subs(r,radius)).evalf())
-        i=i+1
-    s_2l = list(reversed(s_2l)) # The list was built in reverse, invert it
+#     p_t2r = p_t1r - omega_loss * (p_t1r - p_1)
 
-    s_2_points = s_2l + s_2u[1:] # Sum the two lists into one
+#     # ENTROPY EVALUATION
+#     s_2 = s_1 - R * ln(p_t2r / p_t1r) 
     
-    # Generate a spline f(r) to keep on using symbolic computations below
-    s_2 = interpolating_spline(1, r, np.linspace(R_h, R_t, points + 1), s_2_points)
-
-    ## Compute the mass flow at the inlet
-    rr = np.linspace(R_h, R_t, 100) # Extremes of integration
+#     points = 8 // 2  * 2 # Number of points in which we compute s_2, rounded to the nearest even integer
+#     s_2l = [ s_2m ] # From R_m to tip
+#     s_2u = [ s_2m ] # From hub to R_m
     
-    integrand_2 = [] # 2 * pi * r * V_a2 * rho_2
-    for radius in rr:
-        integrand_2.append(2 * np.pi * radius * (V_a2.subs(r,radius)).evalf() * (rho_2.subs(r,radius)).evalf() ) 
+#     deltaR = (R_t - R_h)/ points
+#     i = 0
+#     for radius in np.linspace(R_m, R_t, points // 2):
+#         s_2u.append(s_2u[i] + deltaR * (ds2_dr.subs(r,radius)).evalf())
+#         i=i+1
+#     i = 0
+#     for radius in np.linspace(R_m, R_h, points // 2):
+#         s_2l.append(s_2l[i] - deltaR * (ds2_dr.subs(r,radius)).evalf())
+#         i=i+1
+#     s_2l = list(reversed(s_2l)) # The list was built in reverse, invert it
 
-
-    m_dot_trap = np.trapz(integrand_2, rr)
-
-    err  = 1 - m_dot_trap/m_dot_req # Error
-    V_a2m = V_a2m*(1 + err) # New axial velocity
-    iter += 1
-    print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
-    print("err = "+ str(err))
-
-L_eul = U * (V_t2 - V_t1)
-chi = (W_1**2 - W_2**2)/(2*L_eul)
-
-
-# Plot inlet and outlet velocity triangles at hub, mean radius and tip
-# P stands for plotting
-
-fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(3, 6), dpi=65) # Create figure
-
-j = 0 # Index used to move through the subplots
-for i in [R_h, R_m, R_t]:
-    # Evaluate the quantities to plot on the desired radius
-    U_P   = float(U.subs(r,   i).evalf())
-    V_a1P = float(V_a1.subs(r,i).evalf())
-    V_t1P = float(V_t1.subs(r,i).evalf())
-    W_a1P = float(W_a1.subs(r,i).evalf())
-    W_t1P = float(W_t1.subs(r,i).evalf())
-    V_a2P = float(V_a2.subs(r,i).evalf())
-    V_t2P = float(V_t2.subs(r,i).evalf())
-    W_a2P = float(W_a2.subs(r,i).evalf())
-    W_t2P = float(W_t2.subs(r,i).evalf())
-
-    # axs[j].grid() #Add grid
+#     s_2_points = s_2l + s_2u[1:] # Sum the two lists into one
     
-    #Plot inlet and outlet triangles
-    axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
-    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red","red"])
-    
-    axs.flat[j].set_xlim(-50, 300) #Set the limits for the x axis
-    axs.flat[j].set_ylim(-5, 200)  #Set the limits for the y axis
-    
-    axs[j].set_aspect('equal') #Equal aspect ratio axes
+#     # Generate a spline f(r) to keep on using symbolic computations below
+#     s_2 = interpolating_spline(1, r, np.linspace(R_h, R_t, points + 1), s_2_points)
 
-    j = j+1
-plt.show()
+#     ## Compute the mass flow at the inlet
+#    
+    
+#     integrand_2 = [] # 2 * pi * r * V_a2 * rho_2
+#     for radius in rr:
+#         integrand_2.append(2 * np.pi * radius * (V_a2.subs(r,radius)).evalf() * (rho_2.subs(r,radius)).evalf() ) 
+
+
+#     m_dot_trap = np.trapz(integrand_2, rr)
+
+#     err  = 1 - m_dot_trap/m_dot_req # Error
+#     V_a2m = V_a2m*(1 + err) # New axial velocity
+#     iter += 1
+#     print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+#     print("err = "+ str(err))
+
+# L_eul = U * (V_t2 - V_t1)
+# chi = (W_1**2 - W_2**2)/(2*L_eul)
+
+
+# # Plot inlet and outlet velocity triangles at hub, mean radius and tip
+# # P stands for plotting
+
+# fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(3, 6), dpi=65) # Create figure
+
+# j = 0 # Index used to move through the subplots
+# for i in [R_h, R_m, R_t]:
+#     # Evaluate the quantities to plot on the desired radius
+#     U_P   = float(U.subs(r,   i).evalf())
+#     V_a1P = float(V_a1.subs(r,i).evalf())
+#     V_t1P = float(V_t1.subs(r,i).evalf())
+#     W_a1P = float(W_a1.subs(r,i).evalf())
+#     W_t1P = float(W_t1.subs(r,i).evalf())
+#     V_a2P = float(V_a2.subs(r,i).evalf())
+#     V_t2P = float(V_t2.subs(r,i).evalf())
+#     W_a2P = float(W_a2.subs(r,i).evalf())
+#     W_t2P = float(W_t2.subs(r,i).evalf())
+
+#     # axs[j].grid() #Add grid
+    
+#     #Plot inlet and outlet triangles
+#     axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
+#     axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red","red"])
+    
+#     axs.flat[j].set_xlim(-50, 300) #Set the limits for the x axis
+#     axs.flat[j].set_ylim(-5, 200)  #Set the limits for the y axis
+    
+#     axs[j].set_aspect('equal') #Equal aspect ratio axes
+
+#     j = j+1
+# plt.show()
 
