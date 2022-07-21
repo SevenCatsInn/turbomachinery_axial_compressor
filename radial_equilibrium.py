@@ -1,4 +1,5 @@
 ### Radial equilibrium script ###
+# exec(open("./radial_equilibrium.py").read())
 
 from sympy import *
 from sympy import init_printing
@@ -121,79 +122,67 @@ print("")
 print("########## OUTLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 0.001
-rel = 0.7 # Relaxation factor
+tol = 0.001 # Tolerance of error wrt the desires mass flow value
+rel = 0.8 # Relaxation factor
 iter = 1
 
 
 # Inputs
 # Discretization
 pts = 101  # Total number of points across the radius, uneven!
-rr = np.linspace(R_h, R_t, pts ) # Extremes of integration
-deltaR = (R_t - R_h)/ (pts - 1)
-mean_index = pts//2  # Index of the various list corresponding to mean radius quantities
+rr = np.linspace(R_h, R_t, pts ) # Discrete space of the radii over which we compute our quantities
+deltaR = (R_t - R_h)/ (pts - 1) # Radius interval between points
+mean_index = pts//2  # Index of the various lists corresponding to mean radius quantities
 
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss = 0.8
-s_1 = 0
-s_2 = list(s_1 * ones(1,pts)) # Initial radial entropy distribution in 2
-ds_2 = list(ds_1 * ones(1,pts)) # Initial assumption, negligible s variation
+omega_loss = 0.8 # Coefficient of loss
+s_1 = 0 # Initial entropi
+s_2 = list(s_1 * ones(1,pts))   # Initial radial entropy distribution in 2
+ds_2 = list(ds_1 * ones(1,pts)) # Dertivative wrt r of entropy
 
 V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vortex)
-h_t2 = h_t1 + U * (V_t2 - V_t1)
-T_t2 = h_t2 / c_p
+h_t2 = h_t1 + U * (V_t2 - V_t1) # Total enthalpy in 2 
+T_t2 = h_t2 / c_p # Total temperature
 
-T_2 = list(T_2m * ones(1,pts) )
+T_2 = list(T_2m * ones(1,pts) ) # Static temperature
 
-dh_t2_lst = []
-T_t2_lst = []
-V_t2_lst = []
-drV_t2_lst = []
+# Initiate lists
+dh_t2_lst , T_t2_lst, V_t2_lst, drV_t2_lst = ([] for t in range(4))
 
+# Evaluate the quantities (exact expressions) on our discrete radii domain rr
 for radius in rr:
     dh_t2_lst.append(diff(h_t2,r).subs(r,radius).evalf())
     T_t2_lst.append(T_t2.subs(r,radius).evalf())
     V_t2_lst.append(V_t2.subs(r,radius).evalf())
     drV_t2_lst.append(diff(r*V_t2,r).subs(r,radius).evalf())
 
-dh_t2 = dh_t2_lst
-T_t2 = T_t2_lst
-V_t2 = V_t2_lst
-drV_t2 = drV_t2_lst
+# Rename the lists for convenience
+dh_t2 = dh_t2_lst             
+T_t2 = T_t2_lst       
+V_t2 = V_t2_lst       
+drV_t2 = drV_t2_lst       
 
 # This loop can be avoided using flaired blades b_2 != b_1
-while abs(err) > tol:
+while abs(err) > tol: # Begin loop to get mass flow convergence
 
-    V_a2 = list(zeros(1,pts))
-    V_a2[mean_index] = V_a2m # Initial value for forward integration
+    V_a2 = list(zeros(1,pts)) # Create the list
+    V_a2[mean_index] = V_a2m  # Initial value for forward integration starting from mean radius
     dV_a2 = list(zeros(1,pts))
 
-    # Variable index to generate the lists 
-    # TODO: Rework the upper and lower portion into one line with for q in [m_i +- j]
+    # N.I.S.R.E. 2 numerical integration 
+    # --> Start from V_2m at R_m and move forwards and backwards up to R_t and R_h
+    # j moves from 1 to the mean_index
+    # q and k are a subloop to simplify the code, the first values of q,k corresponding to
+    # the "forwards" integration, and the second values to the "backwards" integration
     for j in list(range(0,mean_index)):
-        # Upper portion
-        dV_a2[mean_index + j] = 1 / V_a2[mean_index + j] * ( dh_t2[mean_index + j] - T_2[mean_index + j] * ds_2[mean_index + j] - V_t2[mean_index + j] / rr[mean_index + j] * drV_t2[mean_index + j] )
-        # Lower portion
-        dV_a2[mean_index - j] = 1 / V_a2[mean_index - j] * ( dh_t2[mean_index - j] - T_2[mean_index - j] * ds_2[mean_index - j] - V_t2[mean_index - j] / rr[mean_index - j] * drV_t2[mean_index - j] )
-        # Upper portion
-        V_a2[mean_index + j + 1] = V_a2[mean_index + j] + dV_a2[mean_index + j] * deltaR 
-        # Lower portion
-        V_a2[mean_index - j - 1] = V_a2[mean_index - j] - dV_a2[mean_index - j] * deltaR 
-
-    V_2 = list(zeros(1,pts))
-    alpha_2 = list(zeros(1,pts))
-    W_t2 = list(zeros(1,pts))
-    W_a2 = list(zeros(1,pts))
-    W_2 = list(zeros(1,pts))
-    beta_2 = list(zeros(1,pts))
-    p_2 = list(zeros(1,pts))
-    rho_2 = list(zeros(1,pts))
-    M_2 = list(zeros(1,pts))
-    M_2r = list(zeros(1,pts))
-    p_t2 = list(zeros(1,pts))
-    p_t2r = list(zeros(1,pts))
-    integrand_2 = list(zeros(1,pts))
+        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
+            dV_a2[q] = 1 / V_a2[q] * ( dh_t2[q] - T_2[q] * ds_2[q] - V_t2[q] / rr[q] * drV_t2[q] )
+            V_a2[q + k*1] = V_a2[q] + dV_a2[q] * k * deltaR 
+        
+        
+    # Initiate all the lists
+    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2 = (list(zeros(1,pts)) for t in range(13))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
@@ -245,40 +234,42 @@ while abs(err) > tol:
     print("err = "+ str(err))
     iter += 1
 
-print("Va_a2m = " + str(V_a2m))
+print("V_a2m = " + str(V_a2m))
 
-plt.plot(rr,p_2)
-plt.show()
-
-# # Plot inlet and outlet velocity triangles at hub, mean radius and tip
-# # P stands for plotting
-
-# fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(3, 6), dpi=65) # Create figure
-
-# j = 0 # Index used to move through the subplots
-# for i in [R_h, R_m, R_t]:
-#     # Evaluate the quantities to plot on the desired radius
-#     U_P   = float(U.subs(r,   i).evalf())
-#     V_a1P = float(V_a1.subs(r,i).evalf())
-#     V_t1P = float(V_t1.subs(r,i).evalf())
-#     W_a1P = float(W_a1.subs(r,i).evalf())
-#     W_t1P = float(W_t1.subs(r,i).evalf())
-#     V_a2P = float(V_a2.subs(r,i).evalf())
-#     V_t2P = float(V_t2.subs(r,i).evalf())
-#     W_a2P = float(W_a2.subs(r,i).evalf())
-#     W_t2P = float(W_t2.subs(r,i).evalf())
-
-#     # axs[j].grid() #Add grid
-    
-#     #Plot inlet and outlet triangles
-#     axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
-#     axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red","red"])
-    
-#     axs.flat[j].set_xlim(-50, 300) #Set the limits for the x axis
-#     axs.flat[j].set_ylim(-5, 200)  #Set the limits for the y axis
-    
-#     axs[j].set_aspect('equal') #Equal aspect ratio axes
-
-#     j = j+1
+# plt.plot(rr,V_t2)
 # plt.show()
+
+# Plot inlet and outlet velocity triangles at hub, mean radius and tip
+# P stands for plotting
+
+fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(3, 6), dpi=65) # Create figure
+
+j = 0 # Index used to move through the subplots
+for i in [R_t, R_m, R_h]:
+    # Evaluate the quantities to plot on the desired radius
+    index = (list(rr)).index(i)
+
+    U_P   = float(U.subs(r,   i).evalf())
+    V_a1P = float(V_a1.subs(r,i).evalf())
+    V_t1P = float(V_t1.subs(r,i).evalf())
+    W_a1P = float(W_a1.subs(r,i).evalf())
+    W_t1P = float(W_t1.subs(r,i).evalf())
+    V_a2P = float(V_a2[index])
+    V_t2P = float(V_t2[index])
+    W_a2P = float(W_a2[index])
+    W_t2P = float(W_t2[index])
+
+    # axs[j].grid() #Add grid
+    
+    #Plot inlet and outlet triangles
+    axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
+    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red","red"])
+    
+    axs.flat[j].set_xlim(-50, 300) #Set the limits for the x axis
+    axs.flat[j].set_ylim(-5, 250)  #Set the limits for the y axis
+    
+    axs[j].set_aspect('equal') #Equal aspect ratio axes
+
+    j = j+1
+plt.show()
 
