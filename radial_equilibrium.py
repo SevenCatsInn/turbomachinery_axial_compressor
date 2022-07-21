@@ -133,7 +133,7 @@ rr = np.linspace(R_h, R_t, pts ) # Extremes of integration
 deltaR = (R_t - R_h)/ (pts - 1)
 
 omega_loss = 0.5
-ds_2 = list(ds_1 * ones(1,pts) ) # Initial assumption, negligible s variation
+ds_2_lst = list(ds_1 * ones(1,pts) ) # Initial assumption, negligible s variation
 s_2m = 0   # Reference arbitrary value at mean radius
 s_2 = s_2m # Initial radial entropy distribution in 2
 
@@ -141,30 +141,47 @@ V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vort
 h_t2 = h_t1 + U * (V_t2 - V_t1)
 T_t2 = h_t2 / c_p
 
-T_2 = list(T_2m * ones(1,pts) )
+T_2_lst = list(T_2m * ones(1,pts) )
+
+dh_t2_lst = []
+T_t2_lst = []
+V_t2_lst = []
+drV_t2_lst = []
 
 for radius in rr:
-    h_t2_lst.append(h_t2.subs(r,radius).evalf())
+    dh_t2_lst.append(diff(h_t2,r).subs(r,radius).evalf())
     T_t2_lst.append(T_t2.subs(r,radius).evalf())
     V_t2_lst.append(V_t2.subs(r,radius).evalf())
-    dV_t2_lst.append(diff(V_t2,r).subs(r,radius).evalf())
-    
-
+    drV_t2_lst.append(diff(r*V_t2,r).subs(r,radius).evalf())
 
 # This loop can be avoided using flaired blades b_2 != b_1
 ##### while abs(err) > tol:
 
 
+mean_index = pts//2  # Index of the various list corresponding to mean radius quantities
 
-mean_index = pts//2 + 1
-V_2a = [V_a2m]
+V_a2 = list(zeros(1,pts))
+V_a2[mean_index] = V_a2m # Initial value for forward integration
+dV_a2 = list(zeros(1,pts))
 
-j = 0
-for radius in rr:
-    dV_a[mean_index + j] = 1 / V_2aU[j] * ( h_t2[mean_index + j] - T_2[mean_index+j] * ds_2.subs(r,radius).evalf() - V_t2.subs(r,radius).evalf() / radius * diff(r*V_t2,r).subs(r,radius).evalf() )
+# Variable index to generate the lists
+for j in list(range(0,mean_index)):
+    # Upper portion
+    
+    dV_a2[mean_index + j] = 1 / V_a2[mean_index + j] * ( dh_t2_lst[mean_index + j] - T_2_lst[mean_index + j] * ds_2_lst[mean_index + j] - V_t2_lst[mean_index + j] / rr[mean_index + j] * drV_t2_lst[mean_index + j] )
+    
+    dV_a2[mean_index - j] = 1 / V_a2[mean_index - j] * ( dh_t2_lst[mean_index - j] - T_2_lst[mean_index - j] * ds_2_lst[mean_index - j] - V_t2_lst[mean_index - j] / rr[mean_index - j] * drV_t2_lst[mean_index - j] )
+    
+    V_a2[mean_index + j + 1] = V_a2[mean_index + j] + dV_a2[mean_index + j] * deltaR 
+    
+    V_a2[mean_index - j - 1] = V_a2[mean_index - j] - dV_a2[mean_index - j] * deltaR 
+
+    
+print(V_a2)
+
+    
 
 
-    j = j + 1
 
 
 # domU = np.linspace(R_m,R_t, pts//2 - 1)
