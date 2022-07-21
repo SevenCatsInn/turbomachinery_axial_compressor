@@ -135,7 +135,7 @@ mean_index = pts//2  # Index of the various list corresponding to mean radius qu
 
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss = 1.2
+omega_loss = 0.8
 s_1 = 0
 s_2 = list(s_1 * ones(1,pts)) # Initial radial entropy distribution in 2
 ds_2 = list(ds_1 * ones(1,pts)) # Initial assumption, negligible s variation
@@ -226,9 +226,9 @@ while abs(err) > tol:
         s_2[j]  = s_1 - R * ln(p_t2r[j] / p_t1r_tmp)
 
     ds_2 = []
-    [ds_2.append( (s_2[i-1] - s_2[i+1]) / (2*deltaR) ) for i in range(1,len(s_2) - 1)]
+    [ds_2.append( (s_2[i+1] - s_2[i-1]) / (2*deltaR) ) for i in range(1,len(s_2) - 1)]
 
-    ds_2 = [(s_2[1] - s_2[0]) / deltaR] + ds_2 + [(s_2[-2] - s_2[-1]) / deltaR]
+    ds_2 = [(s_2[1] - s_2[0]) / deltaR] + ds_2 + [(s_2[-1] - s_2[-2]) / deltaR]
 
     # print(ds_2)
     # plot(p_t1r, (r,R_h,R_t))
@@ -246,7 +246,9 @@ while abs(err) > tol:
     iter += 1
 
 print("Va_a2m = " + str(V_a2m))
-print(p_2)
+
+plt.plot(rr,p_2)
+plt.show()
 
 # # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # # P stands for plotting
