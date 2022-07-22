@@ -90,3 +90,30 @@ V2=[V2a, V2t]
 xi_new=(V1a**2-V2a**2+V1t**2-V2t**2+2*Um_ax*(V2t-V1t))/(2*L_eul_ax)
 xi=(W1_mag**2-W2_mag_new**2)/(2*L_eul_ax) 
 
+
+# Mean line design for the stator
+
+eta_S = 0.9
+alpha_2 = arctan(V2t/V2a)
+alpha_3 = 10 * pi/180# Design choice
+
+print(cos(alpha_2) / cos(alpha_3), "> 0.72 ?") 
+
+V3a = V2a
+V3t = V3a * tan(alpha_3)
+Tt3 = Tt2 # Imposed by thermodynamics, no work in stator
+
+err = 1e10
+tol = 0.001
+iter = 0
+
+while abs(err)>tol:
+    V2_mag=sqrt(V2a**2+V2t**2)
+    T2=Tt2-V2_mag**2/(2*cp)
+    T2is=T1+efficiency_TT_ax*(T2-T1)
+    p2=(T2is/Tt1)**(gamma/(gamma-1))*Pt1
+    rho2=p2/(R*T2)
+    V2a_new=mdot/(rho2*2*pi*b1*Rm_ax)
+    err=abs(V2a_new-V2a)
+    V2a=V2a_new
+    iter=iter+1
