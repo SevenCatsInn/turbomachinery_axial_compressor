@@ -150,6 +150,14 @@ T_2 = list(T_2m * ones(1,pts) ) # Static temperature
 # Initiate lists
 dh_t2_lst , T_t2_lst, V_t2_lst, drV_t2_lst = ([] for t in range(4))
 
+def finDiff(x,deltaX):
+    # Finite differences function over a list
+    dx = []
+    [dx.append( (x[i+1] - x[i-1]) / (2*deltaX) ) for i in range(1,len(x) - 1)]
+    dx = [(x[1] - x[0]) / deltaX] + dx + [(x[-1] - x[-2]) / deltaX]
+
+    return dx
+
 # Evaluate the quantities (exact expressions) on our discrete radii domain rr
 for radius in rr:
     dh_t2_lst.append(diff(h_t2,r).subs(r,radius).evalf())
@@ -214,10 +222,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
         s_2[j]  = s_1 - R * ln(p_t2r[j] / p_t1r_tmp)
 
-    ds_2 = []
-    [ds_2.append( (s_2[i+1] - s_2[i-1]) / (2*deltaR) ) for i in range(1,len(s_2) - 1)]
-
-    ds_2 = [(s_2[1] - s_2[0]) / deltaR] + ds_2 + [(s_2[-1] - s_2[-2]) / deltaR]
+    ds_2 = finDiff(s_2,deltaR)
 
     # print(ds_2)
     # plot(p_t1r, (r,R_h,R_t))
@@ -236,7 +241,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 print("V_a2m = " + str(V_a2m))
 
-# plt.plot(rr,V_t2)
+# plt.plot(rr,ds_2)
 # plt.show()
 
 # Plot inlet and outlet velocity triangles at hub, mean radius and tip
@@ -271,5 +276,5 @@ for i in [R_t, R_m, R_h]:
     axs[j].set_aspect('equal') #Equal aspect ratio axes
 
     j = j+1
-plt.show()
+# plt.show()
 
