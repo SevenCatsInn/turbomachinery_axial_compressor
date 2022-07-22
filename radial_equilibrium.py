@@ -136,7 +136,7 @@ mean_index = pts//2  # Index of the various lists corresponding to mean radius q
 
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss = 0.8 # Coefficient of loss
+omega_loss_R = 0.0 # Coefficient of loss
 s_1 = 0 # Initial entropi
 s_2 = list(s_1 * ones(1,pts))   # Initial radial entropy distribution in 2
 ds_2 = list(ds_1 * ones(1,pts)) # Dertivative wrt r of entropy
@@ -216,7 +216,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         p_1_tmp = p_1.subs(r,rr[j]).evalf()
         p_t1r_tmp = p_t1r.subs(r,rr[j]).evalf()
         
-        p_t2r[j] = p_t1r_tmp - omega_loss * (p_t1r_tmp - p_1_tmp)
+        p_t2r[j] = p_t1r_tmp - omega_loss_R * (p_t1r_tmp - p_1_tmp)
 
         # ENTROPY EVALUATION
 
@@ -278,3 +278,82 @@ for i in [R_t, R_m, R_h]:
     j = j+1
 # plt.show()
 
+
+print("")
+print("########## STATOR ##########")
+
+err = 1e10 # Inital value to enter the loop, meaningless
+tol = 0.001 # Tolerance of error wrt the desires mass flow value
+rel = 1 # Relaxation factor
+iter = 1
+
+# Input data !! TODO: MISSING MEAN LINE ANALYSIS DATA FOR STATOR
+omega_loss_S = 0.0
+T_3m =  305
+p_3m =  104000
+
+# de Haller criteria: V_a2 = V_a3, cos(alpha_3)> 0.72 * cos(alpha_2)
+alpha_3 = list(map(lambda x: np.arccos(0.75*np.cos(float(x))), alpha_2)) 
+V_a3 = list(map(lambda x: float(x),V_a2))
+V_t3 = list(V_a3[j] * np.tan(alpha_3[j]) for j in range(len(V_a3)))
+
+drV_t3 = drV_t2 # Free vortex distribution
+
+# Initial assumptions
+T_3 = T_2
+s_3 = s_2
+ds_3 = ds_2
+
+# Imposed by thermodynamics
+h_t3 = h_t2
+dh_t3 = dh_t2
+T_t3 = T_t2
+
+# This loop can be avoided using flaired blades b_2 != b_1
+while abs(err) > tol: # Begin loop to get mass flow convergence
+
+    dV_a3 = list(zeros(1,pts))
+    
+    # N.I.S.R.E at stator outlet (3)
+    for j in list(range(0,mean_index)):
+        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
+            dV_a3[q] = 1 / V_a3[q] * ( dh_t3[q] - T_3[q] * ds_3[q] - V_t3[q] / rr[q] * drV_t3[q] )
+            V_a3[q + k*1] = V_a3[q] + dV_a3[q] * k * deltaR 
+
+    # Initiate all the lists
+    V_3 , p_3, rho_3, M_3, p_t3, integrand_3 = (list(zeros(1,pts)) for t in range(7))
+
+    for j in list(range(pts)): # Compute quantities along the radius
+        # Kinematics
+        V_3[j] = np.sqrt(float(V_a3[j]**2 + V_t3[j]**2))
+
+        # Thermodynamics
+        T_3[j] = T_t3[j] - V_3[j]**2 / (2 * c_p)
+        p_3[j] = p_3m * (T_3[j] / T_3m)**(gamma/(gamma-1)) * exp(- (s_3[j] - s_3[mean_index]) / R)
+        rho_3[j] = p_3[j] / (R*T_3[j])
+        M_3[j]  = V_2[j] / sqrt(gamma * R * T_3[j])
+
+        integrand_3[j] = 2 * np.pi * rr[j] * rho_3[j] * V_a3[j]
+        
+        #Evaluate the q.ties in section 1 (expressions) at the current radius
+        # tmp = overwritten at every iteration, no need for a new array for _1 quantities
+        
+        p_t3[j] = p_t2[j] - omega_loss_S * (p_t2[j] - p_2[j])
+
+        # ENTROPY EVALUATION
+
+        s_3[j]  = s_2[j] - R * ln(p_t2[j] / p_t1)
+
+    ds_3 = finDiff(s_3,deltaR) # Derivative of s_3
+
+    m_dot_trap = np.trapz(integrand_3, rr)
+
+    err  = 1 - m_dot_trap/m_dot_req # Error
+    V_a3[mean_index] = V_a3[mean_index]*(1 + err * rel) # New axial velocity
+    
+    
+    print("")
+    print("---Iteration no. " + str(iter))
+    print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+    print("err = "+ str(err))
+    iter += 1
