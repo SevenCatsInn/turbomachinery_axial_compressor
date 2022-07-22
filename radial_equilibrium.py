@@ -289,18 +289,18 @@ iter = 1
 
 # Input data !! TODO: MISSING MEAN LINE ANALYSIS DATA FOR STATOR
 omega_loss_S = 0.0
-T_3m =  305
-p_3m =  104000
 
-# de Haller criteria: V_a2 = V_a3, cos(alpha_3)> 0.72 * cos(alpha_2)
-alpha_3 = list(map(lambda x: np.arccos(0.75*np.cos(float(x))), alpha_2)) 
-V_a3 = list(map(lambda x: float(x),V_a2))
-V_t3 = list(V_a3[j] * np.tan(alpha_3[j]) for j in range(len(V_a3)))
+T_3m =  300.4670265842319
+p_3m =  99020.24812171198
+V_a3m = 159.265
+V_t3m = 28.542
 
-drV_t3 = drV_t2 # Free vortex distribution
+
+V_t3 = (R_m * V_t3m / radius for radius in rr)
+drV_t3 = 0 # Free vortex distribution
 
 # Initial assumptions
-T_3 = T_2
+T_3 = list(T_3m * ones(1,pts))
 s_3 = s_2
 ds_3 = ds_2
 
@@ -312,6 +312,8 @@ T_t3 = T_t2
 # This loop can be avoided using flaired blades b_2 != b_1
 while abs(err) > tol: # Begin loop to get mass flow convergence
 
+    V_a3 = list(zeros(1,pts)) # Create the list
+    V_a3[mean_index] = V_a3m  # Initial value for forward integration starting from mean radius
     dV_a3 = list(zeros(1,pts))
     
     # N.I.S.R.E at stator outlet (3)
@@ -321,10 +323,11 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
             V_a3[q + k*1] = V_a3[q] + dV_a3[q] * k * deltaR 
 
     # Initiate all the lists
-    V_3 , p_3, rho_3, M_3, p_t3, integrand_3 = (list(zeros(1,pts)) for t in range(6))
+    V_3 , alpha_3, p_3, rho_3, M_3, p_t3, integrand_3 = (list(zeros(1,pts)) for t in range(7))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
+        alpha_3[j] =
         V_t3 = list(V_a3[j] * np.tan(alpha_3[j]) for j in range(len(V_a3)))
         V_3[j] = np.sqrt(float(V_a3[j]**2 + V_t3[j]**2))
 

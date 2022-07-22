@@ -79,6 +79,8 @@ while abs(err) > 10**(-4):
     V2a_new=mdot/(rho2*2*pi*b1*Rm_ax)
     err=abs(V2a_new-V2a)
     V2a=V2a_new
+    M2 = V2_mag / sqrt(gamma * R * T2)
+    Pt2 = p2 * (1 + (gamma-1)/2 * M2**2)**(gamma/(gamma-1))
     i=i+1
 
 
@@ -108,12 +110,16 @@ tol = 0.001
 iter = 0
 
 while abs(err)>tol:
-    V2_mag=sqrt(V2a**2+V2t**2)
-    T2=Tt2-V2_mag**2/(2*cp)
-    T2is=T1+efficiency_TT_ax*(T2-T1)
-    p2=(T2is/Tt1)**(gamma/(gamma-1))*Pt1
-    rho2=p2/(R*T2)
-    V2a_new=mdot/(rho2*2*pi*b1*Rm_ax)
-    err=abs(V2a_new-V2a)
-    V2a=V2a_new
+    V3_mag=sqrt(V3a**2+V3t**2)
+    T3=Tt3-V3_mag**2/(2*cp)
+    T3is=T2 + eta_S*(T3-T2)
+    p3=(T3is/Tt2)**(gamma/(gamma-1))*Pt2
+    rho3=p3/(R*T3)
+    V3a_new=mdot/(rho3*2*pi*b1*Rm_ax)
+    err=abs(V3a_new-V3a)
+    V3a=V3a_new
     iter=iter+1
+
+print(V3a, alpha_3,V3t)
+
+print(T3,p3)
