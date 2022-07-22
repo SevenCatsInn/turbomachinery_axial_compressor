@@ -45,13 +45,13 @@ omega_ax=Um_ax/Rm_ax
 RPM_ax=omega_ax*30/pi
 V1a=phi_ax*Um_ax
 V1t=0
-V1=[V1a V1t]
+V1=[V1a, V1t]
 V1_mag=Norm(V1)
 W1a=V1a
 W1t=V1t-Um_ax
-W1=[W1a W1t]
+W1=[W1a, W1t]
 W1_mag=Norm(W1)
-beta=atan(W1(2)/W1(1))
+beta=arctan(W1[1]/W1[0])
 
 T1=Tt1-V1_mag**2/(2*cp)
 M1=V1_mag/sqrt(gamma*R*T1)
@@ -64,7 +64,7 @@ Tt2=L_eul_ax/cp+Tt1
 W2_mag=sqrt(W1_mag**2-xi_ax*L_eul_ax*2)
 W2t=V2t-Um_ax
 W2a=sqrt(W2_mag**2-W2t**2)
-W2=[W2a W2t]
+W2=[W2a, W2t]
 
 V2a=W2a
 err=20
@@ -83,10 +83,10 @@ while abs(err) > 10**(-4):
 
 
 W2a=V2a
-W2=[W2a W2t]
+W2=[W2a, W2t]
 W2_mag_new=sqrt(W2a**2+W2t**2)
 beta2=(W2t/W2a)
-V2=[V2a V2t]
+V2=[V2a, V2t]
 xi_new=(V1a**2-V2a**2+V1t**2-V2t**2+2*Um_ax*(V2t-V1t))/(2*L_eul_ax)
 xi=(W1_mag**2-W2_mag_new**2)/(2*L_eul_ax) 
 
