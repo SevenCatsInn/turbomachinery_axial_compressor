@@ -284,7 +284,7 @@ print("########## STATOR ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
 tol = 0.001 # Tolerance of error wrt the desires mass flow value
-rel = 0.1 # Relaxation factor
+rel = 0.8 # Relaxation factor
 iter = 1
 
 # Input data !! TODO: MISSING MEAN LINE ANALYSIS DATA FOR STATOR
@@ -296,8 +296,9 @@ V_a3m = 159.265
 V_t3m = 28.542
 
 
-V_t3 = (R_m * V_t3m / radius for radius in rr)
-drV_t3 = 0 # Free vortex distribution
+V_t3 = list(R_m * V_t3m / radius for radius in rr)
+
+drV_t3 = list(zeros(1,pts)) # Free vortex distribution
 
 # Initial assumptions
 T_3 = list(T_3m * ones(1,pts))
@@ -327,8 +328,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
-        alpha_3[j] =
-        V_t3 = list(V_a3[j] * np.tan(alpha_3[j]) for j in range(len(V_a3)))
+        alpha_3[j] = atan(V_t3[j]/V_a3[j])
         V_3[j] = np.sqrt(float(V_a3[j]**2 + V_t3[j]**2))
 
         # Thermodynamics
@@ -353,7 +353,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     m_dot_trap = np.trapz(integrand_3, rr)
 
     err  = 1 - m_dot_trap/m_dot_req # Error
-    V_a3[mean_index] = V_a3[mean_index]*(1 + err * rel) # New axial velocity
+    V_a3m = V_a3m*(1 + err * rel) # New axial velocity
     
     
     print("")
@@ -362,7 +362,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("err = "+ str(err))
     iter += 1
 
-print(V_a3[mean_index])
+print("V_a3m = ",V_a3m)
 
 fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(3, 6), dpi=65) # Create figure
 
@@ -380,7 +380,7 @@ for i in [R_t, R_m, R_h]:
     # axs[j].grid() #Add grid
     
     #Plot inlet and outlet triangles
-    axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue"])
+    axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue"])
     axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red"])
     
     axs.flat[j].set_xlim(-50, 300) #Set the limits for the x axis
