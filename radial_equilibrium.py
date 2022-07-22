@@ -284,7 +284,7 @@ print("########## STATOR ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
 tol = 0.001 # Tolerance of error wrt the desires mass flow value
-rel = 1 # Relaxation factor
+rel = 0.1 # Relaxation factor
 iter = 1
 
 # Input data !! TODO: MISSING MEAN LINE ANALYSIS DATA FOR STATOR
@@ -321,10 +321,11 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
             V_a3[q + k*1] = V_a3[q] + dV_a3[q] * k * deltaR 
 
     # Initiate all the lists
-    V_3 , p_3, rho_3, M_3, p_t3, integrand_3 = (list(zeros(1,pts)) for t in range(7))
+    V_3 , p_3, rho_3, M_3, p_t3, integrand_3 = (list(zeros(1,pts)) for t in range(6))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
+        V_t3 = list(V_a3[j] * np.tan(alpha_3[j]) for j in range(len(V_a3)))
         V_3[j] = np.sqrt(float(V_a3[j]**2 + V_t3[j]**2))
 
         # Thermodynamics
@@ -357,3 +358,32 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
     print("err = "+ str(err))
     iter += 1
+
+print(V_a3[mean_index])
+
+fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(3, 6), dpi=65) # Create figure
+
+j = 0 # Index used to move through the subplots
+for i in [R_t, R_m, R_h]:
+    # Evaluate the quantities to plot on the desired radius
+    index = (list(rr)).index(i)
+
+    U_P   = float(U.subs(r,i).evalf())
+    V_a2P = float(V_a2[index])
+    V_t2P = float(V_t2[index])
+    V_a3P = float(V_a3[index])
+    V_t3P = float(V_t3[index])
+
+    # axs[j].grid() #Add grid
+    
+    #Plot inlet and outlet triangles
+    axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue"])
+    axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red"])
+    
+    axs.flat[j].set_xlim(-50, 300) #Set the limits for the x axis
+    axs.flat[j].set_ylim(-5, 250)  #Set the limits for the y axis
+    
+    axs[j].set_aspect('equal') #Equal aspect ratio axes
+
+    j = j+1
+plt.show()
