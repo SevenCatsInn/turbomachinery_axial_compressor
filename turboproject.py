@@ -1,4 +1,4 @@
-from numpy import * 
+from numpy import sqrt, arctan, tan, pi, cos
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
@@ -95,7 +95,7 @@ xi=(W1_mag**2-W2_mag_new**2)/(2*L_eul_ax)
 
 # Mean line design for the stator
 
-eta_S = 0.9
+eta_S = 0.92
 alpha_2 = arctan(V2t/V2a)
 alpha_3 = 10 * pi/180# Design choice
 
@@ -106,7 +106,7 @@ V3t = V3a * tan(alpha_3)
 Tt3 = Tt2 # Imposed by thermodynamics, no work in stator
 
 err = 1e10
-tol = 0.001
+tol = 0.0001
 iter = 0
 
 while abs(err)>tol:
@@ -120,6 +120,17 @@ while abs(err)>tol:
     V3a=V3a_new
     iter=iter+1
 
-print(V3a, alpha_3,V3t)
-
-print(T3,p3)
+# Change variables names for radial equilibrium script
+T_1m  = T1
+p_1m  = p1
+V_a1m = V1a
+V_t1m = V1t
+T_2m  = T2
+p_2m  = p2
+V_a2m = V2a
+V_t2m = V2t
+T_3m  = T3
+p_3m  = p3
+V_a3m = V3a
+V_t3m = V3t
+rpm = RPM_ax

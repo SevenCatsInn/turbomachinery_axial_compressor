@@ -1,5 +1,6 @@
 ### Radial equilibrium script ###
-# exec(open("./radial_equilibrium.py").read())
+
+exec(open("./turboproject.py").read()) # Run mean line design
 
 from sympy import *
 from sympy import init_printing
@@ -8,9 +9,7 @@ import matplotlib.pyplot as plt
 
 init_printing() 
 
-
 r = Symbol("r", positive=True) # Radius variable declaration
-
 
 ## Data from mean line design
 
@@ -20,22 +19,9 @@ b_1 = 0.2914         # Inlet blade height  [m]
 R_h = R_m - b_1 / 2  # Hub Radius          [m]   
 R_t = R_m + b_1 / 2  # Tip Radius          [m]  
 
-#Velocities
-V_a1m =  157.46  # Mean radius inlet axial velocity [m/s]
-V_t1m =  0       # Mean radius inlet tang. velocity [m/s]
-V_a2m =  161.87  # Mean radius outl. axial velocity [m/s]
-V_t2m =  68.9    # Mean radius outl. tang. velocity [m/s]
 
-rpm = 6265              # Rotations per minute [giri/mins]
 omega = 2 * pi * rpm/60 # Angular velocity     [rad/s]
 U = omega * r           # Peripheral velocity  [m/s]
-
-# Thermodynamics
-T_1m =  287.6526 # Mean radius inlet static temperature [K]
-p_1m =  86383    # Mean radius inlet static pressure    [Pa]
-T_2m =  298.09   # Mean radius outl. static temperature [K]
-p_2m =  96659    # Mean radius outl. static pressure    [Pa]
-
 
 # Thermophysical properties
 c_p = 1005  # Constant pressure specific heat [J/(kg K)]
@@ -287,14 +273,8 @@ tol = 0.001 # Tolerance of error wrt the desires mass flow value
 rel = 0.8 # Relaxation factor
 iter = 1
 
-# Input data !! TODO: MISSING MEAN LINE ANALYSIS DATA FOR STATOR
+# Input data
 omega_loss_S = 0.0
-
-T_3m =  300.4670265842319
-p_3m =  99020.24812171198
-V_a3m = 159.265
-V_t3m = 28.542
-
 
 V_t3 = list(R_m * V_t3m / radius for radius in rr)
 
