@@ -122,7 +122,7 @@ mean_index = pts//2  # Index of the various lists corresponding to mean radius q
 
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.7 # Coefficient of loss
+omega_loss_R = 0.3 # Coefficient of loss
 s_1 = 0 # Initial entropi
 s_2 = list(s_1 * ones(1,pts))   # Initial radial entropy distribution in 2
 ds_2 = list(ds_1 * ones(1,pts)) # Dertivative wrt r of entropy
@@ -272,16 +272,16 @@ rel = 0.8 # Relaxation factor
 iter = 1
 
 # Input data
-omega_loss_S = 0.0
+omega_loss_S = 0.8
 
 V_t3 = list(R_m * V_t3m / radius for radius in rr)
 
 drV_t3 = list(zeros(1,pts)) # Free vortex distribution
 
 # Initial assumptions
-T_3 = list(T_3m * ones(1,pts))
-s_3 = s_2
-ds_3 = ds_2
+T_3  = list(T_3m * ones(1,pts))
+s_3  = s_2[:]
+ds_3 = s_2[:]
 
 # Imposed by thermodynamics
 h_t3 = h_t2
@@ -375,6 +375,8 @@ p_1_lst = list(p_1.subs(r,rr[t]) for t in range(len(rr)))
 T_1_lst = list(T_1.subs(r,rr[t]) for t in range(len(rr)))
 
 #plt.plot(rr,T_1_lst)
+
+print(s_2,s_3)
 plt.plot(rr,s_2)
 plt.plot(rr,s_3)
 
