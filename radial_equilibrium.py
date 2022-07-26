@@ -124,9 +124,10 @@ iter = 1
 
 # Entropy inputs, NOTE: absolute values are meaningless
 omega_loss_R = 0.5 # Coefficient of loss
-s_1 = 0 # Initial entropi
-s_2 = list(s_1 * np.ones(pts))   # Initial radial entropy distribution in 2
-ds_2 = list(ds_1 * np.ones(pts)) # Dertivative wrt r of entropy
+
+# Need to transform s_2 and ds_2 into lists otherwise numpy will assign the same id to s_1 and s_2, even with s_2 = s_1[:] why??
+s_2  = list( s_1)    # Initial radial entropy distribution in 2
+ds_2 = list(ds_1) # Dertivative wrt r of entropy
 
 V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vortex)
 h_t2 = h_t1 + U * (V_t2 - V_t1) # Total enthalpy in 2 
