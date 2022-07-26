@@ -122,7 +122,7 @@ mean_index = pts//2  # Index of the various lists corresponding to mean radius q
 
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.3 # Coefficient of loss
+omega_loss_R = 0.5 # Coefficient of loss
 s_1 = 0 # Initial entropi
 s_2 = list(s_1 * ones(1,pts))   # Initial radial entropy distribution in 2
 ds_2 = list(ds_1 * ones(1,pts)) # Dertivative wrt r of entropy
@@ -176,7 +176,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         
         
     # Initiate all the lists
-    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2 = (list(zeros(1,pts)) for t in range(13))
+    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul = (list(zeros(1,pts)) for t in range(15))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
@@ -194,6 +194,11 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         M_2[j]  = V_2[j] / sqrt(gamma * R * T_2[j])
         M_2r[j] = W_2[j] / sqrt(gamma * R * T_2[j])
         p_t2[j] = p_2[j]*(1 + (gamma-1) / 2 * M_2[j]**2 ) ** (gamma/(gamma-1))
+
+        W_1_tmp = W_1.subs(r,rr[j]).evalf()
+        
+        L_eul[j] = U.subs(r,rr[j]).evalf() * (V_t2[j] - V_t1.subs(r,rr[j]).evalf())
+        chi[j] = (W_1_tmp**2 - W_2[j]**2) / (2 * L_eul[j])
 
         integrand_2[j] = 2 * np.pi * rr[j] * rho_2[j] * V_a2[j] 
         
@@ -254,8 +259,8 @@ for i in [R_t, R_m, R_h]:
     axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
     axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red","red"])
     
-    axs.flat[j].set_xlim(-50, 300) #Set the limits for the x axis
-    axs.flat[j].set_ylim(-5, 250)  #Set the limits for the y axis
+    axs.flat[j].set_xlim(-50, 20 + float(U.subs(r,R_t).evalf())) #Set the limits for the x axis
+    axs.flat[j].set_ylim(-5, 20 + max(float(V_a2[0]),float(V_a1.subs(r,R_t))))  #Set the limits for the y axis
     
     axs[j].set_aspect('equal') #Equal aspect ratio axes
 
@@ -272,7 +277,7 @@ rel = 0.8 # Relaxation factor
 iter = 1
 
 # Input data
-omega_loss_S = 0.8
+omega_loss_S = 0.5
 
 V_t3 = list(R_m * V_t3m / radius for radius in rr)
 
@@ -342,7 +347,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     iter += 1
 
 
-fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(3, 6), dpi=65) # Create figure
+fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(4, 7), dpi=65) # Create figure
 
 j = 0 # Index used to move through the subplots
 for i in [R_t, R_m, R_h]:
@@ -361,24 +366,55 @@ for i in [R_t, R_m, R_h]:
     axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue"])
     axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red"])
     
-    axs.flat[j].set_xlim(-50, 300) #Set the limits for the x axis
-    axs.flat[j].set_ylim(-5, 250)  #Set the limits for the y axis
+    axs.flat[j].set_xlim(-50, 20 + float(U.subs(r,R_t).evalf())) #Set the limits for the x axis
+    axs.flat[j].set_ylim(-5, 20 + max(float(V_a2[0]), float(V_a2[-1])))  #Set the limits for the y axis
     
     axs[j].set_aspect('equal') #Equal aspect ratio axes
 
     j = j+1
 
 
-plt.figure()
+# Convert expressions into arrays for plotting
+# Velocities
 V_1_lst = list(V_1.subs(r,rr[t]) for t in range(len(rr)))
+W_1_lst = list(W_1.subs(r,rr[t]) for t in range(len(rr)))
+V_a1_lst = list(V_a1.subs(r,rr[t]) for t in range(len(rr)))
+V_t1_lst = list(V_t1.subs(r,rr[t]) for t in range(len(rr)))
+
+# Thermodynamics
 p_1_lst = list(p_1.subs(r,rr[t]) for t in range(len(rr)))
 T_1_lst = list(T_1.subs(r,rr[t]) for t in range(len(rr)))
+s_1_lst = list(s_1 for t in range(len(rr)))
 
-#plt.plot(rr,T_1_lst)
 
-print(s_2,s_3)
-plt.plot(rr,s_2)
-plt.plot(rr,s_3)
+# Some more plots
+plt.figure(figsize=(5, 5), dpi=65)
+plt.plot(rr,W_1_lst)
+plt.plot(rr,W_2)
+plt.title("Relative Velocity [m/s]")
+plt.legend(["1","2","3"])
 
+plt.figure(figsize=(5, 5), dpi=65)
+plt.plot(rr,V_1_lst)
+plt.plot(rr,V_2)
+plt.plot(rr,V_3)
+plt.title("Absolute Velocity [m/s]")
+plt.legend(["1","2","3"])
+
+plt.figure(figsize=(5, 5), dpi=65)
+plt.plot(rr,p_1_lst)
+plt.plot(rr,p_2)
+plt.plot(rr,p_3)
+plt.title("Pressure [Pa]")
+plt.legend(["1","2","3"])
+
+plt.figure(figsize=(5, 5), dpi=65)
+plt.plot(rr,chi)
+plt.title("Degree of reaction")
+
+# This should be constant if a free vortex distribution is used
+# plt.figure(figsize=(5, 5), dpi=65)
+# plt.plot(rr,L_eul)
+# plt.title("Euler Work")
 
 plt.show()
