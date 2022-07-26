@@ -13,6 +13,7 @@ def finDiff(x,deltaX):
 
     return dx
 
+arrayLst = lambda x: np.array(list(x))
 
 # Geometry
 R_h = R_m - b_1 / 2  # Hub Radius          [m]   
@@ -32,7 +33,7 @@ deltaR = (R_t - R_h)/ (pts - 1) # Radius interval between points
 mean_index = pts//2  # Index of the various lists corresponding to mean radius quantities
 
 omega = 2 * pi * rpm/60           # Angular velocity     [rad/s]
-U = np.array(list( omega * rr[t] for t in range(pts))) # Peripheral velocity  [m/s]
+U = arrayLst( omega * rr[t] for t in range(pts)) # Peripheral velocity  [m/s]
 
 # Input data
 T_t1 = 300 * np.ones(pts) # [K]     --> f(r)
@@ -50,7 +51,7 @@ for j in range(pts):
     ds_1[j]  = -R * finDiff(p_t1,deltaR)[j] / p_t1[j] + c_p * finDiff(T_t1,deltaR)[j] / T_t1[j] # Derivative over r of entropy [J/(kg K)]
 
 # Set the design choice for tangential velocity distribution in the radial direction
-V_t1 = np.array(list(R_m * V_t1m / rr[t] for t in range(pts))) # e.g. Free vortex distribution r * V_t = const
+V_t1 = arrayLst(R_m * V_t1m / rr[t] for t in range(pts)) # e.g. Free vortex distribution r * V_t = const
 drV_t1 = np.zeros(pts)
 
 print("")
@@ -129,11 +130,14 @@ omega_loss_R = 0.5 # Coefficient of loss
 s_2  = list( s_1)    # Initial radial entropy distribution in 2
 ds_2 = list(ds_1) # Dertivative wrt r of entropy
 
-V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vortex)
-h_t2 = h_t1 + U * (V_t2 - V_t1) # Total enthalpy in 2 
+V_t2 = arrayLst(V_t2m * R_m / rr[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
+
+print(V_t2)
+
+h_t2 = arrayLst(h_t1[t] + U[t] * (V_t2[t] - V_t1[t]) for t in range(pts)) # Total enthalpy in 2 
 T_t2 = h_t2 / c_p # Total temperature
 
-T_2 = list(T_2m * np.ones(pts) ) # Static temperature
+T_2 = T_2m * np.ones(pts) # Static temperature
 
 # Initiate lists
 dh_t2_lst , T_t2_lst, V_t2_lst, drV_t2_lst = ([] for t in range(4))
