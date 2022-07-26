@@ -119,6 +119,7 @@ while abs(err)>tol:
     err=abs(V3a_new-V3a)
     V3a=V3a_new
     iter=iter+1
+V3 = [V3a, V3t]
 
 # Change variables names for radial equilibrium script
 T_1m  = T1

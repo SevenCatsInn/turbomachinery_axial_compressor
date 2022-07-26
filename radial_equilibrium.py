@@ -122,7 +122,7 @@ mean_index = pts//2  # Index of the various lists corresponding to mean radius q
 
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.0 # Coefficient of loss
+omega_loss_R = 0.7 # Coefficient of loss
 s_1 = 0 # Initial entropi
 s_2 = list(s_1 * ones(1,pts))   # Initial radial entropy distribution in 2
 ds_2 = list(ds_1 * ones(1,pts)) # Dertivative wrt r of entropy
@@ -227,8 +227,6 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 print("V_a2m = " + str(V_a2m))
 
-# plt.plot(rr,ds_2)
-# plt.show()
 
 # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # P stands for plotting
@@ -262,7 +260,7 @@ for i in [R_t, R_m, R_h]:
     axs[j].set_aspect('equal') #Equal aspect ratio axes
 
     j = j+1
-# plt.show()
+
 
 
 print("")
@@ -315,7 +313,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         T_3[j] = T_t3[j] - V_3[j]**2 / (2 * c_p)
         p_3[j] = p_3m * (T_3[j] / T_3m)**(gamma/(gamma-1)) * exp(- (s_3[j] - s_3[mean_index]) / R)
         rho_3[j] = p_3[j] / (R*T_3[j])
-        M_3[j]  = V_2[j] / sqrt(gamma * R * T_3[j])
+        M_3[j]  = V_3[j] / sqrt(gamma * R * T_3[j])
 
         integrand_3[j] = 2 * np.pi * rr[j] * rho_3[j] * V_a3[j]
         
@@ -326,7 +324,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
         # ENTROPY EVALUATION
 
-        s_3[j]  = s_2[j] - R * ln(p_t2[j] / p_t1)
+        s_3[j]  = s_2[j] - R * ln(p_t3[j] / p_t2[j])
 
     ds_3 = finDiff(s_3,deltaR) # Derivative of s_3
 
@@ -339,10 +337,10 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("")
     print("---Iteration no. " + str(iter))
     print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+    print("V_a3m = "+ str(V_a3m) + " [m/s]")
     print("err = "+ str(err))
     iter += 1
 
-print("V_a3m = ",V_a3m)
 
 fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(3, 6), dpi=65) # Create figure
 
@@ -369,4 +367,16 @@ for i in [R_t, R_m, R_h]:
     axs[j].set_aspect('equal') #Equal aspect ratio axes
 
     j = j+1
+
+
+plt.figure()
+V_1_lst = list(V_1.subs(r,rr[t]) for t in range(len(rr)))
+p_1_lst = list(p_1.subs(r,rr[t]) for t in range(len(rr)))
+T_1_lst = list(T_1.subs(r,rr[t]) for t in range(len(rr)))
+
+#plt.plot(rr,T_1_lst)
+plt.plot(rr,s_2)
+plt.plot(rr,s_3)
+
+
 plt.show()
