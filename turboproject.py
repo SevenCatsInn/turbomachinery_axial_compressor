@@ -134,4 +134,6 @@ T_3m  = T3
 p_3m  = p3
 V_a3m = V3a
 V_t3m = V3t
+b_1 = b1
+R_m = Rm_ax
 rpm = RPM_ax
