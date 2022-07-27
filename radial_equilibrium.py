@@ -447,4 +447,4 @@ plt.grid()
 # plt.plot(rr,L_eul)
 # plt.title("Euler Work [J/kg]")
 
-plt.show()
+# plt.show()

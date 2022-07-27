@@ -36,86 +36,38 @@ U = arrayLst( omega * rr[t] for t in range(pts)) # Peripheral velocity  [m/s]
 T_t1 = T_t3 # [K]     --> f(r)
 p_t1 = p_t3 # [Pa] --> f(r)
 s_1 = s_3
-ds_1 = np.zeros(pts)
+ds_1 = ds_3
 m_dot_req = 100 # Required mass flow [kg/s]
-T_1 = T_1m * np.ones(pts)
+T_1 = T_3
 
 # Computed Quantities
-h_t1 = c_p * T_t1 # Total enthalpy [J/kg]
-dh_t1 = finDiff(h_t1,deltaR)
+h_t1 = h_t3 # Total enthalpy [J/kg]
+dh_t1 = dh_t3
 
-for j in range(pts):
-    ds_1[j]  = -R * finDiff(p_t1,deltaR)[j] / p_t1[j] + c_p * finDiff(T_t1,deltaR)[j] / T_t1[j] # Derivative over r of entropy [J/(kg K)]
+# Tangential Velocity
+V_t1 = V_t3
 
-# Set the design choice for tangential velocity distribution in the radial direction
-# e.g. Free vortex distribution r * V_t = const
-V_t1 = arrayLst(R_m * V_t1m / rr[t] for t in range(pts)) 
-
-rV_t1 = arrayLst(rr[t] * V_t1[t] for t in range(pts))
-drV_t1 = finDiff(rV_t1, deltaR)
+rV_t1 = rV_t3
+drV_t1 = drV_t3
 
 print("")
 print("########## ROTOR INLET ##########")
 
-err = 1e10 # Inital value to enter the loop, meaningless
-tol = 1e-5
-iter= 1
+V_1 = V_3
+alpha_1 = alpha_3
+W_t1 = 
+W_a1 = V_a3
+W_1 = W_3
+beta_1 = beta_3
 
-# This loop can be eliminated by varying b_1 to accomodate for m_dot_req
-while abs(err) > tol: 
-    
-    V_a1 = np.zeros(pts) # Create the list
-    V_a1[mean_index] = V_a1m  # Initial value for forward integration starting from mean radius
-    dV_a1 = np.zeros(pts)
-
-    # N.I.S.R.E. 1 numerical integration
-    # --> Start from V_1m at R_m and move forwards and backwards up to R_t and R_h
-    # j moves from 1 to the mean_index
-    # q and k are a subloop to simplify the code, the first values of q,k corresponding to
-    # the "forwards" integration, and the second values to the "backwards" integration
-    
-    for j in list(range(0,mean_index)):
-        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
-            dV_a1[q] = 1 / V_a1[q] * ( dh_t1[q] - T_1[q] * ds_1[q] - V_t1[q] / rr[q] * drV_t1[q] )
-            V_a1[q + k*1] = V_a1[q] + dV_a1[q] * k * deltaR 
-        
-        
-    # Initiate all the lists
-    V_1 , alpha_1, W_t1, W_a1, W_1, beta_1, p_1, rho_1, M_1, M_1r, p_t1, p_t1r, integrand_1, chi, L_eul = (list(np.zeros(pts)) for t in range(15))
-
-    for j in list(range(pts)): # Compute quantities along the radius
-        # Kinematics
-        V_1[j] = np.sqrt(V_a1[j]**2 + V_t1[j]**2)
-        alpha_1[j] = np.arctan(V_t1[j]/V_a1[j])
-        W_t1[j] = V_t1[j] - U[j]
-        W_a1[j] = V_a1[j]
-        W_1[j] = np.sqrt(W_t1[j]**2 + W_a1[j]**2)
-        beta_1[j] = np.arctan(W_t1[j]/W_a1[j])
-
-        # Thermodynamics
-        T_1[j] = T_t1[j] - V_1[j]**2 / (2 * c_p)
-        p_1[j] = p_1m * (T_1[j] / T_1m)**(gamma/(gamma-1))
-        rho_1[j] = p_1[j] / (R*T_1[j])
-        M_1[j]  = V_1[j] / np.sqrt(gamma * R * T_1[j])
-        M_1r[j] = W_1[j] / np.sqrt(gamma * R * T_1[j])
-        p_t1[j]  = p_1[j]*(1 + (gamma-1) / 2 * M_1[j]**2  ) ** (gamma/(gamma-1))
-        p_t1r[j] = p_1[j]*(1 + (gamma-1) / 2 * M_1r[j]**2 ) ** (gamma/(gamma-1))
-        
-        integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
-
-    m_dot_trap = np.trapz(integrand_1, rr)
-
-    err  = 1 - m_dot_trap/m_dot_req # Error
-    V_a1m = V_a1m*(1 + err) # New axial velocity
-    
-    
-    print("")
-    print("---Iteration no. " + str(iter))
-    print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
-    print("err = "+ str(err))
-    print("V_a1m = "+ str(V_a1m) + " [m/s]")
-    iter += 1
-
+# Thermodynamics
+T_1 = T_3 
+p_1 = p_3 
+rho_1 = rho_3 
+M_1  = M_3  
+M_1r = M_13 
+p_t1  = p_t3  
+p_t1r = p_t3r 
 
 print("")
 print("########## ROTOR OUTLET ##########")
@@ -123,7 +75,6 @@ print("########## ROTOR OUTLET ##########")
 err = 1e10 # Inital value to enter the loop, meaningless
 tol = 1e-5 # Tolerance of error wrt the desires mass flow value
 iter = 1
-
 
 # Inputs
 
@@ -427,4 +378,4 @@ plt.grid()
 # plt.plot(rr,L_eul)
 # plt.title("Euler Work [J/kg]")
 
-# plt.show()
+plt.show()
