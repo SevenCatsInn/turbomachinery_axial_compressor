@@ -27,7 +27,9 @@ c_v = c_p/gamma
 R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 
 # Discretization
-pts = 101  # Total number of points across the radius, UNEVEN!
+pts = 600  # Total number of points across the radius, 
+if pts % 2 == 0: pts = pts + 1 # Make pts uneven if it's even
+
 rr = np.linspace(R_h, R_t, pts) # Discrete space of the radii over which we compute our quantities
 deltaR = (R_t - R_h)/ (pts - 1) # Radius interval between points
 mean_index = pts//2  # Index of the various lists corresponding to mean radius quantities
@@ -54,14 +56,13 @@ for j in range(pts):
 V_t1 = arrayLst(R_m * V_t1m / rr[t] for t in range(pts)) # e.g. Free vortex distribution r * V_t = const
 
 rV_t1 = arrayLst(rr[t] * V_t1[t] for t in range(pts))
-
 drV_t1 = finDiff(rV_t1, deltaR)
 
 print("")
 print("########## INLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 0.001
+tol = 1e-5
 rel = 1
 iter= 1
 
@@ -72,7 +73,12 @@ while abs(err) > tol:
     V_a1[mean_index] = V_a1m  # Initial value for forward integration starting from mean radius
     dV_a1 = np.zeros(pts)
 
-    # N.I.S.R.E. 1 numerical integration 
+    # N.I.S.R.E. 1 numerical integration
+    # --> Start from V_1m at R_m and move forwards and backwards up to R_t and R_h
+    # j moves from 1 to the mean_index
+    # q and k are a subloop to simplify the code, the first values of q,k corresponding to
+    # the "forwards" integration, and the second values to the "backwards" integration
+    
     for j in list(range(0,mean_index)):
         for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
             dV_a1[q] = 1 / V_a1[q] * ( dh_t1[q] - T_1[q] * ds_1[q] - V_t1[q] / rr[q] * drV_t1[q] )
@@ -120,7 +126,7 @@ print("")
 print("########## OUTLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 0.001 # Tolerance of error wrt the desires mass flow value
+tol = 1e-5 # Tolerance of error wrt the desires mass flow value
 rel = 0.8 # Relaxation factor
 iter = 1
 
@@ -155,10 +161,6 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     dV_a2 = list(np.zeros(pts))
 
     # N.I.S.R.E. 2 numerical integration 
-    # --> Start from V_2m at R_m and move forwards and backwards up to R_t and R_h
-    # j moves from 1 to the mean_index
-    # q and k are a subloop to simplify the code, the first values of q,k corresponding to
-    # the "forwards" integration, and the second values to the "backwards" integration
     for j in list(range(0,mean_index)):
         for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
             dV_a2[q] = 1 / V_a2[q] * ( dh_t2[q] - T_2[q] * ds_2[q] - V_t2[q] / rr[q] * drV_t2[q] )
@@ -222,11 +224,12 @@ fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(4, 7), dpi=65) #
 
 j = 0 # Index used to move through the subplots
 for i in [R_t, R_m, R_h]:
-    # Evaluate the quantities to plot on the desired radius
     
+    # Find the index of the radius we are considering
     index = np.where(np.isclose(rr, i))
     index = (index[0])[0]
-
+    
+    #Evaluate q.ties at that radius
     U_P   = U[index]
     V_a1P = V_a1[index]
     V_t1P = V_t1[index]
@@ -256,16 +259,17 @@ print("")
 print("########## STATOR ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 0.001 # Tolerance of error wrt the desires mass flow value
+tol = 1e-5 # Tolerance of error wrt the desires mass flow value
 rel = 0.8 # Relaxation factor
 iter = 1
 
 # Input data
 omega_loss_S = 0.5
 
-V_t3 = list(R_m * V_t3m / radius for radius in rr)
+V_t3 = list(R_m * V_t3m / rr[t] for t in range(pts))
 
-drV_t3 = list(np.zeros(pts)) # Free vortex distribution
+rV_t3  = arrayLst(rr[t] * V_t3[t] for t in range(pts))
+drV_t3 = finDiff(rV_t3,deltaR)
 
 # Initial assumptions
 T_3  = list(T_3m * np.ones(pts))
@@ -336,9 +340,11 @@ fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(4, 7), dpi=65) #
 j = 0 # Index used to move through the subplots
 for i in [R_t, R_m, R_h]:
 
+    # Find the index of the radius we are considering
     index = np.where(np.isclose(rr, i))
     index = (index[0])[0]
 
+    #Evaluate q.ties at that radius
     U_P   = U[index]
     V_a2P = V_a2[index]
     V_t2P = V_t2[index]
