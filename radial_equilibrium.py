@@ -21,17 +21,15 @@ arrayLst = lambda x: np.array(list(x))
 R_h = R_m - b_1 / 2  # Hub Radius          [m]   
 R_t = R_m + b_1 / 2  # Tip Radius          [m]  
 
-
-
 # Discretization
-pts = 600  # Total number of points across the radius, 
+pts = 200  # Total number of points across the radius, 
 if pts % 2 == 0: pts = pts + 1 # Make pts uneven if it's even
 
 rr = np.linspace(R_h, R_t, pts) # Discrete space of the radii over which we compute our quantities
 deltaR = (R_t - R_h)/ (pts - 1) # Radius interval between points
 mean_index = pts//2  # Index of the various lists corresponding to mean radius quantities
 
-omega = 2 * pi * rpm/60           # Angular velocity     [rad/s]
+omega = 2 * pi * rpm/60                          # Angular velocity     [rad/s]
 U = arrayLst( omega * rr[t] for t in range(pts)) # Peripheral velocity  [m/s]
 
 # Input data
@@ -50,17 +48,17 @@ for j in range(pts):
     ds_1[j]  = -R * finDiff(p_t1,deltaR)[j] / p_t1[j] + c_p * finDiff(T_t1,deltaR)[j] / T_t1[j] # Derivative over r of entropy [J/(kg K)]
 
 # Set the design choice for tangential velocity distribution in the radial direction
-V_t1 = arrayLst(R_m * V_t1m / rr[t] for t in range(pts)) # e.g. Free vortex distribution r * V_t = const
+# e.g. Free vortex distribution r * V_t = const
+V_t1 = arrayLst(R_m * V_t1m / rr[t] for t in range(pts)) 
 
 rV_t1 = arrayLst(rr[t] * V_t1[t] for t in range(pts))
 drV_t1 = finDiff(rV_t1, deltaR)
 
 print("")
-print("########## INLET ##########")
+print("########## ROTOR INLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
 tol = 1e-5
-rel = 1
 iter= 1
 
 # This loop can be eliminated by varying b_1 to accomodate for m_dot_req
@@ -108,7 +106,7 @@ while abs(err) > tol:
     m_dot_trap = np.trapz(integrand_1, rr)
 
     err  = 1 - m_dot_trap/m_dot_req # Error
-    V_a1m = V_a1m*(1 + err * rel) # New axial velocity
+    V_a1m = V_a1m*(1 + err) # New axial velocity
     
     
     print("")
@@ -120,11 +118,10 @@ while abs(err) > tol:
 
 
 print("")
-print("########## OUTLET ##########")
+print("########## ROTOR OUTLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
 tol = 1e-5 # Tolerance of error wrt the desires mass flow value
-rel = 0.8 # Relaxation factor
 iter = 1
 
 
@@ -202,25 +199,24 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     m_dot_trap = np.trapz(integrand_2, rr)
 
     err  = 1 - m_dot_trap/m_dot_req # Error
-    V_a2m = V_a2m*(1 + err * rel) # New axial velocity
+    V_a2m = V_a2m*(1 + err) # New axial velocity
     
     
     print("")
     print("---Iteration no. " + str(iter))
     print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+    print("V_a2m = " + str(V_a2m))
     print("err = "+ str(err))
     iter += 1
-
-print("V_a2m = " + str(V_a2m))
 
 
 # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # P stands for plotting
 
-fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(4, 7), dpi=65) # Create figure
+fig, axs = plt.subplots(3,1, sharex = True,  figsize=(4, 7), dpi=65) # Create figure
 
 j = 0 # Index used to move through the subplots
-for i in [R_t, R_m, R_h]:
+for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
     
     # Find the index of the radius we are considering
     index = np.where(np.isclose(rr, i))
@@ -241,23 +237,25 @@ for i in [R_t, R_m, R_h]:
     
     #Plot inlet and outlet triangles
     axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
-    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red","red"])
+    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","green","green"])
     
     axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
     axs.flat[j].set_ylim(-5,  20 + max(V_a2[0],V_a1[-1]) )  #Set the limits for the y axis
     
     axs[j].set_aspect('equal') #Equal aspect ratio axes
+    axs[j].set_ylabel(r"Axial Component $[m/s]$")
+    axs[j].set_title(name)
 
     j = j+1
 
+axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
 
 print("")
-print("########## STATOR ##########")
+print("########## STATOR OUTLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
 tol = 1e-5 # Tolerance of error wrt the desires mass flow value
-rel = 0.8 # Relaxation factor
 iter = 1
 
 # Input data
@@ -321,7 +319,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     m_dot_trap = np.trapz(integrand_3, rr)
 
     err  = 1 - m_dot_trap/m_dot_req # Error
-    V_a3m = V_a3m*(1 + err * rel) # New axial velocity
+    V_a3m = V_a3m*(1 + err) # New axial velocity
     
     
     print("")
@@ -335,7 +333,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(4, 7), dpi=65) # Create figure
 
 j = 0 # Index used to move through the subplots
-for i in [R_t, R_m, R_h]:
+for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
 
     # Find the index of the radius we are considering
     index = np.where(np.isclose(rr, i))
@@ -351,7 +349,7 @@ for i in [R_t, R_m, R_h]:
     # axs[j].grid() #Add grid
     
     #Plot inlet and outlet triangles
-    axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue"])
+    axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","green"])
     axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red"])
     
     
@@ -359,15 +357,17 @@ for i in [R_t, R_m, R_h]:
     axs.flat[j].set_ylim(-5, 20 + max(float(V_a2[0]), float(V_a2[-1])))  #Set the limits for the y axis
     
     axs[j].set_aspect('equal') #Equal aspect ratio axes
+    axs[j].set_ylabel(r"Axial Component $[m/s]$")
+    axs[j].set_title(name)
 
     j = j+1
 
-
+axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
 # Some more plots
 plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,W_1)
-plt.plot(rr,W_2)
+plt.plot(rr,W_1,"b")
+plt.plot(rr,W_2,"g")
 plt.ylabel(r" $W$ $[m/s]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
@@ -375,9 +375,9 @@ plt.title("Relative Velocity")
 plt.grid()
 
 plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,V_1)
-plt.plot(rr,V_2)
-plt.plot(rr,V_3)
+plt.plot(rr,V_1,"b")
+plt.plot(rr,V_2,"g")
+plt.plot(rr,V_3,"r")
 plt.ylabel(r"$V$ $[m/s]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
@@ -385,9 +385,9 @@ plt.title("Absolute Velocity")
 plt.grid()
 
 plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,p_1)
-plt.plot(rr,p_2)
-plt.plot(rr,p_3)
+plt.plot(rr,p_1,"b")
+plt.plot(rr,p_2,"g")
+plt.plot(rr,p_3,"r")
 plt.ylabel(r"$p$ $[Pa]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
@@ -395,9 +395,9 @@ plt.title("Static Pressure")
 plt.grid()
 
 plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,rho_1)
-plt.plot(rr,rho_2)
-plt.plot(rr,rho_3)
+plt.plot(rr,rho_1,"b")
+plt.plot(rr,rho_2,"g")
+plt.plot(rr,rho_3,"r")
 plt.ylabel(r"$\rho$ $[kg/m^3]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
@@ -405,9 +405,9 @@ plt.title("Density")
 plt.grid()
 
 plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,180/np.pi * np.array(alpha_1))
-plt.plot(rr,180/np.pi * np.array(alpha_2))
-plt.plot(rr,180/np.pi * np.array(alpha_3))
+plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
+plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
+plt.plot(rr,180/np.pi * np.array(alpha_3),"r")
 plt.ylabel(r"$\alpha$ [deg]")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
