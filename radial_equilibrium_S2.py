@@ -1,6 +1,6 @@
 ### Radial equilibrium script ###
 
-exec(open("./turboproject.py").read()) # Run mean line design
+exec(open("./turboproject_S2.py").read()) # Run mean line design
 
 import numpy as np
 import matplotlib.pyplot as plt

@@ -2,6 +2,7 @@ from numpy import sqrt, arctan, tan, pi, cos
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
+exec(open("./radial_equilibrium.py").read())
 # Thermophysical properties
 c_p = cp = 1005  # Constant pressure specific heat [J/(kg K)]
 gamma = 1.4 # Specific heat ratio
@@ -10,21 +11,22 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 
 #Input
 mdot=100 #mass flow rate
-Pt1=100000 # pressure [bar]
-Tt1=300 #inlet temperature [K]
-beta=1.15 #compression ratio
+Pt1=p_t3[mean_index] # pressure [bar]
+Tt1=T_t3[mean_index] #inlet temperature [K]
+beta=1.45/beta #compression ratio
 rho1=Pt1/(R*Tt1)
 Q=mdot/rho1
+
 
 ## Non dimensional quantities <3 <3
 
 ## axial compressor
 #vavra: get reaction degree and flow coefficient to get maximum efficiency
-phi=0.8 #from slide 10 axial compressors
+phi=0.5 #from slide 10 axial compressors
 xi=0.5 #reaction degree
-efficiency_TT=0.905
+efficiency_TT=0.926
 #determine loading
-psi=0.35 #from first graph slide 12
+psi=0.25 #from first graph slide 12
 L_is=cp*Tt1*(beta**((gamma-1)/gamma)-1)
 L_eul=L_is/efficiency_TT
 lamda=psi*2
