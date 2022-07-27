@@ -51,11 +51,10 @@ beta1=arctan(W1[1]/W1[0])
 T1=Tt1-V1_mag**2/(2*cp)
 M1=V1_mag/sqrt(gamma*R*T1)
 p1=Pt1*(1+(gamma-1)/2*M1**2)**((-gamma)/(gamma-1))
-b1=mdot/(rho1*V1a*2*pi*Rm)
 
 #quantities at station 2 (after rotor)
-V2t=L_eul/Um+V1t
-Tt2=L_eul/cp+Tt1
+V2t=L_eul/Um + V1t
+Tt2=L_eul/cp + Tt1
 W2_mag=sqrt(W1_mag**2-xi*L_eul*2)
 W2t=V2t-Um
 W2a=sqrt(W2_mag**2-W2t**2)
@@ -90,13 +89,13 @@ xi=(W1_mag**2-W2_mag_new**2)/(2*L_eul)
 
 # Mean line design for the stator
 
-alpha_2 = arctan(V2t/V2a)
-alpha_3 = 0 * pi/180# Design choice
+alpha2 = arctan(V2t/V2a)
+alpha3 = 0 * pi/180# Design choice
 
-print(cos(alpha_3) / cos(alpha_2), "> 0.72 ?") 
+print(cos(alpha3) / cos(alpha2), "> 0.72 ?") 
 
 V3a = V2a
-V3t = V3a * tan(alpha_3)
+V3t = V3a * tan(alpha3)
 Tt3 = Tt2 # Imposed by thermodynamics, no work in stator
 
 err = 1e10
@@ -134,3 +133,6 @@ rpm = RPM
 
 # print(beta)
 # print("phi,psi,chi = ", phi,psi,xi_new)
+
+print(xi_new)
+print(T_1m,p_1m,V_a1m,V_t1m,T_2m,p_2m,V_a2m,V_t2m,T_3m,p_3m,V_a3m,V_t3m,b_1,R_m,rpm)

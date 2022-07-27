@@ -53,11 +53,11 @@ drV_t1 = drV_t3
 print("")
 print("########## ROTOR INLET ##########")
 
+V_a1 = V_a3
 V_1 = V_3
 alpha_1 = alpha_3
-W_t1 = 
+W_t1 = W_t3 
 W_a1 = V_a3
-W_1 = W_3
 beta_1 = beta_3
 
 # Thermodynamics
@@ -65,7 +65,7 @@ T_1 = T_3
 p_1 = p_3 
 rho_1 = rho_3 
 M_1  = M_3  
-M_1r = M_13 
+M_1r = M_3r 
 p_t1  = p_t3  
 p_t1r = p_t3r 
 

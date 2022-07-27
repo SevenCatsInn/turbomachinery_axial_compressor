@@ -290,18 +290,25 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
             V_a3[q + k*1] = V_a3[q] + dV_a3[q] * k * deltaR 
 
     # Initiate all the lists
-    V_3 , alpha_3, p_3, rho_3, M_3, p_t3, integrand_3 = (list(np.zeros(pts)) for t in range(7))
+    V_3 , alpha_3, p_3, rho_3, M_3, p_t3, integrand_3, W_t3, W_a3, W_3, beta_3, M_3r, p_t3, p_t3r = (list(np.zeros(pts)) for t in range(14))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
         alpha_3[j] = np.arctan(V_t3[j]/V_a3[j])
         V_3[j] = np.sqrt(float(V_a3[j]**2 + V_t3[j]**2))
-
+        W_t3[j] = V_t3[j] - U[j]
+        W_a3[j] = V_a3[j]
+        W_3[j] = np.sqrt(W_t3[j]**2 + W_a3[j]**2)
+        beta_3[j] = np.arctan(W_t3[j]/W_a3[j])
+        
         # Thermodynamics
         T_3[j] = T_t3[j] - V_3[j]**2 / (2 * c_p)
         p_3[j] = p_3m * (T_3[j] / T_3m)**(gamma/(gamma-1)) * np.exp(- (s_3[j] - s_3[mean_index]) / R)
         rho_3[j] = p_3[j] / (R*T_3[j])
-        M_3[j]  = V_3[j] / np.sqrt(gamma * R * T_3[j])
+        M_3[j]   = V_3[j] / np.sqrt(gamma * R * T_3[j])
+        M_3r[j]  = W_3[j] / np.sqrt(gamma * R * T_3[j])
+        p_t3[j]  = p_3[j]*(1 + (gamma-1) / 2 * M_2[j]**2  ) ** (gamma/(gamma-1))
+        p_t3r[j] = p_3[j]*(1 + (gamma-1) / 2 * M_3r[j]**2 ) ** (gamma/(gamma-1))
 
         integrand_3[j] = 2 * np.pi * rr[j] * rho_3[j] * V_a3[j]
         
@@ -448,3 +455,4 @@ plt.grid()
 # plt.title("Euler Work [J/kg]")
 
 # plt.show()
+plt.close("all")
