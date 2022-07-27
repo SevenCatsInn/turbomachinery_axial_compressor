@@ -12,7 +12,7 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 mdot=100 #mass flow rate
 Pt1=100000 # pressure [bar]
 Tt1=300 #inlet temperature [K]
-beta=1.17 #compression ratio
+beta=1.18 #compression ratio
 rho1=Pt1/(R*Tt1)
 Q=mdot/rho1
 
@@ -22,6 +22,7 @@ Q=mdot/rho1
 #vavra: get reaction degree and flow coefficient to get maximum efficiency
 phi=0.65 #from slide 10 axial compressors
 xi=0.9 #reaction degree
+Rm=0.3 #mean line radius
 efficiency_TT=0.9
 eta_S = 0.92
 eta_R = 0.92
@@ -33,7 +34,6 @@ L_eul=L_is/efficiency_TT
 lamda=psi*2
 #psi=L_eul/U**2
 Um=sqrt(L_eul/psi)
-Rm=0.30 #mean line radius
 omega=Um/Rm
 RPM=omega*30/pi
 V1a=phi*Um
@@ -88,9 +88,9 @@ xi=(W1_mag**2-W2_mag_new**2)/(2*L_eul)
 
 # Mean line design for the stator
 alpha_2 = arctan(V2t/V2a)
-alpha_3 = 10 * pi/180# Design choice
+alpha_3 = 8 * pi/180# Design choice
 
-print(cos(alpha_2) / cos(alpha_3), "> 0.72 ?") 
+print(cos(alpha_3) / cos(alpha_2), "> 0.72 ?") 
 
 V3a = V2a
 V3t = V3a * tan(alpha_3)

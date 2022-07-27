@@ -24,7 +24,7 @@ Q=mdot/rho1
 ## axial compressor
 #vavra: get reaction degree and flow coefficient to get maximum efficiency
 xi=0.5 #reaction degree
-efficiency_TT=0.913
+efficiency_TT=0.92
 eta_S = 0.92
 eta_R = 0.92
 Um = U[mean_index]
@@ -94,7 +94,7 @@ xi=(W1_mag**2-W2_mag_new**2)/(2*L_eul)
 alpha_2 = arctan(V2t/V2a)
 alpha_3 = 10 * pi/180# Design choice
 
-print(cos(alpha_2) / cos(alpha_3), "> 0.72 ?") 
+print(cos(alpha_3) / cos(alpha_2), "> 0.72 ?") 
 
 V3a = V2a
 V3t = V3a * tan(alpha_3)
@@ -134,4 +134,4 @@ R_m = Rm
 rpm = RPM
 
 
-# print(T_1m, p_1m, V_a1m, V_t1m, T_2m, p_2m, V_a2m, V_t2m, T_3m, p_3m, V_a3m, V_t3m, b_1, R_m, rpm)
+print(T_1m, p_1m, V_a1m, V_t1m, T_2m, p_2m, V_a2m, V_t2m, T_3m, p_3m, V_a3m, V_t3m, b_1, R_m, rpm)
