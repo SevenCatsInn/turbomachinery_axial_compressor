@@ -12,7 +12,7 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 mdot=100 #mass flow rate
 Pt1=100000 # pressure [bar]
 Tt1=300 #inlet temperature [K]
-beta=1.15 #compression ratio
+beta=1.17 #compression ratio
 rho1=Pt1/(R*Tt1)
 Q=mdot/rho1
 
@@ -20,11 +20,14 @@ Q=mdot/rho1
 
 ## axial compressor
 #vavra: get reaction degree and flow coefficient to get maximum efficiency
-phi=0.8 #from slide 10 axial compressors
-xi=0.5 #reaction degree
-efficiency_TT=0.905
+phi=0.65 #from slide 10 axial compressors
+xi=0.9 #reaction degree
+efficiency_TT=0.9
+eta_S = 0.92
+eta_R = 0.92
+
 #determine loading
-psi=0.35 #from first graph slide 12
+psi=0.27 #from first graph slide 12
 L_is=cp*Tt1*(beta**((gamma-1)/gamma)-1)
 L_eul=L_is/efficiency_TT
 lamda=psi*2
@@ -63,7 +66,7 @@ i=0
 while abs(err) > 10**(-4):
     V2_mag=sqrt(V2a**2+V2t**2)
     T2=Tt2-V2_mag**2/(2*cp)
-    T2is=T1+efficiency_TT*(T2-T1)
+    T2is=T1+eta_R*(T2-T1)
     p2=(T2is/Tt1)**(gamma/(gamma-1))*Pt1
     rho2=p2/(R*T2)
     V2a_new=mdot/(rho2*2*pi*b1*Rm)
@@ -84,8 +87,6 @@ xi=(W1_mag**2-W2_mag_new**2)/(2*L_eul)
 
 
 # Mean line design for the stator
-
-eta_S = 0.92
 alpha_2 = arctan(V2t/V2a)
 alpha_3 = 10 * pi/180# Design choice
 

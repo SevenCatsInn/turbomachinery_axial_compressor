@@ -14,6 +14,7 @@ mdot=100 #mass flow rate
 Pt1=p_t3[mean_index] # pressure [bar]
 Tt1=T_t3[mean_index] #inlet temperature [K]
 beta=1.45/beta #compression ratio
+Rm=0.30 #mean line radius
 rho1=Pt1/(R*Tt1)
 Q=mdot/rho1
 
@@ -22,21 +23,24 @@ Q=mdot/rho1
 
 ## axial compressor
 #vavra: get reaction degree and flow coefficient to get maximum efficiency
-phi=0.5 #from slide 10 axial compressors
 xi=0.5 #reaction degree
-efficiency_TT=0.926
+efficiency_TT=0.913
+eta_S = 0.92
+eta_R = 0.92
+Um = U[mean_index]
+
 #determine loading
-psi=0.25 #from first graph slide 12
 L_is=cp*Tt1*(beta**((gamma-1)/gamma)-1)
 L_eul=L_is/efficiency_TT
+
+psi = L_eul / Um**2
 lamda=psi*2
-#psi=L_eul/U**2
-Um=sqrt(L_eul/psi)
-Rm=0.30 #mean line radius
-omega=Um/Rm
-RPM=omega*30/pi
-V1a=phi*Um
-V1t=0
+omega=rpm * pi / 30
+V1a=V_a3[mean_index]
+phi = V1a / Um
+V1t=V_t3[mean_index]
+
+print(phi,psi)
 V1=[V1a, V1t]
 V1_mag=Norm(V1)
 W1a=V1a
@@ -65,7 +69,7 @@ i=0
 while abs(err) > 10**(-4):
     V2_mag=sqrt(V2a**2+V2t**2)
     T2=Tt2-V2_mag**2/(2*cp)
-    T2is=T1+efficiency_TT*(T2-T1)
+    T2is=T1+eta_R*(T2-T1)
     p2=(T2is/Tt1)**(gamma/(gamma-1))*Pt1
     rho2=p2/(R*T2)
     V2a_new=mdot/(rho2*2*pi*b1*Rm)
@@ -87,7 +91,6 @@ xi=(W1_mag**2-W2_mag_new**2)/(2*L_eul)
 
 # Mean line design for the stator
 
-eta_S = 0.92
 alpha_2 = arctan(V2t/V2a)
 alpha_3 = 10 * pi/180# Design choice
 
@@ -129,3 +132,6 @@ V_t3m = V3t
 b_1 = b1
 R_m = Rm
 rpm = RPM
+
+
+# print(T_1m, p_1m, V_a1m, V_t1m, T_2m, p_2m, V_a2m, V_t2m, T_3m, p_3m, V_a3m, V_t3m, b_1, R_m, rpm)
