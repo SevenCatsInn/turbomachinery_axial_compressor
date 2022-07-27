@@ -5,6 +5,8 @@ exec(open("./turboproject.py").read()) # Run mean line design
 import numpy as np
 import matplotlib.pyplot as plt
 
+plt.rcParams.update({"text.usetex": True})
+
 def finDiff(x,deltaX):
     # Finite differences function over a list
     dx = []
@@ -20,11 +22,6 @@ R_h = R_m - b_1 / 2  # Hub Radius          [m]
 R_t = R_m + b_1 / 2  # Tip Radius          [m]  
 
 
-# Thermophysical properties
-c_p = 1005  # Constant pressure specific heat [J/(kg K)]
-gamma = 1.4 # Specific heat ratio
-c_v = c_p/gamma
-R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 
 # Discretization
 pts = 600  # Total number of points across the radius, 
@@ -357,6 +354,7 @@ for i in [R_t, R_m, R_h]:
     axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue"])
     axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red"])
     
+    
     axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
     axs.flat[j].set_ylim(-5, 20 + max(float(V_a2[0]), float(V_a2[-1])))  #Set the limits for the y axis
     
@@ -367,33 +365,66 @@ for i in [R_t, R_m, R_h]:
 
 
 # Some more plots
-plt.figure(figsize=(5, 5), dpi=65)
+plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,W_1)
 plt.plot(rr,W_2)
-plt.title("Relative Velocity [m/s]")
-plt.legend(["1","2","3"])
+plt.ylabel(r" $W$ $[m/s]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Relative Velocity")
+plt.grid()
 
-plt.figure(figsize=(5, 5), dpi=65)
+plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,V_1)
 plt.plot(rr,V_2)
 plt.plot(rr,V_3)
-plt.title("Absolute Velocity [m/s]")
-plt.legend(["1","2","3"])
+plt.ylabel(r"$V$ $[m/s]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Absolute Velocity")
+plt.grid()
 
-plt.figure(figsize=(5, 5), dpi=65)
+plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,p_1)
 plt.plot(rr,p_2)
 plt.plot(rr,p_3)
-plt.title("Pressure [Pa]")
-plt.legend(["1","2","3"])
+plt.ylabel(r"$p$ $[Pa]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Static Pressure")
+plt.grid()
 
-plt.figure(figsize=(5, 5), dpi=65)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,rho_1)
+plt.plot(rr,rho_2)
+plt.plot(rr,rho_3)
+plt.ylabel(r"$\rho$ $[kg/m^3]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Density")
+plt.grid()
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,180/np.pi * np.array(alpha_1))
+plt.plot(rr,180/np.pi * np.array(alpha_2))
+plt.plot(rr,180/np.pi * np.array(alpha_3))
+plt.ylabel(r"$\alpha$ [deg]")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Absolute Flow Angle")
+plt.grid()
+
+
+plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,chi)
-plt.title("Degree of reaction")
+plt.ylabel(r"$\chi$")
+plt.xlabel(r"$r \  [m]$")
+plt.title("Reaction Degree")
+plt.grid()
 
-# This should be constant if a free vortex distribution is used
-# plt.figure(figsize=(5, 5), dpi=65)
+# # This should be constant if a free vortex distribution is used
+# plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,L_eul)
-# plt.title("Euler Work")
+# plt.title("Euler Work [J/kg]")
 
 plt.show()

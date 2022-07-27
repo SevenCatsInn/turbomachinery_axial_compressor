@@ -2,19 +2,21 @@ from numpy import sqrt, arctan, tan, pi, cos
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
-#compressor project
+# Thermophysical properties
+c_p = cp = 1005  # Constant pressure specific heat [J/(kg K)]
+gamma = 1.4 # Specific heat ratio
+c_v = c_p/gamma
+R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
+
+#Input
 mdot=100 #mass flow rate
 Pt1=100000 # pressure [bar]
 Tt1=300 #inlet temperature [K]
 beta=1.15 #compression ratio
-cp=1004
-gamma=1.4
-R=8314.46/28.84
 rho1=Pt1/(R*Tt1)
 Q=mdot/rho1
 
-
-## Non dimensional quantities
+## Non dimensional quantities <3 <3
 #centrifugal compressor
 #chose specific rotational speed and specific diameter from Balje Diagram
 omega_s_centr=2
