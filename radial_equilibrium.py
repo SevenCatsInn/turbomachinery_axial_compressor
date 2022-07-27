@@ -28,7 +28,7 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 
 # Discretization
 pts = 101  # Total number of points across the radius, UNEVEN!
-rr = np.linspace(R_h, R_t, pts ) # Discrete space of the radii over which we compute our quantities
+rr = np.linspace(R_h, R_t, pts) # Discrete space of the radii over which we compute our quantities
 deltaR = (R_t - R_h)/ (pts - 1) # Radius interval between points
 mean_index = pts//2  # Index of the various lists corresponding to mean radius quantities
 
@@ -52,7 +52,10 @@ for j in range(pts):
 
 # Set the design choice for tangential velocity distribution in the radial direction
 V_t1 = arrayLst(R_m * V_t1m / rr[t] for t in range(pts)) # e.g. Free vortex distribution r * V_t = const
-drV_t1 = np.zeros(pts)
+
+rV_t1 = arrayLst(rr[t] * V_t1[t] for t in range(pts))
+
+drV_t1 = finDiff(rV_t1, deltaR)
 
 print("")
 print("########## INLET ##########")
@@ -94,7 +97,8 @@ while abs(err) > tol:
         rho_1[j] = p_1[j] / (R*T_1[j])
         M_1[j]  = V_1[j] / np.sqrt(gamma * R * T_1[j])
         M_1r[j] = W_1[j] / np.sqrt(gamma * R * T_1[j])
-        p_t1[j] = p_1[j]*(1 + (gamma-1) / 2 * M_1[j]**2 ) ** (gamma/(gamma-1))
+        p_t1[j]  = p_1[j]*(1 + (gamma-1) / 2 * M_1[j]**2  ) ** (gamma/(gamma-1))
+        p_t1r[j] = p_1[j]*(1 + (gamma-1) / 2 * M_1r[j]**2 ) ** (gamma/(gamma-1))
         
         integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
 
@@ -132,30 +136,16 @@ ds_2 = list(ds_1) # Dertivative wrt r of entropy
 
 V_t2 = arrayLst(V_t2m * R_m / rr[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
 
-print(V_t2)
+rV_t2  = arrayLst(rr[t] * V_t2[t] for t in range(pts))
+drV_t2 = finDiff(rV_t2,deltaR)
 
 h_t2 = arrayLst(h_t1[t] + U[t] * (V_t2[t] - V_t1[t]) for t in range(pts)) # Total enthalpy in 2 
 T_t2 = h_t2 / c_p # Total temperature
 
 T_2 = T_2m * np.ones(pts) # Static temperature
 
-# Initiate lists
-dh_t2_lst , T_t2_lst, V_t2_lst, drV_t2_lst = ([] for t in range(4))
+dh_t2 = finDiff(h_t2,deltaR)
 
-
-
-# Evaluate the quantities (exact np.expressions) on our discrete radii domain rr
-for radius in rr:
-    dh_t2_lst.append(diff(h_t2,r).subs(r,radius).evalf())
-    T_t2_lst.append(T_t2.subs(r,radius).evalf())
-    V_t2_lst.append(V_t2.subs(r,radius).evalf())
-    drV_t2_lst.append(diff(r*V_t2,r).subs(r,radius).evalf())
-
-# Rename the lists for convenience
-dh_t2 = dh_t2_lst             
-T_t2 = T_t2_lst       
-V_t2 = V_t2_lst       
-drV_t2 = drV_t2_lst       
 
 # This loop can be avoided using flaired blades b_2 != b_1
 while abs(err) > tol: # Begin loop to get mass flow convergence
@@ -182,7 +172,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         # Kinematics
         V_2[j] = np.sqrt(V_a2[j]**2 + V_t2[j]**2)
         alpha_2[j] = np.arctan(V_t2[j]/V_a2[j])
-        W_t2[j] = V_t2[j] - U.subs(r,rr[j])
+        W_t2[j] = V_t2[j] - U[j]
         W_a2[j] = V_a2[j]
         W_2[j] = np.sqrt(W_t2[j]**2 + W_a2[j]**2)
         beta_2[j] = np.arctan(W_t2[j]/W_a2[j])
@@ -195,28 +185,20 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         M_2r[j] = W_2[j] / np.sqrt(gamma * R * T_2[j])
         p_t2[j] = p_2[j]*(1 + (gamma-1) / 2 * M_2[j]**2 ) ** (gamma/(gamma-1))
 
-        W_1_tmp = W_1.subs(r,rr[j]).evalf()
-        
-        L_eul[j] = U.subs(r,rr[j]).evalf() * (V_t2[j] - V_t1.subs(r,rr[j]).evalf())
-        chi[j] = (W_1_tmp**2 - W_2[j]**2) / (2 * L_eul[j])
+
+        L_eul[j] = U[j] * (V_t2[j] - V_t1[j])
+        chi[j] = (W_1[j]**2 - W_2[j]**2) / (2 * L_eul[j])
 
         integrand_2[j] = 2 * np.pi * rr[j] * rho_2[j] * V_a2[j] 
-        
-        #Evaluate the q.ties in section 1 (np.expressions) at the current radius
-        # tmp = overwritten at every iteration, no need for a new array for _1 quantities
-        p_1_tmp = p_1.subs(r,rr[j]).evalf()
-        p_t1r_tmp = p_t1r.subs(r,rr[j]).evalf()
-        
-        p_t2r[j] = p_t1r_tmp - omega_loss_R * (p_t1r_tmp - p_1_tmp)
+                
+
+        p_t2r[j] = p_t1r[j] - omega_loss_R * (p_t1r[j] - p_1[j])
 
         # ENTROPY EVALUATION
 
-        s_2[j]  = s_1 - R * ln(p_t2r[j] / p_t1r_tmp)
+        s_2[j]  = s_1[j] - R * np.log(p_t2r[j] / p_t1r[j])
 
     ds_2 = finDiff(s_2,deltaR)
-
-    # print(ds_2)
-    # plot(p_t1r, (r,R_h,R_t))
 
     m_dot_trap = np.trapz(integrand_2, rr)
 
@@ -236,22 +218,24 @@ print("V_a2m = " + str(V_a2m))
 # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # P stands for plotting
 
-fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(3, 6), dpi=65) # Create figure
+fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(4, 7), dpi=65) # Create figure
 
 j = 0 # Index used to move through the subplots
 for i in [R_t, R_m, R_h]:
     # Evaluate the quantities to plot on the desired radius
-    index = (list(rr)).index(i)
+    
+    index = np.where(np.isclose(rr, i))
+    index = (index[0])[0]
 
-    U_P   = float(U.subs(r,   i).evalf())
-    V_a1P = float(V_a1.subs(r,i).evalf())
-    V_t1P = float(V_t1.subs(r,i).evalf())
-    W_a1P = float(W_a1.subs(r,i).evalf())
-    W_t1P = float(W_t1.subs(r,i).evalf())
-    V_a2P = float(V_a2[index])
-    V_t2P = float(V_t2[index])
-    W_a2P = float(W_a2[index])
-    W_t2P = float(W_t2[index])
+    U_P   = U[index]
+    V_a1P = V_a1[index]
+    V_t1P = V_t1[index]
+    W_a1P = W_a1[index]
+    W_t1P = W_t1[index]
+    V_a2P = V_a2[index]
+    V_t2P = V_t2[index]
+    W_a2P = W_a2[index]
+    W_t2P = W_t2[index]
 
     # axs[j].grid() #Add grid
     
@@ -259,8 +243,8 @@ for i in [R_t, R_m, R_h]:
     axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
     axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red","red"])
     
-    axs.flat[j].set_xlim(-50, 20 + float(U.subs(r,R_t).evalf())) #Set the limits for the x axis
-    axs.flat[j].set_ylim(-5, 20 + max(float(V_a2[0]),float(V_a1.subs(r,R_t))))  #Set the limits for the y axis
+    axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
+    axs.flat[j].set_ylim(-5,  20 + max(V_a2[0],V_a1[-1]) )  #Set the limits for the y axis
     
     axs[j].set_aspect('equal') #Equal aspect ratio axes
 
@@ -312,7 +296,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
         alpha_3[j] = np.arctan(V_t3[j]/V_a3[j])
-        V_3[j] = np.np.sqrt(float(V_a3[j]**2 + V_t3[j]**2))
+        V_3[j] = np.sqrt(float(V_a3[j]**2 + V_t3[j]**2))
 
         # Thermodynamics
         T_3[j] = T_t3[j] - V_3[j]**2 / (2 * c_p)
@@ -329,7 +313,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
         # ENTROPY EVALUATION
 
-        s_3[j]  = s_2[j] - R * ln(p_t3[j] / p_t2[j])
+        s_3[j]  = s_2[j] - R * np.log(p_t3[j] / p_t2[j])
 
     ds_3 = finDiff(s_3,deltaR) # Derivative of s_3
 
@@ -351,14 +335,15 @@ fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(4, 7), dpi=65) #
 
 j = 0 # Index used to move through the subplots
 for i in [R_t, R_m, R_h]:
-    # Evaluate the quantities to plot on the desired radius
-    index = (list(rr)).index(i)
 
-    U_P   = float(U.subs(r,i).evalf())
-    V_a2P = float(V_a2[index])
-    V_t2P = float(V_t2[index])
-    V_a3P = float(V_a3[index])
-    V_t3P = float(V_t3[index])
+    index = np.where(np.isclose(rr, i))
+    index = (index[0])[0]
+
+    U_P   = U[index]
+    V_a2P = V_a2[index]
+    V_t2P = V_t2[index]
+    V_a3P = V_a3[index]
+    V_t3P = V_t3[index]
 
     # axs[j].grid() #Add grid
     
@@ -366,7 +351,7 @@ for i in [R_t, R_m, R_h]:
     axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue"])
     axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red"])
     
-    axs.flat[j].set_xlim(-50, 20 + float(U.subs(r,R_t).evalf())) #Set the limits for the x axis
+    axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
     axs.flat[j].set_ylim(-5, 20 + max(float(V_a2[0]), float(V_a2[-1])))  #Set the limits for the y axis
     
     axs[j].set_aspect('equal') #Equal aspect ratio axes
@@ -374,35 +359,23 @@ for i in [R_t, R_m, R_h]:
     j = j+1
 
 
-# Convert np.expressions into arrays for plotting
-# Velocities
-V_1_lst = list(V_1.subs(r,rr[t]) for t in range(len(rr)))
-W_1_lst = list(W_1.subs(r,rr[t]) for t in range(len(rr)))
-V_a1_lst = list(V_a1.subs(r,rr[t]) for t in range(len(rr)))
-V_t1_lst = list(V_t1.subs(r,rr[t]) for t in range(len(rr)))
-
-# Thermodynamics
-p_1_lst = list(p_1.subs(r,rr[t]) for t in range(len(rr)))
-T_1_lst = list(T_1.subs(r,rr[t]) for t in range(len(rr)))
-s_1_lst = list(s_1 for t in range(len(rr)))
-
 
 # Some more plots
 plt.figure(figsize=(5, 5), dpi=65)
-plt.plot(rr,W_1_lst)
+plt.plot(rr,W_1)
 plt.plot(rr,W_2)
 plt.title("Relative Velocity [m/s]")
 plt.legend(["1","2","3"])
 
 plt.figure(figsize=(5, 5), dpi=65)
-plt.plot(rr,V_1_lst)
+plt.plot(rr,V_1)
 plt.plot(rr,V_2)
 plt.plot(rr,V_3)
 plt.title("Absolute Velocity [m/s]")
 plt.legend(["1","2","3"])
 
 plt.figure(figsize=(5, 5), dpi=65)
-plt.plot(rr,p_1_lst)
+plt.plot(rr,p_1)
 plt.plot(rr,p_2)
 plt.plot(rr,p_3)
 plt.title("Pressure [Pa]")
