@@ -88,7 +88,7 @@ xi=(W1_mag**2-W2_mag_new**2)/(2*L_eul)
 
 # Mean line design for the stator
 alpha_2 = arctan(V2t/V2a)
-alpha_3 = 8 * pi/180# Design choice
+alpha_3 = 19 * pi/180# Design choice
 
 print(cos(alpha_3) / cos(alpha_2), "> 0.72 ?") 
 

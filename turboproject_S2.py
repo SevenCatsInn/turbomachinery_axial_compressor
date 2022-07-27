@@ -40,7 +40,6 @@ V1a=V_a3[mean_index]
 phi = V1a / Um
 V1t=V_t3[mean_index]
 
-print(phi,psi)
 V1=[V1a, V1t]
 V1_mag=Norm(V1)
 W1a=V1a
@@ -92,7 +91,7 @@ xi=(W1_mag**2-W2_mag_new**2)/(2*L_eul)
 # Mean line design for the stator
 
 alpha_2 = arctan(V2t/V2a)
-alpha_3 = 10 * pi/180# Design choice
+alpha_3 = 0 * pi/180# Design choice
 
 print(cos(alpha_3) / cos(alpha_2), "> 0.72 ?") 
 
@@ -133,5 +132,5 @@ b_1 = b1
 R_m = Rm
 rpm = RPM
 
-
-print(T_1m, p_1m, V_a1m, V_t1m, T_2m, p_2m, V_a2m, V_t2m, T_3m, p_3m, V_a3m, V_t3m, b_1, R_m, rpm)
+# print(beta)
+# print("phi,psi,chi = ", phi,psi,xi_new)

@@ -33,9 +33,9 @@ omega = 2 * pi * rpm/60                          # Angular velocity     [rad/s]
 U = arrayLst( omega * rr[t] for t in range(pts)) # Peripheral velocity  [m/s]
 
 # Input data
-T_t1 = 300 * np.ones(pts) # [K]     --> f(r)
-p_t1 = 1e5 * np.ones(pts) # [Pa] --> f(r)
-s_1 = np.zeros(pts)
+T_t1 = T_t3 # [K]     --> f(r)
+p_t1 = p_t3 # [Pa] --> f(r)
+s_1 = s_3
 ds_1 = np.zeros(pts)
 m_dot_req = 100 # Required mass flow [kg/s]
 T_1 = T_1m * np.ones(pts)
