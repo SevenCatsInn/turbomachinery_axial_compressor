@@ -117,6 +117,27 @@ while abs(err) > tol:
     iter += 1
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 print("")
 print("########## ROTOR OUTLET ##########")
 
@@ -210,45 +231,21 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     iter += 1
 
 
-# Plot inlet and outlet velocity triangles at hub, mean radius and tip
-# P stands for plotting
 
-fig, axs = plt.subplots(3,1, sharex = True,  figsize=(4, 7), dpi=65) # Create figure
 
-j = 0 # Index used to move through the subplots
-for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
-    
-    # Find the index of the radius we are considering
-    index = np.where(np.isclose(rr, i))
-    index = (index[0])[0]
-    
-    #Evaluate q.ties at that radius
-    U_P   = U[index]
-    V_a1P = V_a1[index]
-    V_t1P = V_t1[index]
-    W_a1P = W_a1[index]
-    W_t1P = W_t1[index]
-    V_a2P = V_a2[index]
-    V_t2P = V_t2[index]
-    W_a2P = W_a2[index]
-    W_t2P = W_t2[index]
 
-    # axs[j].grid() #Add grid
-    
-    #Plot inlet and outlet triangles
-    axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
-    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","green","green"])
-    
-    axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
-    axs.flat[j].set_ylim(-5,  20 + max(V_a2[0],V_a1[-1]) )  #Set the limits for the y axis
-    
-    axs[j].set_aspect('equal') #Equal aspect ratio axes
-    axs[j].set_ylabel(r"Axial Component $[m/s]$")
-    axs[j].set_title(name)
 
-    j = j+1
 
-axs[2].set_xlabel(r"Tangential Component $[m/s]$")
+
+
+
+
+
+
+
+
+
+
 
 
 print("")
@@ -278,6 +275,8 @@ T_t3 = T_t2
 
 # This loop can be avoided using flaired blades b_2 != b_1
 while abs(err) > tol: # Begin loop to get mass flow convergence
+    print("")
+    print("---Iteration no. " + str(iter))
 
     V_a3 = list(np.zeros(pts)) # Create the list
     V_a3[mean_index] = V_a3m  # Initial value for forward integration starting from mean radius
@@ -329,49 +328,158 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     V_a3m = V_a3m*(1 + err) # New axial velocity
     
     
-    print("")
-    print("---Iteration no. " + str(iter))
+
     print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
     print("V_a3m = "+ str(V_a3m) + " [m/s]")
     print("err = "+ str(err))
     iter += 1
 
 
-fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(4, 7), dpi=65) # Create figure
 
-j = 0 # Index used to move through the subplots
-for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
 
-    # Find the index of the radius we are considering
-    index = np.where(np.isclose(rr, i))
-    index = (index[0])[0]
 
-    #Evaluate q.ties at that radius
-    U_P   = U[index]
-    V_a2P = V_a2[index]
-    V_t2P = V_t2[index]
-    V_a3P = V_a3[index]
-    V_t3P = V_t3[index]
 
-    # axs[j].grid() #Add grid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exec(open("./turboproject_S2.py").read()) #Mean line design for 2nd stage
+
+print("")
+print("########## STAGE 2 ROTOR OUTLET ##########")
+
+err = 1e10 # Inital value to enter the loop, meaningless
+tol = 1e-5 # Tolerance of error wrt the desires mass flow value
+iter = 1
+
+
+# Inputs
+
+# Entropy inputs, NOTE: absolute values are meaningless
+omega_loss_R = 0.0 # Coefficient of loss
+
+# Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s     and s_4, even with s_4 = s_3[:] why??
+s_4  = list( s_3)    # Initial radial entropy distribution in 2
+ds_4 = list(ds_3) # Dertivative wrt r of entropy
+
+V_t4 = arrayLst(V_t4m * R_m / rr[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
+
+rV_t4  = arrayLst(rr[t] * V_t4[t] for t in range(pts))
+drV_t4 = finDiff(rV_t4,deltaR)
+
+h_t4 = arrayLst(h_t3[t] + U[t] * (V_t4[t] - V_t3[t]) for t in range(pts)) # Total enthalpy in 2 
+T_t4 = h_t4 / c_p # Total temperature
+
+T_4 = T_4m * np.ones(pts) # Static temperature
+
+dh_t4 = finDiff(h_t4,deltaR)
+
+
+# This loop can be avoided using flaired blades b_4 != b_3
+while abs(err) > tol: # Begin loop to get mass flow convergence
+    print("")
+    print("---Iteration no. " + str(iter))
+
+    V_a4 = list(np.zeros(pts)) # Create the list
+    V_a4[mean_index] = V_a4m  # Initial value for forward integration starting from mean radius
+    dV_a4 = list(np.zeros(pts))
+
+    # N.I.S.R.E. 2 numerical integration 
+    for j in list(range(0,mean_index)):
+        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
+            dV_a4[q] = 1 / V_a4[q] * ( dh_t4[q] - T_4[q] * ds_4[q] - V_t4[q] / rr[q] * drV_t4[q] )
+            V_a4[q + k*1] = V_a4[q] + dV_a4[q] * k * deltaR 
+
+
+
+        
+    # Initiate all the lists
+    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi, L_eul = (list(np.zeros(pts)) for t in range(15))
+
+    for j in list(range(pts)): # Compute quantities along the radius
+        # Kinematics
+        V_4[j] = np.sqrt(V_a4[j]**2 + V_t4[j]**2)
+        alpha_4[j] = np.arctan(V_t4[j]/V_a4[j])
+        W_t4[j] = V_t4[j] - U[j]
+        W_a4[j] = V_a4[j]
+        W_4[j] = np.sqrt(W_t4[j]**2 + W_a4[j]**2)
+        beta_4[j] = np.arctan(W_t4[j]/W_a4[j])
+
+        # Thermodynamics
+        T_4[j] = T_t4[j] - V_4[j]**2 / (2 * c_p)
+        p_4[j] = p_4m * (T_4[j] / T_4m)**(gamma/(gamma-1)) * np.exp(- (s_4[j] - s_4[mean_index]) / R)
+        rho_4[j] = p_4[j] / (R*T_4[j])
+        M_4[j]  = V_4[j] / np.sqrt(gamma * R * T_4[j])
+        M_4r[j] = W_4[j] / np.sqrt(gamma * R * T_4[j])
+        p_t4[j] = p_4[j]*(1 + (gamma-1) / 2 * M_4[j]**2 ) ** (gamma/(gamma-1))
+
+
+        L_eul[j] = U[j] * (V_t4[j] - V_t3[j])
+        chi[j] = (W_3[j]**2 - W_4[j]**2) / (2 * L_eul[j])
+
+        integrand_4[j] = 2 * np.pi * rr[j] * rho_4[j] * V_a4[j] 
+                
+
+        p_t4r[j] = p_t3r[j] - omega_loss_R * (p_t3r[j] - p_3[j])
+
+        # ENTROPY EVALUATION
+
+        s_4[j]  = s_3[j] - R * np.log(p_t4r[j] / p_t3r[j])
+
+    plt.plot(rr,T_4)
+    plt.show()
+
+    ds_4 = finDiff(s_4,deltaR)
+
+    m_dot_trap = np.trapz(integrand_4, rr)
+
+    err  = 1 - m_dot_trap/m_dot_req # Error
+    V_a4m = V_a4m*(1 + err) # New axial velocity
     
-    #Plot inlet and outlet triangles
-    axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","green"])
-    axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red"])
     
-    
-    axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
-    axs.flat[j].set_ylim(-5, 20 + max(float(V_a2[0]), float(V_a2[-1])))  #Set the limits for the y axis
-    
-    axs[j].set_aspect('equal') #Equal aspect ratio axes
-    axs[j].set_ylabel(r"Axial Component $[m/s]$")
-    axs[j].set_title(name)
+    print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+    print("V_a4m = " + str(V_a4m))
+    print("err = "+ str(err))
+    iter += 1
 
-    j = j+1
 
-axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
-# Some more plots
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################ PLOTS BELOW ############################
+
+
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,W_1,"b")
 plt.plot(rr,W_2,"g")
@@ -454,100 +562,79 @@ plt.grid()
 # plt.plot(rr,L_eul)
 # plt.title("Euler Work [J/kg]")
 
-# plt.show()
-# plt.close("all")
+# Plot inlet and outlet velocity triangles at hub, mean radius and tip
+# P stands for plotting
 
-exec(open("./turboproject_S2.py").read()) #Mean line design for 2nd stage
+fig, axs = plt.subplots(3,1, sharex = True,  figsize=(4, 7), dpi=65) # Create figure
 
-print("")
-print("########## STAGE 2 ROTOR OUTLET ##########")
+j = 0 # Index used to move through the subplots
+for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
+    
+    # Find the index of the radius we are considering
+    index = np.where(np.isclose(rr, i))
+    index = (index[0])[0]
+    
+    #Evaluate q.ties at that radius
+    U_P   = U[index]
+    V_a1P = V_a1[index]
+    V_t1P = V_t1[index]
+    W_a1P = W_a1[index]
+    W_t1P = W_t1[index]
+    V_a2P = V_a2[index]
+    V_t2P = V_t2[index]
+    W_a2P = W_a2[index]
+    W_t2P = W_t2[index]
 
-err = 1e10 # Inital value to enter the loop, meaningless
-tol = 1e-5 # Tolerance of error wrt the desires mass flow value
-iter = 1
+    # axs[j].grid() #Add grid
+    
+    #Plot inlet and outlet triangles
+    axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
+    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","green","green"])
+    
+    axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
+    axs.flat[j].set_ylim(-5,  20 + max(V_a2[0],V_a1[-1]) )  #Set the limits for the y axis
+    
+    axs[j].set_aspect('equal') #Equal aspect ratio axes
+    axs[j].set_ylabel(r"Axial Component $[m/s]$")
+    axs[j].set_title(name)
 
+    j = j+1
 
-# Inputs
+axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
-# Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.5 # Coefficient of loss
+fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(4, 7), dpi=65) # Create figure
 
-# Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s     and s_4, even with s_4 = s_3[:] why??
-s_4  = list( s_3)    # Initial radial entropy distribution in 2
-ds_4 = list(ds_3) # Dertivative wrt r of entropy
+j = 0 # Index used to move through the subplots
+for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
 
-V_t4 = arrayLst(V_t4m * R_m / rr[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
+    # Find the index of the radius we are considering
+    index = np.where(np.isclose(rr, i))
+    index = (index[0])[0]
 
-rV_t4  = arrayLst(rr[t] * V_t4[t] for t in range(pts))
-drV_t4 = finDiff(rV_t4,deltaR)
+    #Evaluate q.ties at that radius
+    U_P   = U[index]
+    V_a2P = V_a2[index]
+    V_t2P = V_t2[index]
+    V_a3P = V_a3[index]
+    V_t3P = V_t3[index]
 
-h_t4 = arrayLst(h_t3[t] + U[t] * (V_t4[t] - V_t3[t]) for t in range(pts)) # Total enthalpy in 2 
-T_t4 = h_t4 / c_p # Total temperature
-
-T_4 = T_4m * np.ones(pts) # Static temperature
-
-dh_t4 = finDiff(h_t4,deltaR)
-
-
-# This loop can be avoided using flaired blades b_4 != b_3
-while abs(err) > tol: # Begin loop to get mass flow convergence
-
-    V_a4 = list(np.zeros(pts)) # Create the list
-    V_a4[mean_index] = V_a4m  # Initial value for forward integration starting from mean radius
-    dV_a4 = list(np.zeros(pts))
-
-    # N.I.S.R.E. 2 numerical integration 
-    for j in list(range(0,mean_index)):
-        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
-            dV_a4[q] = 1 / V_a4[q] * ( dh_t4[q] - T_4[q] * ds_4[q] - V_t4[q] / rr[q] * drV_t4[q] )
-            V_a4[q + k*1] = V_a4[q] + dV_a4[q] * k * deltaR 
-        
-        
-    # Initiate all the lists
-    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi, L_eul = (list(np.zeros(pts)) for t in range(15))
-
-    for j in list(range(pts)): # Compute quantities along the radius
-        # Kinematics
-        V_4[j] = np.sqrt(V_a4[j]**2 + V_t4[j]**2)
-        alpha_4[j] = np.arctan(V_t4[j]/V_a4[j])
-        W_t4[j] = V_t4[j] - U[j]
-        W_a4[j] = V_a4[j]
-        W_4[j] = np.sqrt(W_t4[j]**2 + W_a4[j]**2)
-        beta_4[j] = np.arctan(W_t4[j]/W_a4[j])
-
-        # Thermodynamics
-        T_4[j] = T_t4[j] - V_4[j]**2 / (2 * c_p)
-        p_4[j] = p_4m * (T_4[j] / T_4m)**(gamma/(gamma-1)) * np.exp(- (s_4[j] - s_4[mean_index]) / R)
-        rho_4[j] = p_4[j] / (R*T_4[j])
-        M_4[j]  = V_4[j] / np.sqrt(gamma * R * T_4[j])
-        M_4r[j] = W_4[j] / np.sqrt(gamma * R * T_4[j])
-        p_t4[j] = p_4[j]*(1 + (gamma-1) / 2 * M_4[j]**2 ) ** (gamma/(gamma-1))
-
-
-        L_eul[j] = U[j] * (V_t4[j] - V_t3[j])
-        chi[j] = (W_3[j]**2 - W_4[j]**2) / (2 * L_eul[j])
-
-        integrand_4[j] = 2 * np.pi * rr[j] * rho_4[j] * V_a4[j] 
-                
-
-        p_t4r[j] = p_t3r[j] - omega_loss_R * (p_t3r[j] - p_3[j])
-
-        # ENTROPY EVALUATION
-
-        s_4[j]  = s_3[j] - R * np.log(p_t4r[j] / p_t3r[j])
-
-    ds_4 = finDiff(s_4,deltaR)
-
-    m_dot_trap = np.trapz(integrand_4, rr)
-
-    err  = 1 - m_dot_trap/m_dot_req # Error
-    V_a4m = V_a4m*(1 + err) # New axial velocity
+    # axs[j].grid() #Add grid
+    
+    #Plot inlet and outlet triangles
+    axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","green"])
+    axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red"])
     
     
-    print("")
-    print("---Iteration no. " + str(iter))
-    print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
-    print("V_a4m = " + str(V_a4m))
-    print("err = "+ str(err))
-    iter += 1
+    axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
+    axs.flat[j].set_ylim(-5, 20 + max(float(V_a2[0]), float(V_a2[-1])))  #Set the limits for the y axis
+    
+    axs[j].set_aspect('equal') #Equal aspect ratio axes
+    axs[j].set_ylabel(r"Axial Component $[m/s]$")
+    axs[j].set_title(name)
 
+    j = j+1
+
+axs[2].set_xlabel(r"Tangential Component $[m/s]$")
+
+
+plt.show()
