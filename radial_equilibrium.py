@@ -455,4 +455,99 @@ plt.grid()
 # plt.title("Euler Work [J/kg]")
 
 # plt.show()
-plt.close("all")
+# plt.close("all")
+
+exec(open("./turboproject_S2.py").read()) #Mean line design for 2nd stage
+
+print("")
+print("########## STAGE 2 ROTOR OUTLET ##########")
+
+err = 1e10 # Inital value to enter the loop, meaningless
+tol = 1e-5 # Tolerance of error wrt the desires mass flow value
+iter = 1
+
+
+# Inputs
+
+# Entropy inputs, NOTE: absolute values are meaningless
+omega_loss_R = 0.5 # Coefficient of loss
+
+# Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s     and s_4, even with s_4 = s_3[:] why??
+s_4  = list( s_3)    # Initial radial entropy distribution in 2
+ds_4 = list(ds_3) # Dertivative wrt r of entropy
+
+V_t4 = arrayLst(V_t4m * R_m / rr[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
+
+rV_t4  = arrayLst(rr[t] * V_t4[t] for t in range(pts))
+drV_t4 = finDiff(rV_t4,deltaR)
+
+h_t4 = arrayLst(h_t3[t] + U[t] * (V_t4[t] - V_t3[t]) for t in range(pts)) # Total enthalpy in 2 
+T_t4 = h_t4 / c_p # Total temperature
+
+T_4 = T_4m * np.ones(pts) # Static temperature
+
+dh_t4 = finDiff(h_t4,deltaR)
+
+
+# This loop can be avoided using flaired blades b_4 != b_3
+while abs(err) > tol: # Begin loop to get mass flow convergence
+
+    V_a4 = list(np.zeros(pts)) # Create the list
+    V_a4[mean_index] = V_a4m  # Initial value for forward integration starting from mean radius
+    dV_a4 = list(np.zeros(pts))
+
+    # N.I.S.R.E. 2 numerical integration 
+    for j in list(range(0,mean_index)):
+        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
+            dV_a4[q] = 1 / V_a4[q] * ( dh_t4[q] - T_4[q] * ds_4[q] - V_t4[q] / rr[q] * drV_t4[q] )
+            V_a4[q + k*1] = V_a4[q] + dV_a4[q] * k * deltaR 
+        
+        
+    # Initiate all the lists
+    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi, L_eul = (list(np.zeros(pts)) for t in range(15))
+
+    for j in list(range(pts)): # Compute quantities along the radius
+        # Kinematics
+        V_4[j] = np.sqrt(V_a4[j]**2 + V_t4[j]**2)
+        alpha_4[j] = np.arctan(V_t4[j]/V_a4[j])
+        W_t4[j] = V_t4[j] - U[j]
+        W_a4[j] = V_a4[j]
+        W_4[j] = np.sqrt(W_t4[j]**2 + W_a4[j]**2)
+        beta_4[j] = np.arctan(W_t4[j]/W_a4[j])
+
+        # Thermodynamics
+        T_4[j] = T_t4[j] - V_4[j]**2 / (2 * c_p)
+        p_4[j] = p_4m * (T_4[j] / T_4m)**(gamma/(gamma-1)) * np.exp(- (s_4[j] - s_4[mean_index]) / R)
+        rho_4[j] = p_4[j] / (R*T_4[j])
+        M_4[j]  = V_4[j] / np.sqrt(gamma * R * T_4[j])
+        M_4r[j] = W_4[j] / np.sqrt(gamma * R * T_4[j])
+        p_t4[j] = p_4[j]*(1 + (gamma-1) / 2 * M_4[j]**2 ) ** (gamma/(gamma-1))
+
+
+        L_eul[j] = U[j] * (V_t4[j] - V_t3[j])
+        chi[j] = (W_3[j]**2 - W_4[j]**2) / (2 * L_eul[j])
+
+        integrand_4[j] = 2 * np.pi * rr[j] * rho_4[j] * V_a4[j] 
+                
+
+        p_t4r[j] = p_t3r[j] - omega_loss_R * (p_t3r[j] - p_3[j])
+
+        # ENTROPY EVALUATION
+
+        s_4[j]  = s_3[j] - R * np.log(p_t4r[j] / p_t3r[j])
+
+    ds_4 = finDiff(s_4,deltaR)
+
+    m_dot_trap = np.trapz(integrand_4, rr)
+
+    err  = 1 - m_dot_trap/m_dot_req # Error
+    V_a4m = V_a4m*(1 + err) # New axial velocity
+    
+    
+    print("")
+    print("---Iteration no. " + str(iter))
+    print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+    print("V_a4m = " + str(V_a4m))
+    print("err = "+ str(err))
+    iter += 1
+

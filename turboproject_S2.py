@@ -2,7 +2,6 @@ from numpy import sqrt, arctan, tan, pi, cos
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
-exec(open("./radial_equilibrium.py").read())
 # Thermophysical properties
 c_p = cp = 1005  # Constant pressure specific heat [J/(kg K)]
 gamma = 1.4 # Specific heat ratio
