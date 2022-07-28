@@ -169,7 +169,7 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.3 # Coefficient of loss
+omega_loss_R = 0.0 # Coefficient of loss
 
 # Need to transform s_2 and ds_2 into lists otherwise numpy will assign the same id to s_1 and s_2, even with s_2 = s_1[:] why??
 s_2  = list( s_1)    # Initial radial entropy distribution in 2
@@ -276,7 +276,7 @@ tol = 1e-5 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_S = 0.2
+omega_loss_S = 0.0
 
 V_t3 = list(R_m * V_t3m / rr[t] for t in range(pts))
 
@@ -380,6 +380,14 @@ exec(open("./turboproject_S2.py").read()) # Mean line design for 2nd stage
 print("")
 print("########## STAGE 2 ROTOR OUTLET ##########")
 
+# Geometry
+R_h2 = R_m - b_2 / 2  # Hub Radius          [m]   
+R_t2 = R_m + b_2 / 2  # Tip Radius          [m]
+
+rr2 = np.linspace(R_h2, R_t2, pts) # Discrete space of the radii over which we compute our quantities
+deltaR2 = (R_t2 - R_h2)/ (pts - 1) # Radius interval between points
+mean_index = pts//2  # Index of the various lists corresponding to mean radius quantities
+
 err = 1e10 # Inital value to enter the loop, meaningless
 tol = 1e-5 # Tolerance of error wrt the desires mass flow value
 iter = 1
@@ -388,23 +396,23 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.3 # Coefficient of loss
+omega_loss_R = 0.0 # Coefficient of loss
 
 # Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s     and s_4, even with s_4 = s_3[:] why??
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
 ds_4 = list(ds_3) # Dertivative wrt r of entropy
 
-V_t4 = arrayLst(V_t4m * R_m / rr[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
+V_t4 = arrayLst(V_t4m * R_m / rr2[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
 
-rV_t4  = arrayLst(rr[t] * V_t4[t] for t in range(pts))
-drV_t4 = finDiff(rV_t4,deltaR)
+rV_t4  = arrayLst(rr2[t] * V_t4[t] for t in range(pts))
+drV_t4 = finDiff(rV_t4,deltaR2)
 
 h_t4 = arrayLst(h_t3[t] + U[t] * (V_t4[t] - V_t3[t]) for t in range(pts)) # Total enthalpy in 2 
 T_t4 = h_t4 / c_p # Total temperature
 
 T_4 = T_4m * np.ones(pts) # Static temperature
 
-dh_t4 = finDiff(h_t4,deltaR)
+dh_t4 = finDiff(h_t4,deltaR2)
 
 
 # This loop can be avoided using flaired blades b_4 != b_3
@@ -419,8 +427,8 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     # N.I.S.R.E. 4 numerical integration 
     for j in list(range(0,mean_index)):
         for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
-            dV_a4[q] = 1 / V_a4[q] * ( dh_t4[q] - T_4[q] * ds_4[q] - V_t4[q] / rr[q] * drV_t4[q] )
-            V_a4[q + k*1] = V_a4[q] + dV_a4[q] * k * deltaR 
+            dV_a4[q] = 1 / V_a4[q] * ( dh_t4[q] - T_4[q] * ds_4[q] - V_t4[q] / rr2[q] * drV_t4[q] )
+            V_a4[q + k*1] = V_a4[q] + dV_a4[q] * k * deltaR2 
 
     # Initiate all the lists
     V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi_2, L_eul = (list(np.zeros(pts)) for t in range(15))
@@ -446,7 +454,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         L_eul[j] = U[j] * (V_t4[j] - V_t3[j])
         chi_2[j] = (W_3[j]**2 - W_4[j]**2) / (2 * L_eul[j])
 
-        integrand_4[j] = 2 * np.pi * rr[j] * rho_4[j] * V_a4[j] 
+        integrand_4[j] = 2 * np.pi * rr2[j] * rho_4[j] * V_a4[j] 
                 
 
         p_t4r[j] = p_t3r[j] - omega_loss_R * (p_t3r[j] - p_3[j])
@@ -455,7 +463,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
         s_4[j]  = s_3[j] - R * np.log(p_t4r[j] / p_t3r[j])
 
-    ds_4 = finDiff(s_4,deltaR)
+    ds_4 = finDiff(s_4,deltaR2)
 
     m_dot_trap = np.trapz(integrand_4, rr)
 
@@ -516,7 +524,7 @@ plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,p_1,"b")
 plt.plot(rr,p_2,"g")
 plt.plot(rr,p_3,"r")
-plt.plot(rr,p_4,"c")
+# plt.plot(rr,p_4,"c")
 plt.ylabel(r"$p$ $[Pa]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out"])
@@ -527,7 +535,7 @@ plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,p_t1,"b")
 plt.plot(rr,p_t2,"g")
 plt.plot(rr,p_t3,"r")
-plt.plot(rr,p_t4,"c")
+# plt.plot(rr,p_t4,"c")
 plt.ylabel(r"$p_t$ $[Pa]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out"])
@@ -577,7 +585,7 @@ plt.grid()
 
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,chi)
-plt.plot(rr,chi_2)
+# plt.plot(rr2,chi_2)
 plt.ylabel(r"$\chi$")
 plt.xlabel(r"$r \  [m]$")
 plt.title("Reaction Degree")
@@ -592,6 +600,7 @@ plt.grid()
 # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # P stands for plotting
 
+plt.show()
 
 
 

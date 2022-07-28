@@ -10,25 +10,25 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 
 #Input
 mdot=100 #mass flow rate
-Pt1=100000 # pressure [bar]
+Pt1=99000 # pressure [bar]
 Tt1=300 #inlet temperature [K]
-beta=1.18 #compression ratio
+beta=1.205 #compression ratio
 rho1=Pt1/(R*Tt1)
 Q=mdot/rho1
 
 ## Non dimensional quantities <3 <3
 
-## axial compressor
-#vavra: get reaction degree and flow coefficient to get maximum efficiency
-phi=0.65 #from slide 10 axial compressors
-xi=0.9 #reaction degree
+## achial compressor
+#vavra: get reaction degree and flow coefficient to get machimum efficiency
+phi=0.5 #from slide 10 achial compressors
+chi=0.6 #reaction degree
 Rm=0.3 #mean line radius
-efficiency_TT=0.9
+efficiency_TT=0.926
 eta_S = 0.92
 eta_R = 0.92
 
 #determine loading
-psi=0.27 #from first graph slide 12
+psi=0.2 #from first graph slide 12
 L_is=cp*Tt1*(beta**((gamma-1)/gamma)-1)
 L_eul=L_is/efficiency_TT
 lamda=psi*2
@@ -37,7 +37,7 @@ Um=sqrt(L_eul/psi)
 omega=Um/Rm
 RPM=omega*30/pi
 V1a=phi*Um
-V1t=0
+V1t = Um*arctan(1-chi-lamda/4)
 V1=[V1a, V1t]
 V1_mag=Norm(V1)
 W1a=V1a
@@ -54,7 +54,7 @@ b1=mdot/(rho1*V1a*2*pi*Rm)
 #quantities at station 2 (after rotor)
 V2t=L_eul/Um+V1t
 Tt2=L_eul/cp+Tt1
-W2_mag=sqrt(W1_mag**2-xi*L_eul*2)
+W2_mag=sqrt(W1_mag**2-chi*L_eul*2)
 W2t=V2t-Um
 W2a=sqrt(W2_mag**2-W2t**2)
 W2=[W2a, W2t]
@@ -82,8 +82,8 @@ W2=[W2a, W2t]
 W2_mag_new=sqrt(W2a**2+W2t**2)
 beta2=arctan(W2t/W2a)
 V2=[V2a, V2t]
-xi_new=(V1a**2-V2a**2+V1t**2-V2t**2+2*Um*(V2t-V1t))/(2*L_eul)
-xi=(W1_mag**2-W2_mag_new**2)/(2*L_eul) 
+chi_new=(V1a**2-V2a**2+V1t**2-V2t**2+2*Um*(V2t-V1t))/(2*L_eul)
+chi=(W1_mag**2-W2_mag_new**2)/(2*L_eul) 
 
 
 # Mean line design for the stator
@@ -128,3 +128,5 @@ V_t3m = V3t
 b_1 = b1
 R_m = Rm
 rpm = RPM
+
+print(chi)
