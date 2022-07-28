@@ -2,6 +2,8 @@ from numpy import sqrt, arctan, tan, pi, cos
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
+
+print("###### MEAN LINE DESIGN ######")
 # Thermophysical properties
 c_p = cp = 1005  # Constant pressure specific heat [J/(kg K)]
 gamma = 1.4 # Specific heat ratio
@@ -20,7 +22,7 @@ Q=mdot/rho1
 
 ## achial compressor
 #vavra: get reaction degree and flow coefficient to get machimum efficiency
-phi=0.5 #from slide 10 achial compressors
+phi=0.6 #from slide 10 achial compressors
 chi=0.6 #reaction degree
 Rm=0.3 #mean line radius
 efficiency_TT=0.926
@@ -28,7 +30,7 @@ eta_S = 0.92
 eta_R = 0.92
 
 #determine loading
-psi=0.2 #from first graph slide 12
+psi=0.25 #from first graph slide 12
 L_is=cp*Tt1*(beta**((gamma-1)/gamma)-1)
 L_eul=L_is/efficiency_TT
 lamda=psi*2
@@ -39,6 +41,7 @@ RPM=omega*30/pi
 V1a=phi*Um
 V1t = Um*arctan(1-chi-lamda/4)
 V1=[V1a, V1t]
+alpha1= arctan(V1t/V1a) * 180/pi
 V1_mag=Norm(V1)
 W1a=V1a
 W1t=V1t-Um
@@ -85,11 +88,16 @@ V2=[V2a, V2t]
 chi_new=(V1a**2-V2a**2+V1t**2-V2t**2+2*Um*(V2t-V1t))/(2*L_eul)
 chi=(W1_mag**2-W2_mag_new**2)/(2*L_eul) 
 
+print("")
+print("Relative deflection in rotor")
+print(cos(beta1) / cos(beta2), "> 0.72 ?") 
 
 # Mean line design for the stator
 alpha2 = arctan(V2t/V2a)
-alpha3 = 19 * pi/180# Design choice
+alpha3 = 30 * pi/180# Design choice
 
+print("")
+print("Absolute deflection in stator")
 print(cos(alpha3) / cos(alpha2), "> 0.72 ?") 
 
 V3a = V2a
@@ -129,4 +137,6 @@ b_1 = b1
 R_m = Rm
 rpm = RPM
 
-print(chi)
+print("")
+print("alpha1",alpha1)
+print("chi, phi, psi = ", chi, phi, psi)
