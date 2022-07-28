@@ -47,6 +47,26 @@ dh_t1 = finDiff(h_t1,deltaR)
 for j in range(pts):
     ds_1[j]  = -R * finDiff(p_t1,deltaR)[j] / p_t1[j] + c_p * finDiff(T_t1,deltaR)[j] / T_t1[j] # Derivative over r of entropy [J/(kg K)]
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Set the design choice for tangential velocity distribution in the radial direction
 # e.g. Free vortex distribution r * V_t = const
 V_t1 = arrayLst(R_m * V_t1m / rr[t] for t in range(pts)) 
@@ -149,7 +169,7 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.5 # Coefficient of loss
+omega_loss_R = 0.3 # Coefficient of loss
 
 # Need to transform s_2 and ds_2 into lists otherwise numpy will assign the same id to s_1 and s_2, even with s_2 = s_1[:] why??
 s_2  = list( s_1)    # Initial radial entropy distribution in 2
@@ -256,7 +276,7 @@ tol = 1e-5 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_S = 0.5
+omega_loss_S = 0.2
 
 V_t3 = list(R_m * V_t3m / rr[t] for t in range(pts))
 
@@ -355,7 +375,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 
 
-exec(open("./turboproject_S2.py").read()) #Mean line design for 2nd stage
+exec(open("./turboproject_S2.py").read()) # Mean line design for 2nd stage
 
 print("")
 print("########## STAGE 2 ROTOR OUTLET ##########")
@@ -368,7 +388,7 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.0 # Coefficient of loss
+omega_loss_R = 0.3 # Coefficient of loss
 
 # Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s     and s_4, even with s_4 = s_3[:] why??
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
@@ -396,17 +416,14 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     V_a4[mean_index] = V_a4m  # Initial value for forward integration starting from mean radius
     dV_a4 = list(np.zeros(pts))
 
-    # N.I.S.R.E. 2 numerical integration 
+    # N.I.S.R.E. 4 numerical integration 
     for j in list(range(0,mean_index)):
         for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
             dV_a4[q] = 1 / V_a4[q] * ( dh_t4[q] - T_4[q] * ds_4[q] - V_t4[q] / rr[q] * drV_t4[q] )
             V_a4[q + k*1] = V_a4[q] + dV_a4[q] * k * deltaR 
 
-
-
-        
     # Initiate all the lists
-    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi, L_eul = (list(np.zeros(pts)) for t in range(15))
+    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi_2, L_eul = (list(np.zeros(pts)) for t in range(15))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
@@ -415,7 +432,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         W_t4[j] = V_t4[j] - U[j]
         W_a4[j] = V_a4[j]
         W_4[j] = np.sqrt(W_t4[j]**2 + W_a4[j]**2)
-        beta_4[j] = np.arctan(W_t4[j]/W_a4[j])
+        beta_4[j] = np.arctan(W_t4[j]/W_a4[j])        
 
         # Thermodynamics
         T_4[j] = T_t4[j] - V_4[j]**2 / (2 * c_p)
@@ -427,7 +444,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 
         L_eul[j] = U[j] * (V_t4[j] - V_t3[j])
-        chi[j] = (W_3[j]**2 - W_4[j]**2) / (2 * L_eul[j])
+        chi_2[j] = (W_3[j]**2 - W_4[j]**2) / (2 * L_eul[j])
 
         integrand_4[j] = 2 * np.pi * rr[j] * rho_4[j] * V_a4[j] 
                 
@@ -437,9 +454,6 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         # ENTROPY EVALUATION
 
         s_4[j]  = s_3[j] - R * np.log(p_t4r[j] / p_t3r[j])
-
-    plt.plot(rr,T_4)
-    plt.show()
 
     ds_4 = finDiff(s_4,deltaR)
 
@@ -453,7 +467,6 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("V_a4m = " + str(V_a4m))
     print("err = "+ str(err))
     iter += 1
-
 
 
 
@@ -503,10 +516,22 @@ plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,p_1,"b")
 plt.plot(rr,p_2,"g")
 plt.plot(rr,p_3,"r")
+plt.plot(rr,p_4,"c")
 plt.ylabel(r"$p$ $[Pa]$")
 plt.xlabel(r"$r \  [m]$")
-plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out"])
 plt.title("Static Pressure")
+plt.grid()
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,p_t1,"b")
+plt.plot(rr,p_t2,"g")
+plt.plot(rr,p_t3,"r")
+plt.plot(rr,p_t4,"c")
+plt.ylabel(r"$p_t$ $[Pa]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out"])
+plt.title("Total Pressure")
 plt.grid()
 
 plt.figure(figsize=(6, 5), dpi=80)
@@ -552,9 +577,11 @@ plt.grid()
 
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,chi)
+plt.plot(rr,chi_2)
 plt.ylabel(r"$\chi$")
 plt.xlabel(r"$r \  [m]$")
 plt.title("Reaction Degree")
+plt.legend(["Stage 1","Stage 2"])
 plt.grid()
 
 # # This should be constant if a free vortex distribution is used
@@ -564,6 +591,16 @@ plt.grid()
 
 # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # P stands for plotting
+
+
+
+
+
+
+
+
+
+
 
 fig, axs = plt.subplots(3,1, sharex = True,  figsize=(4, 7), dpi=65) # Create figure
 
