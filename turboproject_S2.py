@@ -1,6 +1,8 @@
 from numpy import sqrt, arctan, tan, pi, cos
 
+
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
+
 
 # Thermophysical properties
 c_p = cp = 1005  # Constant pressure specific heat [J/(kg K)]
@@ -16,6 +18,7 @@ beta=1.45/beta #compression ratio
 Rm=0.30 #mean line radius
 rho3=Pt3/(R*Tt3)
 Q=mdot/rho1
+
 
 
 ## Non dimensional quantities <3 <3
@@ -51,6 +54,7 @@ beta3=arctan(W3t/W3a)
 T3=Tt3-V3_mag**2/(2*cp)
 M3=V3_mag/sqrt(gamma*R*T3)
 p3=Pt3*(1+(gamma-1)/2*M3**2)**((-gamma)/(gamma-1))
+b2=mdot/(rho3*V3a*2*pi*Rm)
 
 #quantities at station 4 (after rotor)
 V4t=L_eul/Um + V3t
@@ -70,7 +74,7 @@ while abs(err) > 10**(-4):
     T4is=T4+eta_R*(T4-T3)
     p4=(T4is/Tt3)**(gamma/(gamma-1))*Pt3
     rho4=p4/(R*T4)
-    V4a_new=mdot/(rho4*2*pi*b1*Rm)
+    V4a_new=mdot/(rho4*2*pi*b2*Rm)
     err=abs(V4a_new-V4a)
     V4a=V4a_new
     M4 = V4_mag / sqrt(gamma * R * T4)
@@ -120,6 +124,7 @@ V5 = [V5a, V5t]
 # print(beta)
 # print("phi,psi,chi = ", phi,psi,xi_new)
 
+b_2 = b2
 T_4m  = T4
 p_4m  = p4
 V_a4m = V4a
