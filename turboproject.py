@@ -26,7 +26,7 @@ phi=0.72 #from slide 10 achial compressors
 chi=0.6 #reaction degree
 psi=0.3 #from first graph slide 12
 Rm=0.3 #mean line radius
-efficiency_TT=0.9
+efficiency_TT=0.91
 eta_S = 0.92
 eta_R = 0.92
 
