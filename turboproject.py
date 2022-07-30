@@ -143,15 +143,19 @@ rpm = RPM
 print("")
 print("\u03C7, \u03A6, \u03A8 = ", chi, phi, psi)
 
-# First Power Design
+# General Whirl Design
 # a * R_m - b / R_m = V_t1m
 # a * R_m + b / R_m = V_t2m
 
-matA = np.array([[R_m, -1 / R_m], 
-              [R_m,  1 / R_m]])
+n = 0.23
+matA = np.array([[R_m**n, -1 / R_m], 
+                 [R_m**n,  1 / R_m]])
 
 vecB = np.array([[V_t1m],[V_t2m]])
 
-a, b = np.linalg.solve(matA,vecB)
+x = np.linalg.solve(matA,vecB)
+
+a = (x[0])[0]
+b = (x[1])[0]
 
 print(a,b)

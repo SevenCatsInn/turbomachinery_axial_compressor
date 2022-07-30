@@ -70,8 +70,8 @@ for j in range(pts):
 # Set the design choice for tangential velocity distribution in the radial direction
 
 # First power vortex distribution
-V_t1 = arrayLst( V_t1m * R_m / rr[t] for t in range(pts)) # Free Vortex
-# V_t1 = arrayLst( a * rr[t] - b / rr[t] for t in range(pts)) # First Power
+# V_t1 = arrayLst( V_t1m * R_m / rr[t] for t in range(pts)) # Free Vortex
+V_t1 = arrayLst( a * rr[t]**n - b / rr[t] for t in range(pts)) # Power Design
 
 
 rV_t1 = arrayLst(rr[t] * V_t1[t] for t in range(pts))
@@ -178,8 +178,8 @@ omega_loss_R = 0.0 # Coefficient of loss
 s_2  = list( s_1)    # Initial radial entropy distribution in 2
 ds_2 = list(ds_1) # Dertivative wrt r of entropy
 
-V_t2 = arrayLst( V_t2m * R_m / rr[t] for t in range(pts)) # Free Vortex 
-# V_t2 = arrayLst( a * rr[t] + b / rr[t] for t in range(pts)) # First Power
+# V_t2 = arrayLst( V_t2m * R_m / rr[t] for t in range(pts)) # Free Vortex 
+V_t2 = arrayLst( a * rr[t]**n + b / rr[t] for t in range(pts)) # Power Design
 
 
 rV_t2  = arrayLst(rr[t] * V_t2[t] for t in range(pts))
