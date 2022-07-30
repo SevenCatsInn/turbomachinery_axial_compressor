@@ -15,8 +15,7 @@ mdot=100 #mass flow rate
 Pt1=100000 # pressure [bar]
 Tt1=300 #inlet temperature [K]
 beta=1.205 #compression ratio
-rho1=Pt1/(R*Tt1)
-Q=mdot/rho1
+
 
 ## Non dimensional quantities <3 <3
 
@@ -52,9 +51,10 @@ beta1=arctan(W1[1]/W1[0])
 T1=Tt1-V1_mag**2/(2*cp)
 M1=V1_mag/sqrt(gamma*R*T1)
 p1=Pt1*(1+(gamma-1)/2*M1**2)**((-gamma)/(gamma-1))
+rho1=p1/(R*T1)
+
 b1=mdot/(rho1*V1a*2*pi*Rm)
 
-print(T1,M1,p1,b1)
 
 #quantities at station 2 (after rotor)
 V2t=L_eul/Um+V1t
@@ -139,6 +139,6 @@ b_1 = b1
 R_m = Rm
 rpm = RPM
 
+
 print("")
-print("alpha1",alpha1)
 print("chi, phi, psi = ", chi, phi, psi)
