@@ -1,4 +1,5 @@
 from numpy import sqrt, arctan, tan, pi, cos
+import numpy as np
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
@@ -21,9 +22,9 @@ beta=1.205 #compression ratio
 
 ## axial compressor
 #vavra: get reaction degree and flow coefficient to get machimum efficiency
-phi=0.66 #from slide 10 achial compressors
-chi=0.59 #reaction degree
-psi=0.35 #from first graph slide 12
+phi=0.6 #from slide 10 achial compressors
+chi=0.5 #reaction degree
+psi=0.3 #from first graph slide 12
 Rm=0.3 #mean line radius
 efficiency_TT=0.926
 eta_S = 0.92
@@ -96,7 +97,7 @@ print(cos(beta1) / cos(beta2), "> 0.72 ?")
 
 # Mean line design for the stator
 alpha2 = arctan(V2t/V2a)
-alpha3 = 30 * pi/180# Design choice
+alpha3 = 30 * pi/180 # Design choice
 
 print("")
 print("Absolute deflection in stator")
@@ -139,6 +140,18 @@ b_1 = b1
 R_m = Rm
 rpm = RPM
 
-
 print("")
 print("\u03C7, \u03A6, \u03A8 = ", chi, phi, psi)
+
+# First Power Design
+# a * R_m - b / R_m = V_t1m
+# a * R_m + b / R_m = V_t2m
+
+matA = np.array([[R_m, -1 / R_m], 
+              [R_m,  1 / R_m]])
+
+vecB = np.array([[V_t1m],[V_t2m]])
+
+a, b = np.linalg.solve(matA,vecB)
+
+print(a,b)
