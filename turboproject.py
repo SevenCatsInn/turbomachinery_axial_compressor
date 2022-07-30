@@ -22,11 +22,11 @@ beta=1.205 #compression ratio
 
 ## axial compressor
 #vavra: get reaction degree and flow coefficient to get machimum efficiency
-phi=0.6 #from slide 10 achial compressors
-chi=0.5 #reaction degree
+phi=0.72 #from slide 10 achial compressors
+chi=0.6 #reaction degree
 psi=0.3 #from first graph slide 12
 Rm=0.3 #mean line radius
-efficiency_TT=0.926
+efficiency_TT=0.9
 eta_S = 0.92
 eta_R = 0.92
 
@@ -147,7 +147,7 @@ print("\u03C7, \u03A6, \u03A8 = ", chi, phi, psi)
 # a * R_m - b / R_m = V_t1m
 # a * R_m + b / R_m = V_t2m
 
-n = 0.23
+n = 1
 matA = np.array([[R_m**n, -1 / R_m], 
                  [R_m**n,  1 / R_m]])
 
@@ -157,5 +157,3 @@ x = np.linalg.solve(matA,vecB)
 
 a = (x[0])[0]
 b = (x[1])[0]
-
-print(a,b)
