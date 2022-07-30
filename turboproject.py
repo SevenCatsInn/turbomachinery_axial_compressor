@@ -34,7 +34,6 @@ eta_R = 0.92
 L_is=cp*Tt1*(beta**((gamma-1)/gamma)-1)
 L_eul=L_is/efficiency_TT
 lamda=psi*2
-#psi=L_eul/U**2
 Um=sqrt(L_eul/psi)
 omega=Um/Rm
 RPM=omega*30/pi

@@ -382,6 +382,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 exec(open("./turboproject_S2.py").read()) # Mean line design for 2nd stage
 
+
 print("")
 print("########## STAGE 2 ROTOR OUTLET ##########")
 
@@ -513,7 +514,7 @@ plt.ylabel(r" $W$ $[m/s]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
 plt.title("Relative Velocity")
-plt.grid(alpha=0.5)
+plt.grid(alpha=0.2)
 
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,V_a1,"b")
@@ -523,7 +524,7 @@ plt.ylabel(r"$V_a$ $[m/s]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
 plt.title("Axial Absolute Velocity")
-plt.grid(alpha=0.5)
+plt.grid(alpha=0.2)
 
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,V_t1,"b")
@@ -533,7 +534,7 @@ plt.ylabel(r"$V_t$ $[m/s]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
 plt.title("Tangential Absolute Velocity")
-plt.grid(alpha=0.5)
+plt.grid(alpha=0.2)
 
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,p_1,"b")
@@ -543,7 +544,7 @@ plt.ylabel(r"$p$ $[Pa]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out"])
 plt.title("Static Pressure")
-plt.grid(alpha=0.5)
+plt.grid(alpha=0.2)
 
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,p_t1,"b")
@@ -553,7 +554,7 @@ plt.ylabel(r"$p_t$ $[Pa]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out"])
 plt.title("Total Pressure")
-plt.grid(alpha=0.5)
+plt.grid(alpha=0.2)
 
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr, T_1 ,"b")
@@ -563,7 +564,7 @@ plt.ylabel(r"$T$ $[K]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
 plt.title("Static Temperature")
-plt.grid(alpha=0.5)
+plt.grid(alpha=0.2)
 
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,rho_1,"b")
@@ -573,7 +574,7 @@ plt.ylabel(r"$\rho$ $[kg/m^3]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
 plt.title("Density")
-plt.grid(alpha=0.5)
+plt.grid(alpha=0.2)
 
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,s_1,"b")
@@ -583,7 +584,7 @@ plt.ylabel(r"$s$ $[J/K]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
 plt.title("Entropy")
-plt.grid(alpha=0.5)
+plt.grid(alpha=0.2)
 
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
@@ -593,17 +594,17 @@ plt.ylabel(r"$\alpha$ [deg]")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out"])
 plt.title("Absolute Flow Angle")
-plt.grid(alpha=0.5)
+plt.grid(alpha=0.2)
  
  
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,chi)
-# plt.plot(rr2,chi_2)
+plt.plot(rr2,chi_2)
 plt.ylabel(r"$\chi$")
 plt.xlabel(r"$r \  [m]$")
 plt.title("Reaction Degree")
 plt.legend(["Stage 1","Stage 2"])
-plt.grid(alpha=0.5)
+plt.grid(alpha=0.2)
 
 # This should be constant if a free vortex distribution is used
 # plt.figure(figsize=(6, 5), dpi=80)
@@ -644,7 +645,7 @@ for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
     W_a2P = W_a2[index]
     W_t2P = W_t2[index]
 
-    # axs[j].grid(alpha=0.5) #Add grid
+    # axs[j].grid(alpha=0.2) #Add grid
     
     #Plot inlet and outlet triangles
     axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
@@ -677,7 +678,7 @@ for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
     V_a3P = V_a3[index]
     V_t3P = V_t3[index]
 
-    # axs[j].grid(alpha=0.5) #Add grid
+    # axs[j].grid(alpha=0.2) #Add grid
     
     #Plot inlet and outlet triangles
     axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","green"])

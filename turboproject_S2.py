@@ -21,9 +21,9 @@ Rm=0.30 #mean line radius
 
 ## Non dimensional quantities <3 <3
 
-## axial compressor
-#vavra: get reaction degree and flow coefficient to get maximum efficiency
-xi=0.5 #reaction degree
+## achi2al compressor
+#vavra: get reaction degree and flow coefficient to get machi2mum efficiency
+chi2=0.5 #reaction degree
 efficiency_TT=0.92
 eta_S = 0.92
 eta_R = 0.92
@@ -58,7 +58,7 @@ b2=mdot/(rho3*V3a*2*pi*Rm)
 #quantities at station 4 (after rotor)
 V4t=L_eul/Um + V3t
 Tt4=L_eul/cp + Tt3
-W4_mag=sqrt(W3_mag**2-xi*L_eul*2)
+W4_mag=sqrt(W3_mag**2-chi2*L_eul*2)
 W4t=V4t-Um
 W4a=sqrt(W4_mag**2-W4t**2)
 W4=[W4a, W4t]
@@ -86,8 +86,8 @@ W4=[W4a, W4t]
 W4_mag_new=Norm(W4)
 beta4=arctan(W4t/W4a)
 V4=[V4a, V4t]
-# xi_new=(V1a**2-V2a**2+V1t**2-V2t**2+2*Um*(V2t-V1t))/(2*L_eul)
-xi=(W3_mag**2-W4_mag_new**2)/(2*L_eul) 
+# chi2_new=(V1a**2-V2a**2+V1t**2-V2t**2+2*Um*(V2t-V1t))/(2*L_eul)
+chi2=(W3_mag**2-W4_mag_new**2)/(2*L_eul) 
 
 
 # Mean line design for the stator
@@ -120,9 +120,6 @@ V5 = [V5a, V5t]
 # Change variables names for radial equilibrium script
 
 
-# print(beta)
-# print("phi,psi,chi = ", phi,psi,xi_new)
-
 b_2 = b2
 T_4m  = T4
 p_4m  = p4
@@ -135,4 +132,4 @@ V_t5m = V5t
 
 
 print("")
-# print("\u03C7, \u03A6, \u03A8 = ", chi, phi, psi)
+print("\u03C7, \u03A6, \u03A8 = ", chi2, phi, psi)
