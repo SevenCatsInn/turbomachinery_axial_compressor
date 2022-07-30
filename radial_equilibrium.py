@@ -68,8 +68,12 @@ for j in range(pts):
 
 
 # Set the design choice for tangential velocity distribution in the radial direction
-# e.g. Free vortex distribution r * V_t = const
-V_t1 = arrayLst(R_m * V_t1m / rr[t] for t in range(pts)) 
+
+# First power vortex distribution
+a = 210
+b = 40
+
+V_t1 = arrayLst( a * rr[t] - b / rr[t] for t in range(pts)) 
 
 rV_t1 = arrayLst(rr[t] * V_t1[t] for t in range(pts))
 drV_t1 = finDiff(rV_t1, deltaR)
@@ -175,7 +179,7 @@ omega_loss_R = 0.0 # Coefficient of loss
 s_2  = list( s_1)    # Initial radial entropy distribution in 2
 ds_2 = list(ds_1) # Dertivative wrt r of entropy
 
-V_t2 = arrayLst(V_t2m * R_m / rr[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
+V_t2 = arrayLst( a * rr[t] + b / rr[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
 
 rV_t2  = arrayLst(rr[t] * V_t2[t] for t in range(pts))
 drV_t2 = finDiff(rV_t2,deltaR)
@@ -592,7 +596,7 @@ plt.title("Reaction Degree")
 plt.legend(["Stage 1","Stage 2"])
 plt.grid()
 
-# # This should be constant if a free vortex distribution is used
+# This should be constant if a free vortex distribution is used
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,L_eul)
 # plt.title("Euler Work [J/kg]")

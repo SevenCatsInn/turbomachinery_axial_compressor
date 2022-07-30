@@ -12,7 +12,7 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 
 #Input
 mdot=100 #mass flow rate
-Pt1=99000 # pressure [bar]
+Pt1=100000 # pressure [bar]
 Tt1=300 #inlet temperature [K]
 beta=1.205 #compression ratio
 rho1=Pt1/(R*Tt1)
@@ -22,15 +22,15 @@ Q=mdot/rho1
 
 ## achial compressor
 #vavra: get reaction degree and flow coefficient to get machimum efficiency
-phi=0.6 #from slide 10 achial compressors
-chi=0.6 #reaction degree
+phi=0.65 #from slide 10 achial compressors
+chi=0.55 #reaction degree
+psi=0.25 #from first graph slide 12
 Rm=0.3 #mean line radius
 efficiency_TT=0.926
 eta_S = 0.92
 eta_R = 0.92
 
 #determine loading
-psi=0.25 #from first graph slide 12
 L_is=cp*Tt1*(beta**((gamma-1)/gamma)-1)
 L_eul=L_is/efficiency_TT
 lamda=psi*2
@@ -39,7 +39,7 @@ Um=sqrt(L_eul/psi)
 omega=Um/Rm
 RPM=omega*30/pi
 V1a=phi*Um
-V1t = Um*arctan(1-chi-lamda/4)
+V1t = Um*(1-chi-lamda/4)
 V1=[V1a, V1t]
 alpha1= arctan(V1t/V1a) * 180/pi
 V1_mag=Norm(V1)
@@ -53,6 +53,8 @@ T1=Tt1-V1_mag**2/(2*cp)
 M1=V1_mag/sqrt(gamma*R*T1)
 p1=Pt1*(1+(gamma-1)/2*M1**2)**((-gamma)/(gamma-1))
 b1=mdot/(rho1*V1a*2*pi*Rm)
+
+print(T1,M1,p1,b1)
 
 #quantities at station 2 (after rotor)
 V2t=L_eul/Um+V1t
