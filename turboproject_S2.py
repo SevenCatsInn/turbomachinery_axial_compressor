@@ -16,8 +16,6 @@ Pt3=p_t3[mean_index] # pressure [bar]
 Tt3=T_t3[mean_index] #inlet temperature [K]
 beta=1.45/beta #compression ratio
 Rm=0.30 #mean line radius
-rho3=Pt3/(R*Tt3)
-Q=mdot/rho1
 
 
 
@@ -54,6 +52,7 @@ beta3=arctan(W3t/W3a)
 T3=Tt3-V3_mag**2/(2*cp)
 M3=V3_mag/sqrt(gamma*R*T3)
 p3=Pt3*(1+(gamma-1)/2*M3**2)**((-gamma)/(gamma-1))
+rho3=p3/(R*T3)
 b2=mdot/(rho3*V3a*2*pi*Rm)
 
 #quantities at station 4 (after rotor)
@@ -135,6 +134,5 @@ V_a5m = V5a
 V_t5m = V5t
 
 
-
-
-# print(T_4m ,p_4m ,V_a4m,V_t4m)
+print("")
+print("\u03C7, \u03A6, \u03A8 = ", chi, phi, psi)
