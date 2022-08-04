@@ -5,7 +5,7 @@ exec(open("./turboproject.py").read()) # Run mean line design
 import numpy as np
 import matplotlib.pyplot as plt
 
-plt.rcParams.update({"text.usetex": True})
+#plt.rcParams.update({"text.usetex": True})
 
 def finDiff(x,deltaX):
     # Finite differences function over a list
@@ -71,6 +71,7 @@ for j in range(pts):
 
 # First power vortex distribution
 # V_t1 = arrayLst( V_t1m * R_m / rr[t] for t in range(pts)) # Free Vortex
+n = 1
 V_t1 = arrayLst( a * rr[t]**n - b / rr[t] for t in range(pts)) # Power Design
 
 
@@ -267,7 +268,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 
 
-
+exec(open("./turboproject_S2.py").read()) # Mean line design for 2nd stage
 
 
 
@@ -283,7 +284,7 @@ iter = 1
 # Input data
 omega_loss_S = 0.0
 
-V_t3 = list(R_m * V_t3m / rr[t] for t in range(pts))
+V_t3 = arrayLst( a22 * rr[t]**n + b22 / rr[t] for t in range(pts)) # Power Design
 
 rV_t3  = arrayLst(rr[t] * V_t3[t] for t in range(pts))
 drV_t3 = finDiff(rV_t3,deltaR)
@@ -351,36 +352,15 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
     err  = 1 - m_dot_trap/m_dot_req # Error
     V_a3m = V_a3m*(1 + err) # New axial velocity
-    
+    Vt3_check = V_t3[mean_index]
     
 
     print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
     print("V_a3m = "+ str(V_a3m) + " [m/s]")
+    print("V_t3m = "+ str(Vt3_check) + " [m/s]")
     print("err = "+ str(err))
     iter += 1
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-exec(open("./turboproject_S2.py").read()) # Mean line design for 2nd stage
 
 
 print("")
@@ -408,8 +388,7 @@ omega_loss_R = 0.0 # Coefficient of loss
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
 ds_4 = list(ds_3) # Dertivative wrt r of entropy
 
-V_t4 = arrayLst(V_t4m * R_m / rr2[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
-
+V_t4 = arrayLst( a22 * rr[t]**n - b22 / rr[t] for t in range(pts)) # Power Design # 
 rV_t4  = arrayLst(rr2[t] * V_t4[t] for t in range(pts))
 drV_t4 = finDiff(rV_t4,deltaR2)
 
@@ -481,6 +460,99 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("V_a4m = " + str(V_a4m))
     print("err = "+ str(err))
     iter += 1
+
+
+############### Blade design (1st rotor) ##############
+U_midspan = omega*R_m
+U_root = omega*R_h
+U_tip = omega*R_t
+#inlet
+beta1_length = len(beta_1)
+beta_1mid = beta_1[mean_index]* 180 / pi #deg
+beta_1root = beta_1[0] * 180 / pi #deg
+beta_1tip = beta_1[beta1_length - 1 ] * 180 / pi #deg
+#outlet
+beta2_length = len(beta_2)
+beta_2mid = beta_2[mean_index] * 180 / pi #deg
+beta_2root = beta_2[0] * 180 / pi #deg
+beta_2tip = beta_2[beta2_length - 1] * 180 / pi #deg
+#deflection
+deltabeta1_mid = beta_1mid - beta_2mid 
+deltabeta1_root = beta_1root - beta_2root 
+deltabeta1_tip = beta_1tip - beta_2tip 
+# initial hp
+th = 8 #max thickness WRT chord [%]
+blade_chord = 0.06 #[m] starting point from reference procedure..
+solidity = 1 # at midspan c/s=1
+s_mid = solidity * blade_chord
+n_blade =round( 2 * 3.14 * R_m / s_mid)
+# passo along blade span
+s_mid = 2 * 3.14 * R_m / n_blade
+s_tip = 2 * 3.14 * R_t / n_blade
+s_root = 2 * 3.14 * R_h / n_blade
+#solidity along blade span
+sol_mid = blade_chord / s_mid
+sol_tip = blade_chord / s_tip
+sol_root = blade_chord / s_root
+# equivalent camber: from graphs on slide 9 ppt
+theta_eq_mid = 13
+theta_eq_tip = 23
+theta_eq_root =  39
+# compute cl=theta/25
+cl_mid = theta_eq_mid / 25
+cl_tip = theta_eq_tip / 25
+cl_root = theta_eq_root / 25
+
+#incidence: Lieblin correlation
+#get i0,10 from beta1, slide 10
+i0_10_mid = 3.3
+i0_10_tip = 3.3
+i0_10_root = 5
+
+#get kith and n from slide 11
+k_ith_mid = 0.9
+k_ith_tip = 0.9
+k_ith_root = 0.9
+
+n_mid = -0.18
+n_tip = -0.32
+n_root = -0.02
+
+#ioptima
+i_opt_mid = i0_10_mid * k_ith_mid + n_mid * theta_eq_mid
+i_opt_tip = i0_10_tip * k_ith_tip + n_tip * theta_eq_tip
+i_opt_root = i0_10_root * k_ith_root + n_root * theta_eq_root
+
+#deviation angle: lieblin correlation
+#delta0
+delta0_mid = 1
+delta0_tip = 1.3
+delta0_root =1
+
+kdeltath_mid = 0.75 
+kdeltath_tip = 0.75 
+kdeltath_root = 0.75 
+
+m_mid = 0.22
+m_tip = 0.26
+m_root = 0.2
+
+b_mid = 0.82
+b_tip = 0.67
+b_root = 0.87
+
+#computation of deviation
+delta_mid = delta0_mid * kdeltath_mid + m_mid * theta_eq_mid / (sol_mid ** b_mid)
+delta_tip = delta0_tip * kdeltath_tip + m_tip * theta_eq_tip / (sol_tip ** b_tip)
+delta_root = delta0_root * kdeltath_root + m_root * theta_eq_root / (sol_root ** b_root)
+
+
+#final delta beta
+deltabetafinal_mid = theta_eq_mid - delta_mid + i_opt_mid
+deltabetafinal_tip = theta_eq_tip - delta_tip + i_opt_tip
+deltabetafinal_root = theta_eq_root - delta_root + i_opt_root
+
+ 
 
 
 
@@ -614,7 +686,7 @@ plt.grid(alpha=0.2)
 # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # P stands for plotting
 
-plt.show()
+#plt.show()
 
 
 
@@ -697,4 +769,8 @@ for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
 axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
 
-plt.show()
+#plt.show()
+
+
+
+

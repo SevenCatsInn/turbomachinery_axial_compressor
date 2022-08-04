@@ -119,6 +119,8 @@ while abs(err)>tol:
     V3a_new=mdot/(rho3*2*pi*b1*Rm)
     err=abs(V3a_new-V3a)
     V3a=V3a_new
+    M3 = V3_mag / sqrt(gamma * R * T3)
+    Pt3 = p3 * (1 + (gamma-1)/2 * M3**2)**(gamma/(gamma-1))
     iter=iter+1
 V3 = [V3a, V3t]
 
@@ -133,6 +135,8 @@ V_a2m = V2a
 V_t2m = V2t
 T_3m  = T3
 p_3m  = p3
+p_t3  = Pt3
+T_t3  = Tt3
 V_a3m = V3a
 V_t3m = V3t
 b_1 = b1
