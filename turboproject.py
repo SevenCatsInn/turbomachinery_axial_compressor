@@ -22,11 +22,12 @@ beta=1.205 #compression ratio
 
 ## axial compressor
 #vavra: get reaction degree and flow coefficient to get machimum efficiency
+
 phi=0.73 #from slide 10 achial compressors
 chi=0.64 #reaction degree
 psi=0.3 #from first graph slide 12
 Rm=0.3 #mean line radius
-efficiency_TT=0.91
+efficiency_TT=0.9
 eta_S = 0.92
 eta_R = 0.92
 

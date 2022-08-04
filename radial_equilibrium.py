@@ -284,6 +284,7 @@ iter = 1
 # Input data
 omega_loss_S = 0.0
 
+
 V_t3 = arrayLst( a22 * rr[t]**n + b22 / rr[t] for t in range(pts)) # Power Design
 
 rV_t3  = arrayLst(rr[t] * V_t3[t] for t in range(pts))
@@ -795,7 +796,3 @@ axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
 
 #plt.show()
-
-
-
-

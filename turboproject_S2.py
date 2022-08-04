@@ -1,5 +1,7 @@
 from numpy import sqrt, arctan, tan, pi, cos
 
+print('')
+print('########## STAGE 2 MLD ##########')
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
@@ -23,6 +25,7 @@ Rm=0.30 #mean line radius
 
 ## achi2al compressor
 #vavra: get reaction degree and flow coefficient to get machi2mum efficiency
+
 chi2=0.6 #reaction degree
 efficiency_TT=0.91
 eta_S = 0.92
@@ -53,7 +56,9 @@ T3=Tt3-V3_mag**2/(2*cp)
 M3=V3_mag/sqrt(gamma*R*T3)
 p3=Pt3*(1+(gamma-1)/2*M3**2)**((-gamma)/(gamma-1))
 rho3=p3/(R*T3)
+
 b2=b1 #mdot/(rho3*V3a*2*pi*Rm)
+
 
 #quantities at station 4 (after rotor)
 V4t=L_eul/Um + V3t
@@ -111,7 +116,7 @@ while abs(err)>tol:
     T5is=T4 + eta_S*(T5-T4)
     p5=(T5is/Tt4)**(gamma/(gamma-1))*Pt4
     rho5=p5/(R*T5)
-    V5a_new=mdot/(rho5*2*pi*b1*Rm)
+    V5a_new=mdot/(rho5*2*pi*b2*Rm)
     err=abs(V5a_new-V5a)
     V5a=V5a_new
     iter=iter+1
