@@ -5,7 +5,7 @@ exec(open("./turboproject.py").read()) # Run mean line design
 import numpy as np
 import matplotlib.pyplot as plt
 
-#plt.rcParams.update({"text.usetex": True})
+plt.rcParams.update({"text.usetex": True})
 
 def finDiff(x,deltaX):
     # Finite differences function over a list
@@ -462,6 +462,31 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     iter += 1
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ############### Blade design (1st rotor) ##############
 U_midspan = omega*R_m
 U_root = omega*R_h
@@ -686,7 +711,7 @@ plt.grid(alpha=0.2)
 # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # P stands for plotting
 
-#plt.show()
+plt.show()
 
 
 
