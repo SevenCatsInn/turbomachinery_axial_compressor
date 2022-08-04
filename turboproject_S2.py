@@ -141,7 +141,7 @@ n = 1
 matA2 = np.array([[R_m**n, -1 / R_m], 
                  [R_m**n,  1 / R_m]])
 
-vecB2 = np.array([[V3t],[V_t4m]])
+vecB2 = np.array([[V_t3m],[V_t4m]])
 
 x2 = np.linalg.solve(matA2,vecB2)
 
