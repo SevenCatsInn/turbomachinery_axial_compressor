@@ -283,7 +283,7 @@ iter = 1
 # Input data
 omega_loss_S = 0.0
 
-V_t3 = list( V_t3m / R_m * rr[t]  for t in range(pts))
+V_t3 = list( V_t3m * R_m / rr[t]  for t in range(pts))
 
 rV_t3  = arrayLst(rr[t] * V_t3[t] for t in range(pts))
 drV_t3 = finDiff(rV_t3,deltaR)
@@ -331,7 +331,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         rho_3[j] = p_3[j] / (R*T_3[j])
         M_3[j]   = V_3[j] / np.sqrt(gamma * R * T_3[j])
         M_3r[j]  = W_3[j] / np.sqrt(gamma * R * T_3[j])
-        p_t3[j]  = p_3[j]*(1 + (gamma-1) / 2 * M_2[j]**2  ) ** (gamma/(gamma-1))
+        p_t3[j]  = p_3[j]*(1 + (gamma-1) / 2 * M_3[j]**2  ) ** (gamma/(gamma-1))
         p_t3r[j] = p_3[j]*(1 + (gamma-1) / 2 * M_3r[j]**2 ) ** (gamma/(gamma-1))
 
         integrand_3[j] = 2 * np.pi * rr[j] * rho_3[j] * V_a3[j]
@@ -408,7 +408,7 @@ omega_loss_R = 0.0 # Coefficient of loss
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
 ds_4 = list(ds_3) # Dertivative wrt r of entropy
 
-V_t4 = arrayLst(V_t4m / R_m * rr2[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
+V_t4 = arrayLst(V_t4m * R_m / rr2[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
 
 rV_t4  = arrayLst(rr2[t] * V_t4[t] for t in range(pts))
 drV_t4 = finDiff(rV_t4,deltaR2)
