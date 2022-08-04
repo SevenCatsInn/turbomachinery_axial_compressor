@@ -1,5 +1,7 @@
 from numpy import sqrt, arctan, tan, pi, cos
 
+print('')
+print('########## STAGE 2 MLD ##########')
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
@@ -24,7 +26,7 @@ Rm=0.30 #mean line radius
 ## achi2al compressor
 #vavra: get reaction degree and flow coefficient to get machi2mum efficiency
 chi2=0.5 #reaction degree
-efficiency_TT=0.92
+efficiency_TT=0.91
 eta_S = 0.92
 eta_R = 0.92
 Um = U[mean_index]
