@@ -1,248 +1,700 @@
 ### Radial equilibrium script ###
 
-from sympy import *
-from sympy import init_printing
+exec(open("./turboproject.py").read()) # Run mean line design
+
 import numpy as np
 import matplotlib.pyplot as plt
 
-init_printing() 
+plt.rcParams.update({"text.usetex": True})
 
+def finDiff(x,deltaX):
+    # Finite differences function over a list
+    dx = []
+    [dx.append( (x[i+1] - x[i-1]) / (2*deltaX) ) for i in range(1,len(x) - 1)]
+    dx = [(x[1] - x[0]) / deltaX] + dx + [(x[-1] - x[-2]) / deltaX]
 
-r = Symbol("r", positive=True) # Radius variable declaration
+    return dx
 
-
-## Data from mean line design
+arrayLst = lambda x: np.array(list(x))
 
 # Geometry
-R_m = 0.3            # Mean radius         [m]
-b_1 = 0.2914         # Inlet blade height  [m]
 R_h = R_m - b_1 / 2  # Hub Radius          [m]   
 R_t = R_m + b_1 / 2  # Tip Radius          [m]  
 
-#Velocities
-V_a1m =  157.46  # Mean radius inlet axial velocity [m/s]
-V_t1m =  0       # Mean radius inlet tang. velocity [m/s]
-V_a2m =  161.87  # Mean radius outl. axial velocity [m/s]
-V_t2m =  68.9    # Mean radius outl. tang. velocity [m/s]
+# Discretization
+pts = 200  # Total number of points across the radius, 
+if pts % 2 == 0: pts = pts + 1 # Make pts uneven if it's even
 
-rpm = 6265              # Rotations per minute [giri/mins]
-omega = 2 * pi * rpm/60 # Angular velocity     [rad/s]
-U = omega * r           # Peripheral velocity  [m/s]
+rr = np.linspace(R_h, R_t, pts) # Discrete space of the radii over which we compute our quantities
+deltaR = (R_t - R_h)/ (pts - 1) # Radius interval between points
+mean_index = pts//2  # Index of the various lists corresponding to mean radius quantities
 
-# Thermodynamics
-T_1m =  287.6526 # Mean radius inlet static temperature [K]
-p_1m =  86383    # Mean radius inlet static pressure    [Pa]
-T_2m =  298.09   # Mean radius outl. static temperature [K]
-p_2m =  96659    # Mean radius outl. static pressure    [Pa]
-
-
-# Thermophysical properties
-c_p = 1005  # Constant pressure specific heat [J/(kg K)]
-gamma = 1.4 # Specific heat ratio
-c_v = c_p/gamma
-R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
+omega = 2 * pi * rpm/60                          # Angular velocity     [rad/s]
+U = arrayLst( omega * rr[t] for t in range(pts)) # Peripheral velocity  [m/s]
 
 # Input data
-T_t1 = 300 # [K]     --> f(r)
-p_t1 = 100000 # [Pa] --> f(r)
+T_t1 = 300 * np.ones(pts) # [K]     --> f(r)
+p_t1 = 1e5 * np.ones(pts) # [Pa] --> f(r)
+s_1 = np.zeros(pts)
+ds_1 = np.zeros(pts)
 m_dot_req = 100 # Required mass flow [kg/s]
+T_1 = T_1m * np.ones(pts)
 
 # Computed Quantities
 h_t1 = c_p * T_t1 # Total enthalpy [J/kg]
+dh_t1 = finDiff(h_t1,deltaR)
 
-ds_1dr  = -R * diff(p_t1,r) / p_t1 + c_p * diff(T_t1,r) / T_t1 # Derivative over r of entropy [J/(kg K)]
+for j in range(pts):
+    ds_1[j]  = -R * finDiff(p_t1,deltaR)[j] / p_t1[j] + c_p * finDiff(T_t1,deltaR)[j] / T_t1[j] # Derivative over r of entropy [J/(kg K)]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Set the design choice for tangential velocity distribution in the radial direction
-V_t1 = R_m * V_t1m / r # e.g. Free vortex distribution r * V_t = const
+
+# First power vortex distribution
+# V_t1 = arrayLst( V_t1m * R_m / rr[t] for t in range(pts)) # Free Vortex
+V_t1 = arrayLst( a * rr[t]**n - b / rr[t] for t in range(pts)) # Power Design
+
+
+rV_t1 = arrayLst(rr[t] * V_t1[t] for t in range(pts))
+drV_t1 = finDiff(rV_t1, deltaR)
 
 print("")
-print("########## INLET ##########")
+print("########## ROTOR INLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 0.001
+tol = 1e-5
 iter= 1
 
 # This loop can be eliminated by varying b_1 to accomodate for m_dot_req
 while abs(err) > tol: 
     
-    V_a1 = Function('V_a1') # Declare the function to solve in the O.D.E.
-    
-    # Non isentropic radial equilibrium in station 1
-    nisre_1 = Eq(V_a1(r)*V_a1(r).diff(r) + V_t1 / r * diff(r*V_t1,r) + T_1m * ds_1dr, diff(h_t1,r) ) 
-    sol_nisre_1 = dsolve(nisre_1, ics = {V_a1(R_m):V_a1m})
-    V_a1 = sol_nisre_1.rhs # Extract the value of the NISRE solution, assign to V_a1(r)
+    V_a1 = np.zeros(pts) # Create the list
+    V_a1[mean_index] = V_a1m  # Initial value for forward integration starting from mean radius
+    dV_a1 = np.zeros(pts)
 
-    # Prints
+    # N.I.S.R.E. 1 numerical integration
+    # --> Start from V_1m at R_m and move forwards and backwards up to R_t and R_h
+    # j moves from 1 to the mean_index
+    # q and k are a subloop to simplify the code, the first values of q,k corresponding to
+    # the "forwards" integration, and the second values to the "backwards" integration
+    
+    for j in list(range(0,mean_index)):
+        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
+            dV_a1[q] = 1 / V_a1[q] * ( dh_t1[q] - T_1[q] * ds_1[q] - V_t1[q] / rr[q] * drV_t1[q] )
+            V_a1[q + k*1] = V_a1[q] + dV_a1[q] * k * deltaR 
+        
+        
+    # Initiate all the lists
+    V_1 , alpha_1, W_t1, W_a1, W_1, beta_1, p_1, rho_1, M_1, M_1r, p_t1, p_t1r, integrand_1, chi, L_eul = (list(np.zeros(pts)) for t in range(15))
+
+    for j in list(range(pts)): # Compute quantities along the radius
+        # Kinematics
+        V_1[j] = np.sqrt(V_a1[j]**2 + V_t1[j]**2)
+        alpha_1[j] = np.arctan(V_t1[j]/V_a1[j])
+        W_t1[j] = V_t1[j] - U[j]
+        W_a1[j] = V_a1[j]
+        W_1[j] = np.sqrt(W_t1[j]**2 + W_a1[j]**2)
+        beta_1[j] = np.arctan(W_t1[j]/W_a1[j])
+
+        # Thermodynamics
+        T_1[j] = T_t1[j] - V_1[j]**2 / (2 * c_p)
+        p_1[j] = p_1m * (T_1[j] / T_1m)**(gamma/(gamma-1))
+        rho_1[j] = p_1[j] / (R*T_1[j])
+        M_1[j]  = V_1[j] / np.sqrt(gamma * R * T_1[j])
+        M_1r[j] = W_1[j] / np.sqrt(gamma * R * T_1[j])
+        p_t1[j]  = p_1[j]*(1 + (gamma-1) / 2 * M_1[j]**2  ) ** (gamma/(gamma-1))
+        p_t1r[j] = p_1[j]*(1 + (gamma-1) / 2 * M_1r[j]**2 ) ** (gamma/(gamma-1))
+        
+        integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
+
+    m_dot_trap = np.trapz(integrand_1, rr)
+
+    err  = 1 - m_dot_trap/m_dot_req # Error
+    V_a1m = V_a1m*(1 + err) # New axial velocity
+    
+    
     print("")
     print("---Iteration no. " + str(iter))
-    print("N.I.S.R.E. in Station 1")
-    pprint(nisre_1)
-    print("Solution:")
-    pprint(sol_nisre_1)
-    print("")
-
-    ## Compute quantities in station 1 --> f(r)
-
-    # Kinematics
-    V_1 = sqrt(V_a1**2 + V_t1**2)
-    alpha_1 = atan(V_t1/V_a1)
-    W_t1 = V_t1 - U
-    W_a1 = V_a1
-    W_1 = sqrt(W_t1**2 + W_a1**2)
-    beta_1 = atan(W_t1/W_a1)
-
-    # Thermodynamics
-    T_1 = T_t1 - V_1**2 / (2 * c_p)
-    p_1 = p_1m * (T_1 / T_1m)**(gamma/(gamma-1))
-    rho_1 = p_1 / (R*T_1)
-    M_1  = V_1 / sqrt(gamma * R * T_1)
-    M_1r = W_1 / sqrt(gamma * R * T_1)
-    p_t1 = p_1*(1 + (gamma-1) / 2 * M_1**2 ) ** (gamma/(gamma-1))
-
-    ## Compute the mass flow at the inlet
-
-    rr = np.linspace(R_h, R_t, 100) # Extremes of integration
-
-    integrand_1 = [] # 2 * pi * r * V_a1 * rho_1
-    for radius in rr:
-        integrand_1.append(2 * np.pi * radius * (V_a1.subs(r,radius)).evalf() * (rho_1.subs(r,radius)).evalf() ) 
-
-    m_dot_trap = np.trapz(integrand_1,rr)
-    
-    err  = 1 - m_dot_trap/m_dot_req # Error
-    V_a1m = V_a1m * (1 + err) # New axial velocity
-    iter += 1
     print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
     print("err = "+ str(err))
+    print("V_a1m = "+ str(V_a1m) + " [m/s]")
+    iter += 1
 
-# quit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 print("")
-print("########## OUTLET ##########")
+print("########## ROTOR OUTLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 0.001
-iter= 1
+tol = 1e-5 # Tolerance of error wrt the desires mass flow value
+iter = 1
 
 
 # Inputs
-ds_2dr = ds_1dr # Initial assumption, negligible s variation
-s_2m = 0   # Reference arbitrary value at mean radius
-s_2 = s_2m # Initial radial entropy distribution in 2
-V_t2 = V_t2m * R_m / r # Outlet tangential velocity distribution (e.g. free vortex)
 
-h_t2 = h_t1 + U * (V_t2 - V_t1)
-T_t2 = h_t2 / c_p
+# Entropy inputs, NOTE: absolute values are meaningless
+omega_loss_R = 0.0 # Coefficient of loss
+
+# Need to transform s_2 and ds_2 into lists otherwise numpy will assign the same id to s_1 and s_2, even with s_2 = s_1[:] why??
+s_2  = list( s_1)    # Initial radial entropy distribution in 2
+ds_2 = list(ds_1) # Dertivative wrt r of entropy
+
+# V_t2 = arrayLst( V_t2m * R_m / rr[t] for t in range(pts)) # Free Vortex 
+V_t2 = arrayLst( a * rr[t]**n + b / rr[t] for t in range(pts)) # Power Design
+
+
+rV_t2  = arrayLst(rr[t] * V_t2[t] for t in range(pts))
+drV_t2 = finDiff(rV_t2,deltaR)
+
+h_t2 = arrayLst(h_t1[t] + U[t] * (V_t2[t] - V_t1[t]) for t in range(pts)) # Total enthalpy in 2 
+T_t2 = h_t2 / c_p # Total temperature
+
+T_2 = T_2m * np.ones(pts) # Static temperature
+
+dh_t2 = finDiff(h_t2,deltaR)
+
 
 # This loop can be avoided using flaired blades b_2 != b_1
-while abs(err) > tol:
-    V_a2 = Function('V_a2') # Declare the function to solve in the O.D.E.
+while abs(err) > tol: # Begin loop to get mass flow convergence
 
-    # Non isentropic radial equilibrium in station 2
-    nisre_2 = Eq(V_a2(r)*V_a2(r).diff(r) + V_t2 / r * diff(r*V_t2,r) + T_2m * ds_2dr, diff(h_t2,r) ) 
-    sol_nisre_2 = dsolve(nisre_2, ics = {V_a2(R_m):V_a2m})
-    V_a2 = sol_nisre_2.rhs # Extract the value of the NISRE solution, assign to V_a2(r)
+    V_a2 = list(np.zeros(pts)) # Create the list
+    V_a2[mean_index] = V_a2m  # Initial value for forward integration starting from mean radius
+    dV_a2 = list(np.zeros(pts))
 
-    # Prints
-    print("")
-    print("---Iteration no. " + str(iter))
-    print("N.I.S.R.E. in Station 2")
-    # pprint(nisre_2)
-    print("Solution:")
-    pprint(sol_nisre_2)
-    print("")
+    # N.I.S.R.E. 2 numerical integration 
+    for j in list(range(0,mean_index)):
+        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
+            dV_a2[q] = 1 / V_a2[q] * ( dh_t2[q] - T_2[q] * ds_2[q] - V_t2[q] / rr[q] * drV_t2[q] )
+            V_a2[q + k*1] = V_a2[q] + dV_a2[q] * k * deltaR 
+        
+        
+    # Initiate all the lists
+    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul = (list(np.zeros(pts)) for t in range(15))
 
-    ## Compute quantities in station 2 --> f(r)
+    for j in list(range(pts)): # Compute quantities along the radius
+        # Kinematics
+        V_2[j] = np.sqrt(V_a2[j]**2 + V_t2[j]**2)
+        alpha_2[j] = np.arctan(V_t2[j]/V_a2[j])
+        W_t2[j] = V_t2[j] - U[j]
+        W_a2[j] = V_a2[j]
+        W_2[j] = np.sqrt(W_t2[j]**2 + W_a2[j]**2)
+        beta_2[j] = np.arctan(W_t2[j]/W_a2[j])
 
-    # Kinematics
-    V_2 = sqrt(V_a2**2 + V_t2**2)
-    alpha_2 = atan(V_t2/V_a2)
-    W_t2 = V_t2 - U
-    W_a2 = V_a2
-    W_2 = sqrt(W_t2**2 + W_a2**2)
-    beta_2 = atan(W_t2/W_a2)
+        # Thermodynamics
+        T_2[j] = T_t2[j] - V_2[j]**2 / (2 * c_p)
+        p_2[j] = p_2m * (T_2[j] / T_2m)**(gamma/(gamma-1)) * np.exp(- (s_2[j] - s_2[mean_index]) / R)
+        rho_2[j] = p_2[j] / (R*T_2[j])
+        M_2[j]  = V_2[j] / np.sqrt(gamma * R * T_2[j])
+        M_2r[j] = W_2[j] / np.sqrt(gamma * R * T_2[j])
+        p_t2[j] = p_2[j]*(1 + (gamma-1) / 2 * M_2[j]**2 ) ** (gamma/(gamma-1))
 
-    # Thermodynamics
-    T_2 = T_t2 - V_2**2 / (2 * c_p)
-    p_2 = p_2m * (T_2 / T_2m)**(gamma/(gamma-1)) * exp(- (s_2 - s_2m) / R)
-    rho_2 = p_2 / (R*T_2)
-    M_2  = V_2 / sqrt(gamma * R * T_2)
-    M_2r = W_2 / sqrt(gamma * R * T_2)
-    p_t2 = p_2*(1 + (gamma-1) / 2 * M_2**2 ) ** (gamma/(gamma-1))
-    
-    # ENTROPY EVALUATION
 
-    ds2_dr = -R * diff(p_t2,r) / p_t2 + c_p * diff(T_t2,r) / T_t2 # New entropy derivative
-    
-    points = 8 // 2  * 2 # Number of points in which we compute s_2, rounded to the nearest even integer
-    s_2l = [ s_2m ] # From R_m to tip
-    s_2u = [ s_2m ] # From hub to R_m
-    
-    deltaR = (R_t - R_h)/ points
-    i = 0
-    for radius in np.linspace(R_m, R_t, points // 2):
-        s_2u.append(s_2u[i] + deltaR * (ds2_dr.subs(r,radius)).evalf())
-        i=i+1
-    i = 0
-    for radius in np.linspace(R_m, R_h, points // 2):
-        s_2l.append(s_2l[i] - deltaR * (ds2_dr.subs(r,radius)).evalf())
-        i=i+1
-    s_2l = list(reversed(s_2l)) # The list was built in reverse, invert it
+        L_eul[j] = U[j] * (V_t2[j] - V_t1[j])
+        chi[j] = (W_1[j]**2 - W_2[j]**2) / (2 * L_eul[j])
 
-    s_2_points = s_2l + s_2u[1:] # Sum the two lists into one
-    
-    # Generate a spline f(r) to keep on using symbolic computations below
-    s_2 = interpolating_spline(1, r, np.linspace(R_h, R_t, points + 1), s_2_points)
+        integrand_2[j] = 2 * np.pi * rr[j] * rho_2[j] * V_a2[j] 
+                
 
-    ## Compute the mass flow at the inlet
-    rr = np.linspace(R_h, R_t, 100) # Extremes of integration
-    
-    integrand_2 = [] # 2 * pi * r * V_a2 * rho_2
-    for radius in rr:
-        integrand_2.append(2 * np.pi * radius * (V_a2.subs(r,radius)).evalf() * (rho_2.subs(r,radius)).evalf() ) 
+        p_t2r[j] = p_t1r[j] - omega_loss_R * (p_t1r[j] - p_1[j])
 
+        # ENTROPY EVALUATION
+
+        s_2[j]  = s_1[j] - R * np.log(p_t2r[j] / p_t1r[j])
+
+    ds_2 = finDiff(s_2,deltaR)
 
     m_dot_trap = np.trapz(integrand_2, rr)
 
     err  = 1 - m_dot_trap/m_dot_req # Error
     V_a2m = V_a2m*(1 + err) # New axial velocity
-    iter += 1
+    
+    
+    print("")
+    print("---Iteration no. " + str(iter))
     print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+    print("V_a2m = " + str(V_a2m))
     print("err = "+ str(err))
+    iter += 1
 
-L_eul = U * (V_t2 - V_t1)
-chi = (W_1**2 - W_2**2)/(2*L_eul)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+print("")
+print("########## STATOR OUTLET ##########")
+
+err = 1e10 # Inital value to enter the loop, meaningless
+tol = 1e-5 # Tolerance of error wrt the desires mass flow value
+iter = 1
+
+# Input data
+omega_loss_S = 0.0
+
+V_t3 = list( V_t3m / R_m * rr[t]  for t in range(pts))
+
+rV_t3  = arrayLst(rr[t] * V_t3[t] for t in range(pts))
+drV_t3 = finDiff(rV_t3,deltaR)
+
+# Initial assumptions
+T_3  = list(T_3m * np.ones(pts))
+s_3  = s_2[:]
+ds_3 = s_2[:]
+
+# Imposed by thermodynamics
+h_t3 = h_t2
+dh_t3 = dh_t2
+T_t3 = T_t2
+
+# This loop can be avoided using flaired blades b_2 != b_1
+while abs(err) > tol: # Begin loop to get mass flow convergence
+    print("")
+    print("---Iteration no. " + str(iter))
+
+    V_a3 = list(np.zeros(pts)) # Create the list
+    V_a3[mean_index] = V_a3m  # Initial value for forward integration starting from mean radius
+    dV_a3 = list(np.zeros(pts))
+    
+    # N.I.S.R.E at stator outlet (3)
+    for j in list(range(0,mean_index)):
+        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
+            dV_a3[q] = 1 / V_a3[q] * ( dh_t3[q] - T_3[q] * ds_3[q] - V_t3[q] / rr[q] * drV_t3[q] )
+            V_a3[q + k*1] = V_a3[q] + dV_a3[q] * k * deltaR 
+
+    # Initiate all the lists
+    V_3 , alpha_3, p_3, rho_3, M_3, p_t3, integrand_3, W_t3, W_a3, W_3, beta_3, M_3r, p_t3, p_t3r = (list(np.zeros(pts)) for t in range(14))
+
+    for j in list(range(pts)): # Compute quantities along the radius
+        # Kinematics
+        alpha_3[j] = np.arctan(V_t3[j]/V_a3[j])
+        V_3[j] = np.sqrt(float(V_a3[j]**2 + V_t3[j]**2))
+        W_t3[j] = V_t3[j] - U[j]
+        W_a3[j] = V_a3[j]
+        W_3[j] = np.sqrt(W_t3[j]**2 + W_a3[j]**2)
+        beta_3[j] = np.arctan(W_t3[j]/W_a3[j])
+        
+        # Thermodynamics
+        T_3[j] = T_t3[j] - V_3[j]**2 / (2 * c_p)
+        p_3[j] = p_3m * (T_3[j] / T_3m)**(gamma/(gamma-1)) * np.exp(- (s_3[j] - s_3[mean_index]) / R)
+        rho_3[j] = p_3[j] / (R*T_3[j])
+        M_3[j]   = V_3[j] / np.sqrt(gamma * R * T_3[j])
+        M_3r[j]  = W_3[j] / np.sqrt(gamma * R * T_3[j])
+        p_t3[j]  = p_3[j]*(1 + (gamma-1) / 2 * M_2[j]**2  ) ** (gamma/(gamma-1))
+        p_t3r[j] = p_3[j]*(1 + (gamma-1) / 2 * M_3r[j]**2 ) ** (gamma/(gamma-1))
+
+        integrand_3[j] = 2 * np.pi * rr[j] * rho_3[j] * V_a3[j]
+        
+        #Evaluate the q.ties in section 1 (np.expressions) at the current radius
+        # tmp = overwritten at every iteration, no need for a new array for _1 quantities
+        
+        p_t3[j] = p_t2[j] - omega_loss_S * (p_t2[j] - p_2[j])
+
+        # ENTROPY EVALUATION
+
+        s_3[j]  = s_2[j] - R * np.log(p_t3[j] / p_t2[j])
+
+    ds_3 = finDiff(s_3,deltaR) # Derivative of s_3
+
+    m_dot_trap = np.trapz(integrand_3, rr)
+
+    err  = 1 - m_dot_trap/m_dot_req # Error
+    V_a3m = V_a3m*(1 + err) # New axial velocity
+    
+    
+
+    print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+    print("V_a3m = "+ str(V_a3m) + " [m/s]")
+    print("err = "+ str(err))
+    iter += 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exec(open("./turboproject_S2.py").read()) # Mean line design for 2nd stage
+
+
+print("")
+print("########## STAGE 2 ROTOR OUTLET ##########")
+
+# Geometry
+R_h2 = R_m - b_2 / 2  # Hub Radius          [m]   
+R_t2 = R_m + b_2 / 2  # Tip Radius          [m]
+
+rr2 = np.linspace(R_h2, R_t2, pts) # Discrete space of the radii over which we compute our quantities
+deltaR2 = (R_t2 - R_h2)/ (pts - 1) # Radius interval between points
+mean_index = pts//2  # Index of the various lists corresponding to mean radius quantities
+
+err = 1e10 # Inital value to enter the loop, meaningless
+tol = 1e-5 # Tolerance of error wrt the desires mass flow value
+iter = 1
+
+
+# Inputs
+
+# Entropy inputs, NOTE: absolute values are meaningless
+omega_loss_R = 0.0 # Coefficient of loss
+
+# Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s     and s_4, even with s_4 = s_3[:] why??
+s_4  = list( s_3)    # Initial radial entropy distribution in 2
+ds_4 = list(ds_3) # Dertivative wrt r of entropy
+
+V_t4 = arrayLst(V_t4m / R_m * rr2[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
+
+rV_t4  = arrayLst(rr2[t] * V_t4[t] for t in range(pts))
+drV_t4 = finDiff(rV_t4,deltaR2)
+
+h_t4 = arrayLst(h_t3[t] + U[t] * (V_t4[t] - V_t3[t]) for t in range(pts)) # Total enthalpy in 2 
+T_t4 = h_t4 / c_p # Total temperature
+
+T_4 = T_4m * np.ones(pts) # Static temperature
+
+dh_t4 = finDiff(h_t4,deltaR2)
+
+
+# This loop can be avoided using flaired blades b_4 != b_3
+while abs(err) > tol: # Begin loop to get mass flow convergence
+    print("")
+    print("---Iteration no. " + str(iter))
+
+    V_a4 = list(np.zeros(pts)) # Create the list
+    V_a4[mean_index] = V_a4m  # Initial value for forward integration starting from mean radius
+    dV_a4 = list(np.zeros(pts))
+
+    # N.I.S.R.E. 4 numerical integration 
+    for j in list(range(0,mean_index)):
+        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
+            dV_a4[q] = 1 / V_a4[q] * ( dh_t4[q] - T_4[q] * ds_4[q] - V_t4[q] / rr2[q] * drV_t4[q] )
+            V_a4[q + k*1] = V_a4[q] + dV_a4[q] * k * deltaR2 
+
+    # Initiate all the lists
+    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi_2, L_eul = (list(np.zeros(pts)) for t in range(15))
+
+    for j in list(range(pts)): # Compute quantities along the radius
+        # Kinematics
+        V_4[j] = np.sqrt(V_a4[j]**2 + V_t4[j]**2)
+        alpha_4[j] = np.arctan(V_t4[j]/V_a4[j])
+        W_t4[j] = V_t4[j] - U[j]
+        W_a4[j] = V_a4[j]
+        W_4[j] = np.sqrt(W_t4[j]**2 + W_a4[j]**2)
+        beta_4[j] = np.arctan(W_t4[j]/W_a4[j])        
+
+        # Thermodynamics
+        T_4[j] = T_t4[j] - V_4[j]**2 / (2 * c_p)
+        p_4[j] = p_4m * (T_4[j] / T_4m)**(gamma/(gamma-1)) * np.exp(- (s_4[j] - s_4[mean_index]) / R)
+        rho_4[j] = p_4[j] / (R*T_4[j])
+        M_4[j]  = V_4[j] / np.sqrt(gamma * R * T_4[j])
+        M_4r[j] = W_4[j] / np.sqrt(gamma * R * T_4[j])
+        p_t4[j] = p_4[j]*(1 + (gamma-1) / 2 * M_4[j]**2 ) ** (gamma/(gamma-1))
+
+
+        L_eul[j] = U[j] * (V_t4[j] - V_t3[j])
+        chi_2[j] = (W_3[j]**2 - W_4[j]**2) / (2 * L_eul[j])
+
+        integrand_4[j] = 2 * np.pi * rr2[j] * rho_4[j] * V_a4[j] 
+                
+
+        p_t4r[j] = p_t3r[j] - omega_loss_R * (p_t3r[j] - p_3[j])
+
+        # ENTROPY EVALUATION
+
+        s_4[j]  = s_3[j] - R * np.log(p_t4r[j] / p_t3r[j])
+
+    ds_4 = finDiff(s_4,deltaR2)
+
+    m_dot_trap = np.trapz(integrand_4, rr)
+
+    err  = 1 - m_dot_trap/m_dot_req # Error
+    V_a4m = V_a4m*(1 + err) # New axial velocity
+    
+    
+    print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+    print("V_a4m = " + str(V_a4m))
+    print("err = "+ str(err))
+    iter += 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################ PLOTS BELOW ############################
+
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,W_1,"b")
+plt.plot(rr,W_2,"g")
+plt.ylabel(r" $W$ $[m/s]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Relative Velocity")
+plt.grid(alpha=0.2)
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,V_a1,"b")
+plt.plot(rr,V_a2,"g")
+plt.plot(rr,V_a3,"r")
+plt.ylabel(r"$V_a$ $[m/s]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Axial Absolute Velocity")
+plt.grid(alpha=0.2)
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,V_t1,"b")
+plt.plot(rr,V_t2,"g")
+plt.plot(rr,V_t3,"r")
+plt.ylabel(r"$V_t$ $[m/s]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Tangential Absolute Velocity")
+plt.grid(alpha=0.2)
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,p_1,"b")
+plt.plot(rr,p_2,"g")
+plt.plot(rr,p_3,"r")
+plt.ylabel(r"$p$ $[Pa]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out"])
+plt.title("Static Pressure")
+plt.grid(alpha=0.2)
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,p_t1,"b")
+plt.plot(rr,p_t2,"g")
+plt.plot(rr,p_t3,"r")
+plt.ylabel(r"$p_t$ $[Pa]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out"])
+plt.title("Total Pressure")
+plt.grid(alpha=0.2)
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr, T_1 ,"b")
+plt.plot(rr, T_2 ,"g")
+plt.plot(rr, T_3 ,"r")
+plt.ylabel(r"$T$ $[K]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Static Temperature")
+plt.grid(alpha=0.2)
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,rho_1,"b")
+plt.plot(rr,rho_2,"g")
+plt.plot(rr,rho_3,"r")
+plt.ylabel(r"$\rho$ $[kg/m^3]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Density")
+plt.grid(alpha=0.2)
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,s_1,"b")
+plt.plot(rr,s_2,"g")
+plt.plot(rr,s_3,"r")
+plt.ylabel(r"$s$ $[J/K]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Entropy")
+plt.grid(alpha=0.2)
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
+plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
+plt.plot(rr,180/np.pi * np.array(alpha_3),"r")
+plt.ylabel(r"$\alpha$ [deg]")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out"])
+plt.title("Absolute Flow Angle")
+plt.grid(alpha=0.2)
+ 
+ 
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,chi)
+plt.plot(rr2,chi_2)
+plt.ylabel(r"$\chi$")
+plt.xlabel(r"$r \  [m]$")
+plt.title("Reaction Degree")
+plt.legend(["Stage 1","Stage 2"])
+plt.grid(alpha=0.2)
+
+# This should be constant if a free vortex distribution is used
+# plt.figure(figsize=(6, 5), dpi=80)
+# plt.plot(rr,L_eul)
+# plt.title("Euler Work [J/kg]")
 
 # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # P stands for plotting
 
-fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(3, 6), dpi=65) # Create figure
+plt.show()
+
+
+
+
+
+
+
+
+
+
+fig, axs = plt.subplots(3,1, sharex = True,  figsize=(4, 7), dpi=65) # Create figure
 
 j = 0 # Index used to move through the subplots
-for i in [R_h, R_m, R_t]:
-    # Evaluate the quantities to plot on the desired radius
-    U_P   = float(U.subs(r,   i).evalf())
-    V_a1P = float(V_a1.subs(r,i).evalf())
-    V_t1P = float(V_t1.subs(r,i).evalf())
-    W_a1P = float(W_a1.subs(r,i).evalf())
-    W_t1P = float(W_t1.subs(r,i).evalf())
-    V_a2P = float(V_a2.subs(r,i).evalf())
-    V_t2P = float(V_t2.subs(r,i).evalf())
-    W_a2P = float(W_a2.subs(r,i).evalf())
-    W_t2P = float(W_t2.subs(r,i).evalf())
+for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
+    
+    # Find the index of the radius we are considering
+    index = np.where(np.isclose(rr, i))
+    index = (index[0])[0]
+    
+    #Evaluate q.ties at that radius
+    U_P   = U[index]
+    V_a1P = V_a1[index]
+    V_t1P = V_t1[index]
+    W_a1P = W_a1[index]
+    W_t1P = W_t1[index]
+    V_a2P = V_a2[index]
+    V_t2P = V_t2[index]
+    W_a2P = W_a2[index]
+    W_t2P = W_t2[index]
 
-    # axs[j].grid() #Add grid
+    # axs[j].grid(alpha=0.2) #Add grid
     
     #Plot inlet and outlet triangles
     axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
-    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red","red"])
+    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","green","green"])
     
-    axs.flat[j].set_xlim(-50, 300) #Set the limits for the x axis
-    axs.flat[j].set_ylim(-5, 200)  #Set the limits for the y axis
+    axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
+    axs.flat[j].set_ylim(-5,  20 + max(V_a2[0],V_a1[-1]) )  #Set the limits for the y axis
     
     axs[j].set_aspect('equal') #Equal aspect ratio axes
+    axs[j].set_ylabel(r"Axial Component $[m/s]$")
+    axs[j].set_title(name)
 
     j = j+1
-plt.show()
 
+axs[2].set_xlabel(r"Tangential Component $[m/s]$")
+
+fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(4, 7), dpi=65) # Create figure
+
+j = 0 # Index used to move through the subplots
+for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
+
+    # Find the index of the radius we are considering
+    index = np.where(np.isclose(rr, i))
+    index = (index[0])[0]
+
+    #Evaluate q.ties at that radius
+    U_P   = U[index]
+    V_a2P = V_a2[index]
+    V_t2P = V_t2[index]
+    V_a3P = V_a3[index]
+    V_t3P = V_t3[index]
+
+    # axs[j].grid(alpha=0.2) #Add grid
+    
+    #Plot inlet and outlet triangles
+    axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","green"])
+    axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red"])
+    
+    
+    axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
+    axs.flat[j].set_ylim(-5, 20 + max(float(V_a2[0]), float(V_a2[-1])))  #Set the limits for the y axis
+    
+    axs[j].set_aspect('equal') #Equal aspect ratio axes
+    axs[j].set_ylabel(r"Axial Component $[m/s]$")
+    axs[j].set_title(name)
+
+    j = j+1
+
+axs[2].set_xlabel(r"Tangential Component $[m/s]$")
+
+
+# plt.show()
