@@ -25,7 +25,7 @@ Rm=0.30 #mean line radius
 
 ## achi2al compressor
 #vavra: get reaction degree and flow coefficient to get machi2mum efficiency
-chi2=0.5 #reaction degree
+chi2=0.6 #reaction degree
 efficiency_TT=0.91
 eta_S = 0.92
 eta_R = 0.92
@@ -55,7 +55,7 @@ T3=Tt3-V3_mag**2/(2*cp)
 M3=V3_mag/sqrt(gamma*R*T3)
 p3=Pt3*(1+(gamma-1)/2*M3**2)**((-gamma)/(gamma-1))
 rho3=p3/(R*T3)
-b2=mdot/(rho3*V3a*2*pi*Rm)
+b2=b_1
 
 #quantities at station 4 (after rotor)
 V4t=L_eul/Um + V3t

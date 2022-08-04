@@ -81,7 +81,7 @@ print("")
 print("########## ROTOR INLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 1e-5
+tol = 1e-3
 iter= 1
 
 # This loop can be eliminated by varying b_1 to accomodate for m_dot_req
@@ -165,7 +165,7 @@ print("")
 print("########## ROTOR OUTLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 1e-5 # Tolerance of error wrt the desires mass flow value
+tol = 1e-3 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 
@@ -277,7 +277,7 @@ print("")
 print("########## STATOR OUTLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 1e-5 # Tolerance of error wrt the desires mass flow value
+tol = 1e-3 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
@@ -392,11 +392,11 @@ R_t2 = R_m + b_2 / 2  # Tip Radius          [m]
 
 rr2 = np.linspace(R_h2, R_t2, pts) # Discrete space of the radii over which we compute our quantities
 deltaR2 = (R_t2 - R_h2)/ (pts - 1) # Radius interval between points
-U2 = arrayLst( omega * rr2[t] for t in range(pts)) # Peripheral velocity  [m/s]
+# U2 = arrayLst( omega * rr2[t] for t in range(pts)) # Peripheral velocity  [m/s]
 mean_index = pts//2  # Index of the various lists corresponding to mean radius quantities
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 1e-5 # Tolerance of error wrt the desires mass flow value
+tol = 1e-3 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 
@@ -504,7 +504,7 @@ print("")
 print("########## STATOR 2 OUTLET ##########")
 
 err = 1e10 # Inital value to enter the loop, meaningless
-tol = 1e-5 # Tolerance of error wrt the desires mass flow value
+tol = 1e-3 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
