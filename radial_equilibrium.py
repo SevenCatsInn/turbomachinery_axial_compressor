@@ -332,7 +332,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         rho_3[j] = p_3[j] / (R*T_3[j])
         M_3[j]   = V_3[j] / np.sqrt(gamma * R * T_3[j])
         M_3r[j]  = W_3[j] / np.sqrt(gamma * R * T_3[j])
-        p_t3[j]  = p_3[j]*(1 + (gamma-1) / 2 * M_2[j]**2  ) ** (gamma/(gamma-1))
+        p_t3[j]  = p_3[j]*(1 + (gamma-1) / 2 * M_3[j]**2  ) ** (gamma/(gamma-1))
         p_t3r[j] = p_3[j]*(1 + (gamma-1) / 2 * M_3r[j]**2 ) ** (gamma/(gamma-1))
 
         integrand_3[j] = 2 * np.pi * rr[j] * rho_3[j] * V_a3[j]
