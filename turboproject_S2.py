@@ -39,9 +39,9 @@ psi = L_eul / Um**2
 lamda=psi*2
 omega=rpm * pi / 30
 
-V3a=V_a3[mean_index]
+V3a=V_a3m
 phi = V3a / Um
-V3t=V_t3[mean_index]
+V3t=V_t3m
 
 V3=[V3a, V3t]
 V1_mag=Norm(V3)
@@ -113,7 +113,7 @@ while abs(err)>tol:
     T5is=T4 + eta_S*(T5-T4)
     p5=(T5is/Tt4)**(gamma/(gamma-1))*Pt4
     rho5=p5/(R*T5)
-    V5a_new=mdot/(rho5*2*pi*b1*Rm)
+    V5a_new=mdot/(rho5*2*pi*b2*Rm)
     err=abs(V5a_new-V5a)
     V5a=V5a_new
     iter=iter+1
@@ -135,3 +135,14 @@ V_t5m = V5t
 
 print("")
 print("\u03C7, \u03A6, \u03A8 = ", chi2, phi, psi)
+
+n = 1
+matA = np.array([[R_m**n, -1 / R_m], 
+                 [R_m**n,  1 / R_m]])
+
+vecB = np.array([[V_t3m],[V_t4m]])
+
+x = np.linalg.solve(matA,vecB)
+
+a22 = (x[0])[0]
+b22 = (x[1])[0]

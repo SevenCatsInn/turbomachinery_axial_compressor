@@ -283,7 +283,7 @@ iter = 1
 # Input data
 omega_loss_S = 0.0
 
-V_t3 = list( V_t3m * R_m / rr[t]  for t in range(pts))
+V_t3 = arrayLst( a22 * rr[t]**n - b22 / rr[t] for t in range(pts))
 
 rV_t3  = arrayLst(rr[t] * V_t3[t] for t in range(pts))
 drV_t3 = finDiff(rV_t3,deltaR)
@@ -409,7 +409,7 @@ omega_loss_R = 0.0 # Coefficient of loss
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
 ds_4 = list(ds_3) # Dertivative wrt r of entropy
 
-V_t4 = arrayLst(V_t4m * R_m / rr2[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
+V_t4 = arrayLst( a22 * rr[t]**n + b22 / rr[t] for t in range(pts))
 
 rV_t4  = arrayLst(rr2[t] * V_t4[t] for t in range(pts))
 drV_t4 = finDiff(rV_t4,deltaR2)
