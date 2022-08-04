@@ -14,8 +14,8 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 
 #Input
 mdot=100 #mass flow rate
-Pt3=p_t3[mean_index] # pressure [bar]
-Tt3=T_t3[mean_index] #inlet temperature [K]
+Pt3=p_t3 # pressure [bar]
+Tt3=T_t3 #inlet temperature [K]
 beta=1.45/beta #compression ratio
 Rm=0.30 #mean line radius
 
@@ -25,7 +25,8 @@ Rm=0.30 #mean line radius
 
 ## achi2al compressor
 #vavra: get reaction degree and flow coefficient to get machi2mum efficiency
-chi2=0.5 #reaction degree
+
+chi2=0.6 #reaction degree
 efficiency_TT=0.91
 eta_S = 0.92
 eta_R = 0.92
@@ -39,9 +40,9 @@ psi = L_eul / Um**2
 lamda=psi*2
 omega=rpm * pi / 30
 
-V3a=V_a3[mean_index]
+V3a=V_a3m
 phi = V3a / Um
-V3t=V_t3[mean_index]
+V3t=V_t3m
 
 V3=[V3a, V3t]
 V1_mag=Norm(V3)
@@ -55,7 +56,9 @@ T3=Tt3-V3_mag**2/(2*cp)
 M3=V3_mag/sqrt(gamma*R*T3)
 p3=Pt3*(1+(gamma-1)/2*M3**2)**((-gamma)/(gamma-1))
 rho3=p3/(R*T3)
-b2=b1
+
+b2=b1 #mdot/(rho3*V3a*2*pi*Rm)
+
 
 #quantities at station 4 (after rotor)
 V4t=L_eul/Um + V3t
@@ -135,3 +138,17 @@ V_t5m = V5t
 
 print("")
 print("\u03C7, \u03A6, \u03A8 = ", chi2, phi, psi)
+# General Whirl Design
+# a * R_m - b / R_m = V_t1m
+# a * R_m + b / R_m = V_t2m
+
+n = 1
+matA2 = np.array([[R_m**n, -1 / R_m], 
+                 [R_m**n,  1 / R_m]])
+
+vecB2 = np.array([[V_t3m],[V_t4m]])
+
+x2 = np.linalg.solve(matA2,vecB2)
+
+a22 = (x[0])[0]
+b22 = (x[1])[0]
