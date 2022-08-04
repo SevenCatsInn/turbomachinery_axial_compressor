@@ -283,7 +283,7 @@ iter = 1
 # Input data
 omega_loss_S = 0.0
 
-V_t3 = list( V_t3m / R_m * rr[t]  for t in range(pts))
+V_t3 = list( V_t3m * R_m / rr[t]  for t in range(pts))
 
 rV_t3  = arrayLst(rr[t] * V_t3[t] for t in range(pts))
 drV_t3 = finDiff(rV_t3,deltaR)
@@ -392,7 +392,7 @@ R_t2 = R_m + b_2 / 2  # Tip Radius          [m]
 
 rr2 = np.linspace(R_h2, R_t2, pts) # Discrete space of the radii over which we compute our quantities
 deltaR2 = (R_t2 - R_h2)/ (pts - 1) # Radius interval between points
-# U2 = arrayLst( omega * rr2[t] for t in range(pts)) # Peripheral velocity  [m/s]
+U2 = arrayLst( omega * rr2[t] for t in range(pts)) # Peripheral velocity  [m/s]
 mean_index = pts//2  # Index of the various lists corresponding to mean radius quantities
 
 err = 1e10 # Inital value to enter the loop, meaningless
@@ -409,7 +409,7 @@ omega_loss_R = 0.0 # Coefficient of loss
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
 ds_4 = list(ds_3) # Dertivative wrt r of entropy
 
-V_t4 = arrayLst(V_t4m / R_m * rr2[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
+V_t4 = arrayLst(V_t4m * R_m / rr2[t] for t in range(pts)) # Outlet tangential velocity distribution (e.g. free vortex)
 
 rV_t4  = arrayLst(rr2[t] * V_t4[t] for t in range(pts))
 drV_t4 = finDiff(rV_t4,deltaR2)
@@ -422,7 +422,7 @@ T_4 = T_4m * np.ones(pts) # Static temperature
 dh_t4 = finDiff(h_t4,deltaR2)
 
 
-# This loop can be avoided using flaired blades b_4 != b_3
+# This loop can be avoided using flaired blades
 while abs(err) > tol: # Begin loop to get mass flow convergence
     print("")
     print("---Iteration no. " + str(iter))

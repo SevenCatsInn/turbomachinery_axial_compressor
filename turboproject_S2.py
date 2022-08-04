@@ -55,7 +55,7 @@ T3=Tt3-V3_mag**2/(2*cp)
 M3=V3_mag/sqrt(gamma*R*T3)
 p3=Pt3*(1+(gamma-1)/2*M3**2)**((-gamma)/(gamma-1))
 rho3=p3/(R*T3)
-b2=b_1
+b2=b1
 
 #quantities at station 4 (after rotor)
 V4t=L_eul/Um + V3t
