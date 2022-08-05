@@ -284,7 +284,7 @@ iter = 1
 # Input data
 omega_loss_S = 0.0
 
-V_t3 = arrayLst( a22 * rr[t]**n + b22 / rr[t] for t in range(pts)) # Power Design
+V_t3 = arrayLst( a22 * rr[t]**n - b22 / rr[t] for t in range(pts)) # Power Design
 
 rV_t3  = arrayLst(rr[t] * V_t3[t] for t in range(pts))
 drV_t3 = finDiff(rV_t3,deltaR)
@@ -363,6 +363,28 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 print("")
 print("########## STAGE 2 ROTOR OUTLET ##########")
 
@@ -388,7 +410,7 @@ omega_loss_R = 0.0 # Coefficient of loss
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
 ds_4 = list(ds_3) # Dertivative wrt r of entropy
 
-V_t4 = arrayLst( a22 * rr[t]**n - b22 / rr[t] for t in range(pts)) # Power Design # 
+V_t4 = arrayLst( a22 * rr[t]**n + b22 / rr[t] for t in range(pts)) # Power Design # 
 rV_t4  = arrayLst(rr2[t] * V_t4[t] for t in range(pts))
 drV_t4 = finDiff(rV_t4,deltaR2)
 
@@ -699,9 +721,11 @@ deltabetafinal_root = theta_eq_root - delta_root + i_opt_root
 plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,W_1,"b")
 plt.plot(rr,W_2,"g")
+plt.plot(rr,W_3,"r")
+plt.plot(rr,W_4,"c")
 plt.ylabel(r" $W$ $[m/s]$")
 plt.xlabel(r"$r \  [m]$")
-plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.legend(["Rotor In","Rotor Out","Rotor 2 In", "Rotor 2 Out"])
 plt.title("Relative Velocity")
 plt.grid(alpha=0.2)
 
@@ -745,10 +769,24 @@ plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,p_t1,"b")
 plt.plot(rr,p_t2,"g")
 plt.plot(rr,p_t3,"r")
+plt.plot(rr,p_t4,"c")
+plt.plot(rr,p_t5,"m")
 plt.ylabel(r"$p_t$ $[Pa]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
 plt.title("Total Pressure")
+plt.grid(alpha=0.2)
+
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,h_t1,"b")
+plt.plot(rr,h_t2,"g")
+plt.plot(rr,h_t3,"r")
+plt.plot(rr,h_t4,"c")
+plt.plot(rr,h_t5,"m")
+plt.ylabel(r"$h_t$ $[Pa]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Total Enthalpy")
 plt.grid(alpha=0.2)
 
 plt.figure(figsize=(6, 5), dpi=80)
@@ -791,6 +829,8 @@ plt.figure(figsize=(6, 5), dpi=80)
 plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
 plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
 plt.plot(rr,180/np.pi * np.array(alpha_3),"r")
+plt.plot(rr,180/np.pi * np.array(alpha_4),"c")
+plt.plot(rr,180/np.pi * np.array(alpha_5),"m")
 plt.ylabel(r"$\alpha$ [deg]")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
