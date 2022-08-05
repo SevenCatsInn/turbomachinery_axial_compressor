@@ -22,7 +22,7 @@ R_h = R_m - b_1 / 2  # Hub Radius          [m]
 R_t = R_m + b_1 / 2  # Tip Radius          [m]  
 
 # Discretization
-pts = 200  # Total number of points across the radius, 
+pts = 50  # Total number of points across the radius, 
 if pts % 2 == 0: pts = pts + 1 # Make pts uneven if it's even
 
 rr = np.linspace(R_h, R_t, pts) # Discrete space of the radii over which we compute our quantities

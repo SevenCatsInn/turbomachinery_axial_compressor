@@ -82,9 +82,6 @@ while abs(err) > 10**(-4):
     Pt4 = p4 * (1 + (gamma-1)/2 * M4**2)**(gamma/(gamma-1))
     i=i+1
 
-print("Pt4 = ",str(Pt4))
-
-input()
 
 W4a=V4a
 W4=[W4a, W4t]
@@ -143,7 +140,7 @@ print("\u03C7, \u03A6, \u03A8 = ", chi2, phi, psi)
 # a * R_m + b / R_m = V_t2m
 
 
-n = 1
+n = 1.6
 matA2 = np.array([[R_m**n, -1 / R_m], 
                   [R_m**n,  1 / R_m]])
 
