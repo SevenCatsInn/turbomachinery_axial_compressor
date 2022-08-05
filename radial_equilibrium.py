@@ -474,6 +474,98 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 
 
+print("")
+print("########## STATOR 2 OUTLET ##########")
+
+err = 1e10 # Inital value to enter the loop, meaningless
+tol = 1e-3 # Tolerance of error wrt the desires mass flow value
+iter = 1
+
+# Input data
+omega_loss_S = 0.0
+
+V_t5 = list( V_t5m / R_m * rr2[t]  for t in range(pts))
+
+rV_t5  = arrayLst(rr2[t] * V_t5[t] for t in range(pts))
+drV_t5 = finDiff(rV_t5,deltaR)
+
+# Initial assumptions
+T_5  = list(T_5m * np.ones(pts))
+s_5  = s_4[:]
+ds_5 = s_4[:]
+
+# Imposed by thermodynamics
+h_t5 = h_t4
+dh_t5 = dh_t4
+T_t5 = T_t4
+
+# This loop can be avoided using flaired blades b_2 != b_1
+while abs(err) > tol: # Begin loop to get mass flow convergence
+    print("")
+    print("---Iteration no. " + str(iter))
+
+    V_a5 = list(np.zeros(pts)) # Create the list
+    V_a5[mean_index] = V_a5m  # Initial value for forward integration starting from mean radius
+    dV_a5 = list(np.zeros(pts))
+    
+    # N.I.S.R.E at stator outlet (5)
+    for j in list(range(0,mean_index)):
+        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
+            dV_a5[q] = 1 / V_a5[q] * ( dh_t5[q] - T_5[q] * ds_5[q] - V_t5[q] / rr2[q] * drV_t5[q] )
+            V_a5[q + k*1] = V_a5[q] + dV_a5[q] * k * deltaR 
+
+    # Initiate all the lists
+    V_5 , alpha_5, p_5, rho_5, M_5, p_t5, integrand_5, W_t5, W_a5, W_5, beta_5, M_5r, p_t5, p_t5r = (list(np.zeros(pts)) for t in range(14))
+
+    for j in list(range(pts)): # Compute quantities along the radius
+        # Kinematics
+        alpha_5[j] = np.arctan(V_t5[j]/V_a5[j])
+        V_5[j] = np.sqrt(float(V_a5[j]**2 + V_t5[j]**2))
+        W_t5[j] = V_t5[j] - U2[j]
+        W_a5[j] = V_a5[j]
+        W_5[j] = np.sqrt(W_t5[j]**2 + W_a5[j]**2)
+        beta_5[j] = np.arctan(W_t5[j]/W_a5[j])
+        
+        # Thermodynamics
+        T_5[j] = T_t5[j] - V_5[j]**2 / (2 * c_p)
+        p_5[j] = p_5m * (T_5[j] / T_5m)**(gamma/(gamma-1)) * np.exp(- (s_5[j] - s_5[mean_index]) / R)
+        rho_5[j] = p_5[j] / (R*T_5[j])
+        M_5[j]   = V_5[j] / np.sqrt(gamma * R * T_5[j])
+        M_5r[j]  = W_5[j] / np.sqrt(gamma * R * T_5[j])
+        p_t5[j]  = p_5[j]*(1 + (gamma-1) / 2 * M_5[j]**2  ) ** (gamma/(gamma-1))
+        p_t5r[j] = p_5[j]*(1 + (gamma-1) / 2 * M_5r[j]**2 ) ** (gamma/(gamma-1))
+
+        integrand_5[j] = 2 * np.pi * rr2[j] * rho_5[j] * V_a5[j]
+        
+        #Evaluate the q.ties in section 1 (np.expressions) at the current radius
+        # tmp = overwritten at every iteration, no need for a new array for _1 quantities
+        
+        p_t5[j] = p_t4[j] - omega_loss_S * (p_t4[j] - p_4[j])
+
+        # ENTROPY EVALUATION
+
+        s_5[j]  = s_4[j] - R * np.log(p_t5[j] / p_t4[j])
+
+    ds_5 = finDiff(s_5,deltaR) # Derivative of s_5
+
+    m_dot_trap = np.trapz(integrand_5, rr)
+
+    err  = 1 - m_dot_trap/m_dot_req # Error
+    V_a5m = V_a5m*(1 + err) # New axial velocity
+    
+    
+
+    print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+    print("V_a5m = "+ str(V_a5m) + " [m/s]")
+    print("err = "+ str(err))
+    iter += 1
+
+
+
+
+
+
+
 
 
 
