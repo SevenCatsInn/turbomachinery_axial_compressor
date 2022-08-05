@@ -31,8 +31,8 @@ eta_R = 0.92
 Um = U[mean_index]
 
 #determine loading
-#L_is=cp*Tt3*(beta**((gamma-1)/gamma)-1)
-L_is = 0
+L_is=cp*Tt3*(beta**((gamma-1)/gamma)-1)
+# L_is = 9000
 L_eul=L_is/efficiency_TT
 
 psi = L_eul / Um**2
@@ -72,7 +72,7 @@ i=0
 while abs(err) > 10**(-4):
     V4_mag=sqrt(V4a**2+V4t**2)
     T4=Tt4-V4_mag**2/(2*cp)
-    T4is=T4+eta_R*(T4-T3)
+    T4is=T3 + eta_R*(T4-T3)
     p4=(T4is/Tt3)**(gamma/(gamma-1))*Pt3
     rho4=p4/(R*T4)
     V4a_new=mdot/(rho4*2*pi*b2*Rm)

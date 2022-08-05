@@ -415,8 +415,6 @@ ds_4 = list(ds_3) # Dertivative wrt r of entropy
 V_t4 = arrayLst( a22 * rr[t]**n + b22 / rr[t] for t in range(pts))
 #V_t4 = arrayLst( V_t4m / R_m * rr[t] for t in range(pts))
 
-print(V_t3[mean_index], V_t4[mean_index])
-input()
 
 rV_t4  = arrayLst(rr2[t] * V_t4[t] for t in range(pts))
 drV_t4 = finDiff(rV_t4,deltaR2)
