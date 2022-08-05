@@ -629,11 +629,11 @@ th = 8 #max thickness WRT chord [%]
 blade_chord = 0.06 #[m] starting point from reference procedure..
 solidity = 1 # at midspan c/s=1
 s_mid = solidity * blade_chord
-n_blade =round( 2 * 3.14 * R_m / s_mid)
+n_blade = round( 2 * np.pi * R_m / s_mid)
 # passo along blade span
-s_mid = 2 * 3.14 * R_m / n_blade
-s_tip = 2 * 3.14 * R_t / n_blade
-s_root = 2 * 3.14 * R_h / n_blade
+s_mid = 2 * np.pi * R_m / n_blade
+s_tip = 2 * np.pi * R_t / n_blade
+s_root = 2 * np.pi * R_h / n_blade
 #solidity along blade span
 sol_mid = blade_chord / s_mid
 sol_tip = blade_chord / s_tip
@@ -696,7 +696,7 @@ deltabetafinal_mid = theta_eq_mid - delta_mid + i_opt_mid
 deltabetafinal_tip = theta_eq_tip - delta_tip + i_opt_tip
 deltabetafinal_root = theta_eq_root - delta_root + i_opt_root
 
- 
+
 
 
 
