@@ -521,7 +521,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         # Kinematics
         alpha_5[j] = np.arctan(V_t5[j]/V_a5[j])
         V_5[j] = np.sqrt(float(V_a5[j]**2 + V_t5[j]**2))
-        W_t5[j] = V_t5[j] - U2[j]
+        W_t5[j] = V_t5[j] - U[j]
         W_a5[j] = V_a5[j]
         W_5[j] = np.sqrt(W_t5[j]**2 + W_a5[j]**2)
         beta_5[j] = np.arctan(W_t5[j]/W_a5[j])
