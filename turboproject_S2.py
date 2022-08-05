@@ -31,8 +31,8 @@ eta_R = 0.92
 Um = U[mean_index]
 
 #determine loading
-L_is=cp*Tt3*(beta**((gamma-1)/gamma)-1)
-# L_is = 11000
+#L_is=cp*Tt3*(beta**((gamma-1)/gamma)-1)
+L_is = 0
 L_eul=L_is/efficiency_TT
 
 psi = L_eul / Um**2
@@ -142,13 +142,15 @@ print("\u03C7, \u03A6, \u03A8 = ", chi2, phi, psi)
 # a * R_m - b / R_m = V_t1m
 # a * R_m + b / R_m = V_t2m
 
-n = 1.5
+
+n = 1
 matA2 = np.array([[R_m**n, -1 / R_m], 
-                 [R_m**n,  1 / R_m]])
+                  [R_m**n,  1 / R_m]])
 
 vecB2 = np.array([[V_t3m],[V_t4m]])
 
+
 x2 = np.linalg.solve(matA2,vecB2)
 
-a22 = (x[0])[0]
-b22 = (x[1])[0]
+a22 = (x2[0])[0]
+b22 = (x2[1])[0]
