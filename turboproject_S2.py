@@ -1,5 +1,7 @@
 from numpy import sqrt, arctan, tan, pi, cos
 
+print("")
+print("####### MEAN LINE DESIGN STAGE 2 #######")
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
@@ -15,7 +17,6 @@ mdot=100 #mass flow rate
 Pt3=p_t3 # pressure [bar]
 Tt3=T_t3 #inlet temperature [K]
 beta=1.45/beta #compression ratio
-Rm=0.30 #mean line radius
 
 
 
@@ -31,6 +32,7 @@ Um = U[mean_index]
 
 #determine loading
 L_is=cp*Tt3*(beta**((gamma-1)/gamma)-1)
+# L_is = 11000
 L_eul=L_is/efficiency_TT
 
 psi = L_eul / Um**2
@@ -53,7 +55,7 @@ T3=Tt3-V3_mag**2/(2*cp)
 M3=V3_mag/sqrt(gamma*R*T3)
 p3=Pt3*(1+(gamma-1)/2*M3**2)**((-gamma)/(gamma-1))
 rho3=p3/(R*T3)
-b2=b1 #mdot/(rho3*V3a*2*pi*Rm)
+b2=b1
 
 #quantities at station 4 (after rotor)
 V4t=L_eul/Um + V3t
@@ -79,6 +81,10 @@ while abs(err) > 10**(-4):
     M4 = V4_mag / sqrt(gamma * R * T4)
     Pt4 = p4 * (1 + (gamma-1)/2 * M4**2)**(gamma/(gamma-1))
     i=i+1
+
+print("Pt4 = ",str(Pt4))
+
+input()
 
 W4a=V4a
 W4=[W4a, W4t]
@@ -136,7 +142,7 @@ print("\u03C7, \u03A6, \u03A8 = ", chi2, phi, psi)
 # a * R_m - b / R_m = V_t1m
 # a * R_m + b / R_m = V_t2m
 
-#n = 1.4
+n = 1.5
 matA2 = np.array([[R_m**n, -1 / R_m], 
                  [R_m**n,  1 / R_m]])
 

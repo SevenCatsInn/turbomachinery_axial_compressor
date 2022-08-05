@@ -173,7 +173,7 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.0 # Coefficient of loss
+omega_loss_R = 0.08 # Coefficient of loss
 
 # Need to transform s_2 and ds_2 into lists otherwise numpy will assign the same id to s_1 and s_2, even with s_2 = s_1[:] why??
 s_2  = list( s_1)    # Initial radial entropy distribution in 2
@@ -282,9 +282,10 @@ tol = 1e-5 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_S = 0.0
+omega_loss_S = 0.08
 
-V_t3 = arrayLst( a22 * rr[t]**n - b22 / rr[t] for t in range(pts)) # Power Design
+V_t3 = arrayLst( a22 * rr[t]**n - b22 / rr[t] for t in range(pts)) 
+#V_t3 = arrayLst( V_t3m / R_m * rr[t] for t in range(pts))
 
 rV_t3  = arrayLst(rr[t] * V_t3[t] for t in range(pts))
 drV_t3 = finDiff(rV_t3,deltaR)
@@ -404,13 +405,15 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.0 # Coefficient of loss
+omega_loss_R = 0.08 # Coefficient of loss
 
 # Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s     and s_4, even with s_4 = s_3[:] why??
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
 ds_4 = list(ds_3) # Dertivative wrt r of entropy
 
-V_t4 = arrayLst( a22 * rr[t]**n + b22 / rr[t] for t in range(pts)) # Power Design # 
+V_t4 = arrayLst( a22 * rr[t]**n + b22 / rr[t] for t in range(pts))  
+#V_t4 = arrayLst( V_t4m / R_m * rr[t] for t in range(pts))
+
 rV_t4  = arrayLst(rr2[t] * V_t4[t] for t in range(pts))
 drV_t4 = finDiff(rV_t4,deltaR2)
 
@@ -504,7 +507,7 @@ tol = 1e-3 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_S = 0.0
+omega_loss_S = 0.08
 
 V_t5 = list( V_t5m / R_m * rr2[t]  for t in range(pts))
 
