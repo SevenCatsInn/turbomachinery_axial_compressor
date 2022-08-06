@@ -697,9 +697,15 @@ deltabetafinal_tip = theta_eq_tip - delta_tip + i_opt_tip
 deltabetafinal_root = theta_eq_root - delta_root + i_opt_root
 
 
+print(deltabetafinal_root)
+print(deltabetafinal_mid)
+print(deltabetafinal_tip)
 
+print(180/np.pi * abs(beta_1[0]-beta_2[0]))
+print(180/np.pi * abs(beta_1[mean_index]-beta_2[mean_index]))
+print(180/np.pi * abs(beta_1[-1]-beta_2[-1]))
 
-
+input()
 
 
 
