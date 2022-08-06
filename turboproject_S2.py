@@ -1,12 +1,7 @@
 from numpy import sqrt, arctan, tan, pi, cos
 
-<<<<<<< HEAD
-print('')
-print('########## STAGE 2 MLD ##########')
-=======
 print("")
 print("####### MEAN LINE DESIGN STAGE 2 #######")
->>>>>>> script_fede
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
@@ -29,12 +24,7 @@ beta=1.48/beta #compression ratio
 
 ## achi2al compressor
 #vavra: get reaction degree and flow coefficient to get machi2mum efficiency
-<<<<<<< HEAD
-
-chi2=0.6 #reaction degree
-=======
 chi2=0.5 #reaction degree
->>>>>>> script_fede
 efficiency_TT=0.91
 eta_S = 0.92
 eta_R = 0.92
