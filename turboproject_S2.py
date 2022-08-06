@@ -1,7 +1,12 @@
 from numpy import sqrt, arctan, tan, pi, cos
 
+<<<<<<< HEAD
 print('')
 print('########## STAGE 2 MLD ##########')
+=======
+print("")
+print("####### MEAN LINE DESIGN STAGE 2 #######")
+>>>>>>> script_fede
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
@@ -16,8 +21,7 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 mdot=100 #mass flow rate
 Pt3=p_t3 # pressure [bar]
 Tt3=T_t3 #inlet temperature [K]
-beta=1.45/beta #compression ratio
-Rm=0.30 #mean line radius
+beta=1.48/beta #compression ratio
 
 
 
@@ -25,8 +29,12 @@ Rm=0.30 #mean line radius
 
 ## achi2al compressor
 #vavra: get reaction degree and flow coefficient to get machi2mum efficiency
+<<<<<<< HEAD
 
 chi2=0.6 #reaction degree
+=======
+chi2=0.5 #reaction degree
+>>>>>>> script_fede
 efficiency_TT=0.91
 eta_S = 0.92
 eta_R = 0.92
@@ -34,6 +42,7 @@ Um = U[mean_index]
 
 #determine loading
 L_is=cp*Tt3*(beta**((gamma-1)/gamma)-1)
+# L_is = 9000
 L_eul=L_is/efficiency_TT
 
 psi = L_eul / Um**2
@@ -56,8 +65,7 @@ T3=Tt3-V3_mag**2/(2*cp)
 M3=V3_mag/sqrt(gamma*R*T3)
 p3=Pt3*(1+(gamma-1)/2*M3**2)**((-gamma)/(gamma-1))
 rho3=p3/(R*T3)
-
-b2=b1 #mdot/(rho3*V3a*2*pi*Rm)
+b2=b1
 
 
 #quantities at station 4 (after rotor)
@@ -75,7 +83,7 @@ i=0
 while abs(err) > 10**(-4):
     V4_mag=sqrt(V4a**2+V4t**2)
     T4=Tt4-V4_mag**2/(2*cp)
-    T4is=T4+eta_R*(T4-T3)
+    T4is=T3 + eta_R*(T4-T3)
     p4=(T4is/Tt3)**(gamma/(gamma-1))*Pt3
     rho4=p4/(R*T4)
     V4a_new=mdot/(rho4*2*pi*b2*Rm)
@@ -142,13 +150,15 @@ print("\u03C7, \u03A6, \u03A8 = ", chi2, phi, psi)
 # a * R_m - b / R_m = V_t1m
 # a * R_m + b / R_m = V_t2m
 
-n = 1
+
+n = 1.0
 matA2 = np.array([[R_m**n, -1 / R_m], 
-                 [R_m**n,  1 / R_m]])
+                  [R_m**n,  1 / R_m]])
 
 vecB2 = np.array([[V_t3m],[V_t4m]])
 
+
 x2 = np.linalg.solve(matA2,vecB2)
 
-a22 = (x[0])[0]
-b22 = (x[1])[0]
+a22 = (x2[0])[0]
+b22 = (x2[1])[0]
