@@ -15,17 +15,17 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 mdot=100 #mass flow rate
 Pt1=100000 # pressure [bar]
 Tt1=300 #inlet temperature [K]
-beta=1.2 #compression ratio
+beta=1.22 #compression ratio
 
 
 ## Non dimensional quantities
 
 ## axial compressor
 #vavra: get reaction degree and flow coefficient to get machimum efficiency
-phi=0.8 #from slide 10 achial compressors
-chi=0.6 #reaction degree
-psi=0.3 #from first graph slide 12
-Rm=0.3 #mean line radius
+phi=0.85 #from slide 10 achial compressors
+chi=0.7 #reaction degree
+psi=0.29 #from first graph slide 12
+Rm=0.33 #mean line radius
 efficiency_TT=0.91
 eta_S = 0.92
 eta_R = 0.92
@@ -150,7 +150,7 @@ print("\u03C7, \u03A6, \u03A8 = ", chi, phi, psi)
 # a * R_m - b / R_m = V_t1m
 # a * R_m + b / R_m = V_t2m
 
-n = 1.2
+n = 1.5
 matA = np.array([[R_m**n, -1 / R_m], 
                  [R_m**n,  1 / R_m]])
 
