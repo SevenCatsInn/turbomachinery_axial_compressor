@@ -15,7 +15,7 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 mdot=100 #mass flow rate
 Pt1=100000 # pressure [bar]
 Tt1=300 #inlet temperature [K]
-beta=1.22 #compression ratio
+beta=1.227 #compression ratio
 
 
 ## Non dimensional quantities
@@ -150,7 +150,7 @@ print("\u03C7, \u03A6, \u03A8 = ", chi, phi, psi)
 # a * R_m - b / R_m = V_t1m
 # a * R_m + b / R_m = V_t2m
 
-n = 1.5
+n = 1.65
 matA = np.array([[R_m**n, -1 / R_m], 
                  [R_m**n,  1 / R_m]])
 

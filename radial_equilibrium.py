@@ -860,6 +860,8 @@ plt.grid(alpha=0.2)
 # Plot inlet and outlet velocity triangles at hub, mean radius and tip
 # P stands for plotting
 
+
+print("Average Exit Total Pressure = " , np.average(p_t5))
 plt.show()
 
 
