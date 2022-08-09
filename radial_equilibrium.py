@@ -608,9 +608,6 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 ############### Blade design (Stage 1) ##############
 
-print(len(beta_2))
-print(type(beta_2))
-input()
 # Design Parameters from computations above
 # Inlet
 beta_1root = beta_1[0]          * 180 / pi #deg
@@ -650,9 +647,10 @@ sigma_root = chord / s_root
 
 # Equivalent camber theta: from graphs on slide 9 ppt
 # NOTE: TUNABLE
-theta_eq_mid  = 13
-theta_eq_tip  = 23
-theta_eq_root = 39
+theta_eq_root = 20
+theta_eq_mid  = 14
+theta_eq_tip  = 0
+
 
 # compute C_l = theta/25
 cl_mid  = theta_eq_mid  / 25
@@ -734,8 +732,18 @@ deltabetafinal_mid = theta_eq_mid - delta_mid + i_opt_mid
 deltabetafinal_tip = theta_eq_tip - delta_tip + i_opt_tip
 deltabetafinal_root = theta_eq_root - delta_root + i_opt_root
 
-print(deltabetafinal_mid)
-print(abs(deltabeta1_mid))
+
+print("")
+print("Lieblein deflection ROOT = ", deltabetafinal_root)
+print("Design deflection   ROOT = ", abs(deltabeta1_root))
+
+print("")
+print("Lieblein deflection MID = ", deltabetafinal_mid)
+print("Design deflection   MID = ", abs(deltabeta1_mid))
+
+print("")
+print("Lieblein deflection TIP = ", deltabetafinal_tip)
+print("Design deflection   TIP = ", abs(deltabeta1_tip))
 
 input()
 
