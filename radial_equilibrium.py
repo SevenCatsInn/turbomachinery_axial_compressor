@@ -105,7 +105,7 @@ while abs(err) > tol:
         
         
     # Initiate all the lists
-    V_1 , alpha_1, W_t1, W_a1, W_1, beta_1, p_1, rho_1, M_1, M_1r, p_t1, p_t1r, integrand_1, chi, L_eul = (list(np.zeros(pts)) for t in range(15))
+    V_1 , alpha_1, W_t1, W_a1, W_1, beta_1, p_1, rho_1, M_1, M_1r, p_t1, p_t1r, integrand_1, chi, L_eul = (np.zeros(pts) for t in range(15))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
@@ -209,7 +209,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         
         
     # Initiate all the lists
-    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul = (list(np.zeros(pts)) for t in range(15))
+    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul = (np.zeros(pts) for t in range(15))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
@@ -317,7 +317,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
             V_a3[q + k*1] = V_a3[q] + dV_a3[q] * k * deltaR 
 
     # Initiate all the lists
-    V_3 , alpha_3, p_3, rho_3, M_3, p_t3, integrand_3, W_t3, W_a3, W_3, beta_3, M_3r, p_t3, p_t3r = (list(np.zeros(pts)) for t in range(14))
+    V_3 , alpha_3, p_3, rho_3, M_3, p_t3, integrand_3, W_t3, W_a3, W_3, beta_3, M_3r, p_t3, p_t3r = (np.zeros(pts) for t in range(14))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
@@ -443,7 +443,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
             V_a4[q + k*1] = V_a4[q] + dV_a4[q] * k * deltaR2 
 
     # Initiate all the lists
-    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi_2, L_eul = (list(np.zeros(pts)) for t in range(15))
+    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi_2, L_eul = (np.zeros(pts) for t in range(15))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
@@ -542,7 +542,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
             V_a5[q + k*1] = V_a5[q] + dV_a5[q] * k * deltaR 
 
     # Initiate all the lists
-    V_5 , alpha_5, p_5, rho_5, M_5, p_t5, integrand_5, W_t5, W_a5, W_5, beta_5, M_5r, p_t5, p_t5r = (list(np.zeros(pts)) for t in range(14))
+    V_5 , alpha_5, p_5, rho_5, M_5, p_t5, integrand_5, W_t5, W_a5, W_5, beta_5, M_5r, p_t5, p_t5r = (np.zeros(pts) for t in range(14))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
@@ -608,7 +608,9 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 ############### Blade design (Stage 1) ##############
 
-
+print(len(beta_2))
+print(type(beta_2))
+input()
 # Design Parameters from computations above
 # Inlet
 beta_1root = beta_1[0]          * 180 / pi #deg
