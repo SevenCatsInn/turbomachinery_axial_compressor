@@ -606,48 +606,58 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 
 
-############### Blade design (1st rotor) ##############
-U_midspan = omega*R_m
-U_root = omega*R_h
-U_tip = omega*R_t
-#inlet
-beta1_length = len(beta_1)
-beta_1mid = beta_1[mean_index]* 180 / pi #deg
-beta_1root = beta_1[0] * 180 / pi #deg
-beta_1tip = beta_1[beta1_length - 1 ] * 180 / pi #deg
-#outlet
-beta2_length = len(beta_2)
-beta_2mid = beta_2[mean_index] * 180 / pi #deg
-beta_2root = beta_2[0] * 180 / pi #deg
-beta_2tip = beta_2[beta2_length - 1] * 180 / pi #deg
-#deflection
-deltabeta1_mid = beta_1mid - beta_2mid 
-deltabeta1_root = beta_1root - beta_2root 
-deltabeta1_tip = beta_1tip - beta_2tip 
-# initial hp
-th = 8 #max thickness WRT chord [%]
-blade_chord = 0.06 #[m] starting point from reference procedure..
+############### Blade design (Stage 1) ##############
+
+
+# Design Parameters from computations above
+# Inlet
+beta_1root = beta_1[0]          * 180 / pi #deg
+beta_1mid  = beta_1[mean_index] * 180 / pi #deg
+beta_1tip  = beta_1[-1]         * 180 / pi #deg
+
+# Outlet
+beta_2root = beta_2[0]          * 180 / pi #deg
+beta_2mid  = beta_2[mean_index] * 180 / pi #deg
+beta_2tip  = beta_2[-1]         * 180 / pi #deg
+
+# Deflection
+deltabeta1_root = beta_1root - beta_2root
+deltabeta1_mid  = beta_1mid  - beta_2mid 
+deltabeta1_tip  = beta_1tip  - beta_2tip 
+
+# Initial hypothesis
+th = 8 # max thickness WRT chord [%]
+blade_chord = 0.06 #[m] starting point from reference procedure
 solidity = 1 # at midspan c/s=1
 s_mid = solidity * blade_chord
-n_blade = round( 2 * np.pi * R_m / s_mid)
-# pitch along blade span
-s_mid = 2 * np.pi * R_m / n_blade
-s_tip = 2 * np.pi * R_t / n_blade
+
+n_blade = round( 2 * np.pi * R_m / s_mid) # Number of blades
+
+# Pitch along blade span
+s_mid  = 2 * np.pi * R_m / n_blade
+s_tip  = 2 * np.pi * R_t / n_blade
 s_root = 2 * np.pi * R_h / n_blade
-#solidity along blade span
-sol_mid = blade_chord / s_mid
-sol_tip = blade_chord / s_tip
-sol_root = blade_chord / s_root
-# equivalent camber: from graphs on slide 9 ppt
-theta_eq_mid = 13
-theta_eq_tip = 23
-theta_eq_root =  39
-# compute cl=theta/25
+
+# Solidity along blade span, recomputed after choosing n blades
+sigma_mid  = blade_chord / s_mid
+sigma_tip  = blade_chord / s_tip
+sigma_root = blade_chord / s_root
+
+# Equivalent camber theta: from graphs on slide 9 ppt
+# CHOICE ---> Tunable
+theta_eq_mid  = 13
+theta_eq_tip  = 23
+theta_eq_root = 39
+
+# compute C_l = theta/25
 cl_mid = theta_eq_mid / 25
 cl_tip = theta_eq_tip / 25
 cl_root = theta_eq_root / 25
 
-#incidence: Lieblin correlation
+
+# TODO: Insert semiempirical correlations below instead of graph values
+
+# Incidence: Lieblin correlation
 #get i0,10 from beta1, slide 10
 i0_10_mid = 3.3
 i0_10_tip = 3.3
@@ -686,7 +696,7 @@ b_tip = 0.67
 b_root = 0.87
 
 #computation of deviation
-delta_mid = delta0_mid * kdeltath_mid + m_mid * theta_eq_mid / (sol_mid ** b_mid)
+delta_mid = delzta0_mid * kdeltath_mid + m_mid * theta_eq_mid / (sol_mid ** b_mid)
 delta_tip = delta0_tip * kdeltath_tip + m_tip * theta_eq_tip / (sol_tip ** b_tip)
 delta_root = delta0_root * kdeltath_root + m_root * theta_eq_root / (sol_root ** b_root)
 
