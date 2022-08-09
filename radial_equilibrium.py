@@ -682,9 +682,9 @@ k_ith_root = (10*th/chord)**q
 
 
 # Slope factor n
-n_mid = 0.025 * sigma_mid  - 0.06 - ( (abs(beta_1mid)/90)  ** (1+1.2*sigma_mid)  ) / (1.5 + 0.43 * sigma_mid)
-n_tip = 0.025 * sigma_tip  - 0.06 - ( (abs(beta_1tip)/90)  ** (1+1.2*sigma_tip)  ) / (1.5 + 0.43 * sigma_tip)
-n_root= 0.025 * sigma_root - 0.06 - ( (abs(beta_1root)/90) ** (1+1.2*sigma_root) ) / (1.5 + 0.43 * sigma_root)
+n_mid  = 0.025 * sigma_mid  - 0.06 - ( (abs(beta_1mid)/90)  ** (1+1.2*sigma_mid)  ) / (1.5 + 0.43 * sigma_mid)
+n_tip  = 0.025 * sigma_tip  - 0.06 - ( (abs(beta_1tip)/90)  ** (1+1.2*sigma_tip)  ) / (1.5 + 0.43 * sigma_tip)
+n_root = 0.025 * sigma_root - 0.06 - ( (abs(beta_1root)/90) ** (1+1.2*sigma_root) ) / (1.5 + 0.43 * sigma_root)
 
 
 # Optimal Incidence Angle
@@ -693,27 +693,38 @@ i_opt_tip  = i0_10_tip  * k_ith_tip  + n_tip  * theta_eq_tip
 i_opt_root = i0_10_root * k_ith_root + n_root * theta_eq_root
 
 # Deviation Angle
-delta0_mid = 1
-delta0_tip = 1.3
-delta0_root =1
+delta0_mid  = 0.01 * sigma_mid  * abs(beta_1mid)  + (0.74*sigma_mid**1.9 + 3 * sigma_mid) * (abs(beta_1mid) / 90) ** (1.67 + 1.09 * sigma_mid) 
+delta0_tip  = 0.01 * sigma_tip  * abs(beta_1tip)  + (0.74*sigma_tip**1.9 + 3 * sigma_tip) * (abs(beta_1tip) / 90) ** (1.67 + 1.09 * sigma_tip)  
+delta0_root = 0.01 * sigma_root * abs(beta_1root) + (0.74*sigma_root**1.9 + 3 * sigma_root) * (abs(beta_1root) / 90) ** (1.67 + 1.09 * sigma_root) 
 
-# Correction for thickness effects
-kdeltath_mid = 0.75 
-kdeltath_tip = 0.75 
-kdeltath_root = 0.75 
 
-m_mid = 0.22
-m_tip = 0.26
-m_root = 0.2
+# Correction for thickness effects on deviation
+kdeltath_mid  = 6.25 * (th/chord) + 37.5 * (th/chord)**2    
+kdeltath_tip  = 6.25 * (th/chord) + 37.5 * (th/chord)**2   
+kdeltath_root = 6.25 * (th/chord) + 37.5 * (th/chord)**2  
 
-b_mid = 0.82
-b_tip = 0.67
-b_root = 0.87
+
+# Exponent Factor b
+b_mid  = 0.9625 - 0.17 * abs(beta_1mid)/100 - 0.85 * (abs(beta_1mid)/100)**3
+b_tip  = 0.9625 - 0.17 * abs(beta_1tip)/100 - 0.85 * (abs(beta_1tip)/100)**3
+b_root = 0.9625 - 0.17 * abs(beta_1root)/100 - 0.85 * (abs(beta_1root)/100)**3
+
+
+# Slope factor m - m1 = Reference value for solidity = 1
+m1_mid  = 0.17 - 0.0333 * abs(beta_1mid) /100 + 0.333 * (beta_1mid/100) **2
+m1_tip  = 0.17 - 0.0333 * abs(beta_1tip) /100 + 0.333 * (beta_1tip/100) **2
+m1_root = 0.17 - 0.0333 * abs(beta_1root)/100 + 0.333 * (beta_1root/100)**2
+
+
+m_mid  = m1_mid  / (sigma_mid  **b_mid )
+m_tip  = m1_tip  / (sigma_tip  **b_tip )
+m_root = m1_root / (sigma_root **b_root)
+
 
 #computation of deviation
-delta_mid = delzta0_mid * kdeltath_mid + m_mid * theta_eq_mid / (sol_mid ** b_mid)
-delta_tip = delta0_tip * kdeltath_tip + m_tip * theta_eq_tip / (sol_tip ** b_tip)
-delta_root = delta0_root * kdeltath_root + m_root * theta_eq_root / (sol_root ** b_root)
+delta_mid = delta0_mid * kdeltath_mid + m_mid * theta_eq_mid / (sigma_mid ** b_mid)
+delta_tip = delta0_tip * kdeltath_tip + m_tip * theta_eq_tip / (sigma_tip ** b_tip)
+delta_root = delta0_root * kdeltath_root + m_root * theta_eq_root / (sigma_root ** b_root)
 
 
 #final delta beta
@@ -721,8 +732,10 @@ deltabetafinal_mid = theta_eq_mid - delta_mid + i_opt_mid
 deltabetafinal_tip = theta_eq_tip - delta_tip + i_opt_tip
 deltabetafinal_root = theta_eq_root - delta_root + i_opt_root
 
+print(deltabetafinal_mid)
+print(abs(deltabeta1_mid))
 
-
+input()
 
 
 
