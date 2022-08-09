@@ -868,7 +868,6 @@ plt.grid(alpha=0.2)
 
 
 print("Average Exit Total Pressure = " , np.average(p_t5))
-plt.show()
 
 
 
@@ -951,4 +950,4 @@ for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
 axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
 
-#plt.show()
+plt.show()
