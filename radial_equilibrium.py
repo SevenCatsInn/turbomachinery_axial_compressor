@@ -628,7 +628,7 @@ deltabeta1_tip  = beta_1tip  - beta_2tip
 percent_th = 7                # [%] Max thickness WRT chord of blade profile 
 chord      = 0.06             # [m] Starting point from reference procedure
 th = chord * percent_th / 100 # [m] Actual thickness
-solidity   = 1.1              # [ ] ! Initial assumption at midspan
+solidity   = 1.25              # [ ] ! Initial assumption at midspan
 
 
 s_mid = solidity * chord
@@ -647,8 +647,8 @@ sigma_root = chord / s_root
 
 # Equivalent camber theta: from graphs on slide 9 ppt
 # NOTE: TUNABLE
-theta_eq_root = 21
-theta_eq_mid  = 16
+theta_eq_root = 22
+theta_eq_mid  = 18
 theta_eq_tip  = 0
 
 
