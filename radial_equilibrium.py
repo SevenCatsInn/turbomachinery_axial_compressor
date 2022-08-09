@@ -625,11 +625,14 @@ deltabeta1_root = beta_1root - beta_2root
 deltabeta1_mid  = beta_1mid  - beta_2mid 
 deltabeta1_tip  = beta_1tip  - beta_2tip 
 
-# Initial hypothesis
-th = 8 # max thickness WRT chord [%]
-blade_chord = 0.06 #[m] starting point from reference procedure
-solidity = 1 # at midspan c/s=1
-s_mid = solidity * blade_chord
+# Initial hypothesis ----> NOTE: TUNABLE
+percent_th = 8                # [%] Max thickness WRT chord of blade profile 
+chord      = 0.06             # [m] Starting point from reference procedure
+th = chord * percent_th / 100 # [m] Actual thickness
+solidity   = 1                # [ ] ! Initial assumption at midspan
+
+
+s_mid = solidity * chord
 
 n_blade = round( 2 * np.pi * R_m / s_mid) # Number of blades
 
@@ -639,50 +642,62 @@ s_tip  = 2 * np.pi * R_t / n_blade
 s_root = 2 * np.pi * R_h / n_blade
 
 # Solidity along blade span, recomputed after choosing n blades
-sigma_mid  = blade_chord / s_mid
-sigma_tip  = blade_chord / s_tip
-sigma_root = blade_chord / s_root
+sigma_mid  = chord / s_mid
+sigma_tip  = chord / s_tip
+sigma_root = chord / s_root
 
 # Equivalent camber theta: from graphs on slide 9 ppt
-# CHOICE ---> Tunable
+# NOTE: TUNABLE
 theta_eq_mid  = 13
 theta_eq_tip  = 23
 theta_eq_root = 39
 
 # compute C_l = theta/25
-cl_mid = theta_eq_mid / 25
-cl_tip = theta_eq_tip / 25
+cl_mid  = theta_eq_mid  / 25
+cl_tip  = theta_eq_tip  / 25
 cl_root = theta_eq_root / 25
 
 
 # TODO: Insert semiempirical correlations below instead of graph values
 
-# Incidence: Lieblin correlation
-#get i0,10 from beta1, slide 10
-i0_10_mid = 3.3
-i0_10_tip = 3.3
-i0_10_root = 5
+# Zero camber incidence angle
 
-#get kith and n from slide 11
-k_ith_mid = 0.9
-k_ith_tip = 0.9
-k_ith_root = 0.9
+# Semiempirical exponents
+p_mid  = 0.914 + sigma_mid **3 / 160
+p_tip  = 0.914 + sigma_tip **3 / 160
+p_root = 0.914 + sigma_root**3 / 160
 
-n_mid = -0.18
-n_tip = -0.32
-n_root = -0.02
+# Incidence angles in degrees
+i0_10_mid  = abs(beta_1mid)**p_mid   / (5 + 46*np.exp(-2.3 * sigma_mid))  - 0.1 * sigma_mid**3  * np.exp((abs(beta_1mid)-70)/4)
+i0_10_tip  = abs(beta_1tip)**p_tip   / (5 + 46*np.exp(-2.3 * sigma_tip))  - 0.1 * sigma_tip**3  * np.exp((abs(beta_1tip)-70)/4) 
+i0_10_root = abs(beta_1root)**p_root / (5 + 46*np.exp(-2.3 * sigma_root)) - 0.1 * sigma_root**3 * np.exp((abs(beta_1root)-70)/4)
 
-#ioptima
-i_opt_mid = i0_10_mid * k_ith_mid + n_mid * theta_eq_mid
-i_opt_tip = i0_10_tip * k_ith_tip + n_tip * theta_eq_tip
+
+# Correction factor for profile thickness
+q = 0.28 / (0.1 + (th/chord)**0.3) # Empirical exponent
+
+k_ith_mid  = (10*th/chord)**q
+k_ith_tip  = (10*th/chord)**q
+k_ith_root = (10*th/chord)**q
+
+
+# Slope factor n
+n_mid = 0.025 * sigma_mid  - 0.06 - ( (abs(beta_1mid)/90)  ** (1+1.2*sigma_mid)  ) / (1.5 + 0.43 * sigma_mid)
+n_tip = 0.025 * sigma_tip  - 0.06 - ( (abs(beta_1tip)/90)  ** (1+1.2*sigma_tip)  ) / (1.5 + 0.43 * sigma_tip)
+n_root= 0.025 * sigma_root - 0.06 - ( (abs(beta_1root)/90) ** (1+1.2*sigma_root) ) / (1.5 + 0.43 * sigma_root)
+
+
+# Optimal Incidence Angle
+i_opt_mid  = i0_10_mid  * k_ith_mid  + n_mid  * theta_eq_mid
+i_opt_tip  = i0_10_tip  * k_ith_tip  + n_tip  * theta_eq_tip
 i_opt_root = i0_10_root * k_ith_root + n_root * theta_eq_root
 
-#deviation angle: lieblin correlation
-#delta0
+# Deviation Angle
 delta0_mid = 1
 delta0_tip = 1.3
 delta0_root =1
 
+# Correction for thickness effects
 kdeltath_mid = 0.75 
 kdeltath_tip = 0.75 
 kdeltath_root = 0.75 
