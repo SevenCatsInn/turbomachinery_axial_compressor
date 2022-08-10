@@ -72,7 +72,6 @@ for j in range(pts):
 
 # First power vortex distribution
 # V_t1 = arrayLst( V_t1m * R_m / rr[t] for t in range(pts)) # Free Vortex
-n = 1
 V_t1 = arrayLst( a * rr[t]**n - b / rr[t] for t in range(pts)) # Power Design
 
 
@@ -174,7 +173,7 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.08 # Coefficient of loss
+omega_loss_R = 0.00 # Coefficient of loss
 
 # Need to transform s_2 and ds_2 into lists otherwise numpy will assign the same id to s_1 and s_2, even with s_2 = s_1[:] why??
 s_2  = list( s_1)    # Initial radial entropy distribution in 2
@@ -212,6 +211,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     # Initiate all the lists
     V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul = (np.zeros(pts) for t in range(15))
 
+    Beta = np.zeros(pts)
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
         V_2[j] = np.sqrt(V_a2[j]**2 + V_t2[j]**2)
@@ -228,7 +228,8 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         M_2[j]  = V_2[j] / np.sqrt(gamma * R * T_2[j])
         M_2r[j] = W_2[j] / np.sqrt(gamma * R * T_2[j])
         p_t2[j] = p_2[j]*(1 + (gamma-1) / 2 * M_2[j]**2 ) ** (gamma/(gamma-1))
-
+        
+        Beta[j]=(T_t2[j]/T_t1[j])**(gamma/(gamma-1))
 
         L_eul[j] = U[j] * (V_t2[j] - V_t1[j])
         chi[j] = (W_1[j]**2 - W_2[j]**2) / (2 * L_eul[j])
@@ -283,7 +284,7 @@ tol = 1e-5 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_S = 0.08
+omega_loss_S = 0.00
 
 V_t3 = arrayLst( a22 * rr[t]**n - b22 / rr[t] for t in range(pts))
 
@@ -407,7 +408,7 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.08 # Coefficient of loss
+omega_loss_R = 0.00 # Coefficient of loss
 
 # Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s     and s_4, even with s_4 = s_3[:] why??
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
@@ -498,10 +499,6 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 
 
-
-
-
-
 print("")
 print("########## STATOR 2 OUTLET ##########")
 
@@ -510,7 +507,7 @@ tol = 1e-3 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_S = 0.08
+omega_loss_S = 0.00
 
 V_t5 = list( V_t5m * R_m / rr2[t]  for t in range(pts))
 
@@ -919,7 +916,9 @@ plt.grid(alpha=0.2)
 # P stands for plotting
 
 
+print("Average Exit Total Pressure = " , np.average(p_t3))
 print("Average Exit Total Pressure = " , np.average(p_t5))
+
 
 
 
@@ -1002,4 +1001,4 @@ for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
 axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
 
-#plt.show()
+plt.show()
