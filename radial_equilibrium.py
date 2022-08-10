@@ -749,7 +749,7 @@ print("Design deflection   TIP = ", abs(deltabeta1_tip))
 input()
 
 for theta, beta in zip([theta_eq_root,theta_eq_mid, theta_eq_tip], [beta_1root,beta_1mid,beta_1tip]):
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th/100 , chord, [0.035,-0.00933], beta)
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th/100 , chord, [0.035,0.002], beta)
 
     
     plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
