@@ -4,6 +4,7 @@ exec(open("./turboproject.py").read()) # Run mean line design
 
 import numpy as np
 import matplotlib.pyplot as plt
+from naca65_plotter import *
 
 plt.rcParams.update({"text.usetex": True})
 
@@ -747,6 +748,19 @@ print("Design deflection   TIP = ", abs(deltabeta1_tip))
 
 input()
 
+for theta, beta in zip([theta_eq_root,theta_eq_mid, theta_eq_tip], [beta_1root,beta_1mid,beta_1tip]):
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th/100 , chord, [0.035,-0.00933], beta)
+
+    
+    plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
+    plt.plot(Ux,Uy, 'k')
+    plt.plot(Lx,Ly, 'k')
+
+    plt.axis('square')
+    plt.grid(alpha=0.2)
+
+    # plt.title(profile_name)
+plt.show()
 
 
 
@@ -988,4 +1002,4 @@ for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
 axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
 
-plt.show()
+#plt.show()

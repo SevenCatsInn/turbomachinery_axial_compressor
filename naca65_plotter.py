@@ -55,21 +55,21 @@ def naca65(theta, maxTh, chord, origin, angle_rot):
     
     return Xc,Yc,Ux,Uy,Lx,Ly, profile_name
 
+# Test
+# chord = 1
 
-chord = 1
-
-for angle in [0, 20, 40]:
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(23, 0.1, chord, [0.5,0.04], angle)
-    # Plot
-    plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-    plt.plot(Ux,Uy, 'k')
-    plt.plot(Lx,Ly, 'k')
-    #plt.axis('scaled')
-    plt.axis('square')
-    plt.grid(alpha=0.2)
-    #plt.xlim(-0.1*chord*np.cos(angle * np.pi/180), 1.1*chord*np.cos(angle*np.pi/180))
-    #plt.ylim(-0.1*chord*np.sin(angle * np.pi/180), 1.1*chord*np.sin(angle*np.pi/180))
-    #plt.title(profile_name)
+# for angle in [80]:
+#     Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(10, 0.1, chord, [0.5,0.04], angle)
+#     # Plot
+#     plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
+#     plt.plot(Ux,Uy, 'k')
+#     plt.plot(Lx,Ly, 'k')
+#     #plt.axis('scaled')
+#     plt.axis('square')
+#     plt.grid(alpha=0.2)
+#     #plt.xlim(-0.1*chord*np.cos(angle * np.pi/180), 1.1*chord*np.cos(angle*np.pi/180))
+#     #plt.ylim(-0.1*chord*np.sin(angle * np.pi/180), 1.1*chord*np.sin(angle*np.pi/180))
+#     plt.title(profile_name)
 
 
-plt.show()
+# plt.show()
