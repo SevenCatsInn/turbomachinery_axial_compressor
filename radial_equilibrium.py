@@ -743,21 +743,21 @@ print("")
 print("Lieblein deflection TIP = ", deltabetafinal_tip)
 print("Design deflection   TIP = ", abs(deltabeta1_tip))
 
-input()
+# input()
 
-for theta, beta in zip([theta_eq_root,theta_eq_mid, theta_eq_tip], [beta_1root,beta_1mid,beta_1tip]):
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th/100 , chord, [0.035,0.002], beta)
+# for theta, beta in zip([theta_eq_root,theta_eq_mid, theta_eq_tip], [beta_1root,beta_1mid,beta_1tip]):
+#     Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th/100 , chord, [0.035,0.002], beta)
 
     
-    plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-    plt.plot(Ux,Uy, 'k')
-    plt.plot(Lx,Ly, 'k')
+#     plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
+#     plt.plot(Ux,Uy, 'k')
+#     plt.plot(Lx,Ly, 'k')
 
-    plt.axis('square')
-    plt.grid(alpha=0.2)
+#     plt.axis('square')
+#     plt.grid(alpha=0.2)
 
-    # plt.title(profile_name)
-plt.show()
+#     # plt.title(profile_name)
+# plt.show()
 
 
 
@@ -921,7 +921,7 @@ print("Average Exit Total Pressure = " , np.average(p_t5))
 
 
 
-
+plt.show()
 
 
 
@@ -1001,4 +1001,4 @@ for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
 axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
 
-plt.show()
+#plt.show()
