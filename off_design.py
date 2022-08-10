@@ -1,4 +1,4 @@
-import sympy
+from sympy import Symbol, solve
 import numpy as np
 from numpy.linalg import norm
 
@@ -10,8 +10,7 @@ mdot=90 #[kg/s]
 
 g_m_gamma = mdot * np.sqrt ( R * Tt1) / (Pt1 * ( np.pi * (rtip ** 2 - rhub **2 )))
 
-from sympy import Symbol
-from sympy import solve
+
 M1off = Symbol('M1off')
 eq1 = g_m_gamma - np.sqrt (gamma) * M1off * (1 + ( gamma - 1 ) / 2 * M1off ** 2) ** ((-gamma - 1 ) / ( 2 * (gamma - 1 )))
 sol_M1 = solve (eq1 , M1off)
@@ -60,7 +59,7 @@ Vt3_off = V3_mag_off * sin (alpha3-alpha2)
 V3_off = [ Va3_off, Vt3_off ]
 
 Leul_off = Um * (Vt2_off - Vt1_off)
-Leul_off = cp * (Tt2 - Tt1)
+#Leul_off = cp * (Tt2 - Tt1)
 Tt2_off = Leul_off / cp + Tt1
 beta_off = (Tt2_off / Tt1 ) ** (gamma / (gamma - 1 ))
 

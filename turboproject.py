@@ -1,4 +1,4 @@
-from numpy import sqrt, arctan, tan, pi, cos
+from numpy import sqrt, arctan, tan, pi, cos, sin
 import numpy as np
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
@@ -161,3 +161,8 @@ x = np.linalg.solve(matA,vecB)
 
 a = (x[0])[0]
 b = (x[1])[0]
+
+rtip = Rm + b_1/2
+rhub = Rm - b_1/2 
+
+print(V1t,V2t)
