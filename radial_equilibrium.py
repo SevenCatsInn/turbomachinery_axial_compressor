@@ -645,9 +645,9 @@ sigma_root = chord / s_root
 
 # Equivalent camber theta: from graphs on slide 9 ppt
 # NOTE: TUNABLE
-theta_eq_root = 23
-theta_eq_mid  = 19
-theta_eq_tip  = 0
+theta_eq_root = 33
+theta_eq_mid  = 26
+theta_eq_tip  = 19
 
 
 # compute C_l = theta/25
@@ -745,19 +745,23 @@ print("Design deflection   TIP = ", abs(deltabeta1_tip))
 
 # input()
 
-# for theta, beta in zip([theta_eq_root,theta_eq_mid, theta_eq_tip], [beta_1root,beta_1mid,beta_1tip]):
-#     Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th/100 , chord, [0.035,0.002], beta)
+for theta, beta, inc, color in zip([theta_eq_root,theta_eq_mid, theta_eq_tip], [beta_1root,beta_1mid,beta_1tip], [i_opt_root,i_opt_mid,i_opt_tip], ['c','b','k']):
+    angle = - beta + inc
+
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th/100 , chord, [0.03,0.0023], angle )
 
     
-#     plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-#     plt.plot(Ux,Uy, 'k')
-#     plt.plot(Lx,Ly, 'k')
+    # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
+    plt.plot(Ux,Uy, color)
+    plt.plot(Lx,Ly, color)
 
-#     plt.axis('square')
-#     plt.grid(alpha=0.2)
+    plt.axis('square')
+    plt.grid(alpha=0.2)
 
-#     # plt.title(profile_name)
-# plt.show()
+    # plt.title(profile_name)
+plt.legend(["Hub","","Mean","","","Tip"])
+plt.title("Stage 1")
+plt.show()
 
 
 
@@ -921,7 +925,7 @@ print("Average Exit Total Pressure = " , np.average(p_t5))
 
 
 
-plt.show()
+# plt.show()
 
 
 
