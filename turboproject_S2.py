@@ -17,7 +17,6 @@ mdot=100 #mass flow rate
 Pt3=p_t3 # pressure [bar]
 Tt3=T_t3 #inlet temperature [K]
 beta=1.48/beta #compression ratio
-b2=0.9*b1
 
 
 

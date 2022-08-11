@@ -26,7 +26,7 @@ phi=0.86 #from slide 10 achial compressors
 chi=0.5 #reaction degree
 psi=0.34 #from first graph slide 12
 Rm=0.32 #mean line radius
-efficiency_TT=0.91
+efficiency_TT=0.9
 eta_S = 0.92
 eta_R = 0.92
 
@@ -54,7 +54,7 @@ p1=Pt1*(1+(gamma-1)/2*M1**2)**((-gamma)/(gamma-1))
 rho1=p1/(R*T1)
 
 b1=mdot/(rho1*V1a*2*pi*Rm)
-
+b2=0.9*b1
 
 #quantities at station 2 (after rotor)
 V2t=L_eul/Um+V1t
@@ -116,7 +116,7 @@ while abs(err)>tol:
     T3is=T2 + eta_S*(T3-T2)
     p3=(T3is/Tt2)**(gamma/(gamma-1))*Pt2
     rho3=p3/(R*T3)
-    V3a_new=mdot/(rho3*2*pi*b1*Rm)
+    V3a_new=mdot/(rho3*2*pi*b2*Rm)
     err=abs(V3a_new-V3a)
     V3a=V3a_new
     M3 = V3_mag / sqrt(gamma * R * T3)
