@@ -624,38 +624,36 @@ print("Lieblein deflection TIP = ", deltaBeta1[2])
 print("Design deflection   TIP = ", (180/np.pi*(beta_1[-1]-beta_2[-1])))
 
 
-print(inc1)
 input()
-
 
 
 ############### Blade design (Stage 2 Rotor) ##############
 
-# percent_th2 = 10               # [%] Max thickness WRT chord of blade profile 
-# chord2      = 0.08             # [m] Starting point from reference procedure
-# solidity2   = 1.3              # [ ] ! Initial assumption at midspan
-# theta2 = [33, 27, 10]
+percent_th3 = 10               # [%] Max thickness WRT chord of blade profile 
+chord3      = 0.08             # [m] Starting point from reference procedure
+solidity3   = 1.3              # [ ] ! Initial assumption at midspan
+theta3 = [34, 28, -4]
 
-# inc2, theta2, dev2, deltaBeta2 = lieblein_design(beta_3,beta_4,percent_th2,chord2,solidity2, theta2, rr2)
+inc3, theta3, dev3, deltaBeta3 = lieblein_design(beta_3,beta_4,percent_th3,chord3,solidity3, theta3, rr2)
 
-# print("")
-# print("###### STAGE 2 BLADE DESIGN ######")
-# print("")
-# print("Lieblein deflection ROOT = ", deltaBeta2[0])
-# print("Design deflection   ROOT = ", (180/np.pi*(beta_3[0]-beta_4[0])))
+print("")
+print("###### STAGE 2 BLADE DESIGN ######")
+print("")
+print("Lieblein deflection ROOT = ", deltaBeta3[0])
+print("Design deflection   ROOT = ", (180/np.pi*(beta_3[0]-beta_4[0])))
 
-# print("")
-# print("Lieblein deflection MID = ", deltaBeta2[1])
-# print("Design deflection   MID = ", (180/np.pi*(beta_3[mean_index]-beta_4[mean_index])))
+print("")
+print("Lieblein deflection MID = ", deltaBeta3[1])
+print("Design deflection   MID = ", (180/np.pi*(beta_3[mean_index]-beta_4[mean_index])))
 
-# print("")
-# print("Lieblein deflection TIP = ", deltaBeta2[2])
-# print("Design deflection   TIP = ", (180/np.pi*(beta_3[-1]-beta_4[-1])))
+print("")
+print("Lieblein deflection TIP = ", deltaBeta3[2])
+print("Design deflection   TIP = ", (180/np.pi*(beta_3[-1]-beta_4[-1])))
 
-# input()
+input()
 
 Beta1 = np.array([beta_1[0],beta_1[mean_index],beta_1[-1]]) * 180/np.pi
-Beta2 = np.array([beta_2[0],beta_2[mean_index],beta_2[-1]]) * 180/np.pi
+Beta3 = np.array([beta_3[0],beta_3[mean_index],beta_3[-1]]) * 180/np.pi
 
 
 for theta, beta, inc, color in zip(theta1, Beta1, inc1, ['c','b','y']):
@@ -672,9 +670,27 @@ for theta, beta, inc, color in zip(theta1, Beta1, inc1, ['c','b','y']):
     plt.axis('square')
     plt.grid(alpha=0.2)
     # plt.title(profile_name)
-
+plt.title("Stage 1 Rotor")
 plt.legend(["Hub","","Mean","","","Tip"])
-plt.title("Stage 1")
+
+plt.figure()
+for theta, beta, inc, color in zip(theta3, Beta3, inc3, ['c','b','y']):
+    
+    stagger =  beta - inc
+
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th3/100 , chord3, [0.03,0.0023], stagger )
+
+    
+    # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
+    plt.plot(Ux,Uy, color)
+    plt.plot(Lx,Ly, color)
+
+    plt.axis('square')
+    plt.grid(alpha=0.2)
+    # plt.title(profile_name)
+plt.title("Stage 2 Rotor")
+plt.legend(["Hub","","Mean","","","Tip"])
+
 plt.show()
 
 
@@ -815,17 +831,17 @@ print("")
 # plt.title("Absolute Flow Angle")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,180/np.pi * np.array(beta_1),"b")
-# plt.plot(rr,180/np.pi * np.array(beta_2),"g")
-# plt.plot(rr2,180/np.pi * np.array(beta_3),"r")
-# plt.plot(rr2,180/np.pi * np.array(beta_4),"c")
-# plt.plot(rr2,180/np.pi * np.array(beta_5),"m")
-# plt.ylabel(r"$\beta$ [deg]")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Relative Flow Angle")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,180/np.pi * np.array(beta_1),"b")
+plt.plot(rr,180/np.pi * np.array(beta_2),"g")
+plt.plot(rr2,180/np.pi * np.array(beta_3),"r")
+plt.plot(rr2,180/np.pi * np.array(beta_4),"c")
+plt.plot(rr2,180/np.pi * np.array(beta_5),"m")
+plt.ylabel(r"$\beta$ [deg]")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Relative Flow Angle")
+plt.grid(alpha=0.2)
  
  
 # plt.figure(figsize=(6, 5), dpi=80)
