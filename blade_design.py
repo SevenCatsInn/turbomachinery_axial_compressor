@@ -25,6 +25,8 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
     deltabeta1_root = beta_1root - beta_2root
     deltabeta1_mid  = beta_1mid  - beta_2mid 
     deltabeta1_tip  = beta_1tip  - beta_2tip 
+    
+    deltaBeta = [deltabeta1_root, deltabeta1_mid, deltabeta1_tip]
 
     s_mid = solidity * chord
 
@@ -42,18 +44,16 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
 
     # Equivalent camber theta: from graphs on slide 9 ppt
     # NOTE: TUNABLE
-    theta_eq_root = theta[0]
-    theta_eq_mid  = theta[1]
-    theta_eq_tip  = theta[2]
+    theta_eq_root = abs(theta[0])
+    theta_eq_mid  = abs(theta[1])
+    theta_eq_tip  = abs(theta[2])
 
 
     # compute C_l = theta/25
-    cl_mid  = theta_eq_mid  / 25
-    cl_tip  = theta_eq_tip  / 25
-    cl_root = theta_eq_root / 25
+    cl_mid  = round(theta_eq_mid  / 25, 1)
+    cl_tip  = round(theta_eq_tip  / 25, 1)
+    cl_root = round(theta_eq_root / 25, 1)
 
-
-    # TODO: Insert semiempirical correlations below instead of graph values
 
     # Zero camber incidence angle
 
@@ -130,6 +130,31 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
     deltabetafinal_tip = theta_eq_tip - delta_tip + i_opt_tip
     deltabetafinal_root = theta_eq_root - delta_root + i_opt_root
     
-    deltaBeta = [deltabetafinal_root, deltabetafinal_mid, deltabetafinal_tip]
+    # Fix the signs
+    Beta = [beta_1root, beta_1mid, beta_1tip]
+    
+    # Sign corrected quantities
+    Theta = [] 
+    Inc = []
+    Dev = []
+    DeltaBeta = []
 
-    return inc, dev, deltaBeta
+    j = 0
+    for bb in Beta:
+        if bb < 0 :
+                Theta.append(-theta[j])
+                Inc.append(-inc[j])
+                Dev.append(-dev[j])
+                DeltaBeta.append(Theta[j] - Dev[j] + Inc[j])
+        else:
+            Theta.append(theta[j])
+            Inc.append(inc[j])
+            Dev.append(dev[j])
+    
+        
+
+        j += 1
+
+            
+            
+    return Inc, Theta, Dev, DeltaBeta
