@@ -142,7 +142,7 @@ print("\u03C7, \u03A6, \u03A8 = ", chi2, phi, psi)
 # a * R_m + b / R_m = V_t2m
 
 
-n = 0.6
+n = 0.7
 matA2 = np.array([[R_m**n, -1 / R_m], 
                   [R_m**n,  1 / R_m]])
 
