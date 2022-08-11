@@ -598,7 +598,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 
 
-############### Blade design (Stage 1) ##############
+############### Blade design (Stage 1 Rotor) ##############
 
 percent_th1 = 10               # [%] Max thickness WRT chord of blade profile 
 chord1      = 0.08             # [m] Starting point from reference procedure
@@ -623,10 +623,42 @@ print("Design deflection   TIP = ", abs(180/np.pi*(beta_1[-1]-beta_2[-1])))
 
 input()
 
-for theta, beta, inc, color in zip(theta1, [beta_1[0],beta_1[mean_index],beta_1[-1]], inc, ['c','b','k']):
+
+
+############### Blade design (Stage 2 Rotor) ##############
+
+percent_th2 = 10               # [%] Max thickness WRT chord of blade profile 
+chord2      = 0.08             # [m] Starting point from reference procedure
+solidity2   = 1.3              # [ ] ! Initial assumption at midspan
+theta2 = [33, 27, 10]
+
+inc2, dev2, deltaBeta2 = lieblein_design(beta_3,beta_4,percent_th2,chord2,solidity2, theta2, rr2)
+
+print("")
+print("STAGE 2 BLADE DESIGN")
+print("")
+print("Lieblein deflection ROOT = ", deltaBeta2[0])
+print("Design deflection   ROOT = ", abs(180/np.pi*(beta_3[0]-beta_4[0])))
+
+print("")
+print("Lieblein deflection MID = ", deltaBeta2[1])
+print("Design deflection   MID = ", abs(180/np.pi*(beta_3[mean_index]-beta_4[mean_index])))
+
+print("")
+print("Lieblein deflection TIP = ", deltaBeta2[2])
+print("Design deflection   TIP = ", abs(180/np.pi*(beta_3[-1]-beta_4[-1])))
+
+input()
+
+Beta1 = np.array([beta_1[0],beta_1[mean_index],beta_1[-1]]) * 180/np.pi
+Beta2 = np.array([beta_2[0],beta_2[mean_index],beta_2[-1]]) * 180/np.pi
+
+
+for theta, beta, inc, color in zip(theta1, Beta1, inc1, ['c','b','k']):
+    
     stagger = - beta + inc
 
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th/100 , chord, [0.03,0.0023], stagger )
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th1/100 , chord1, [0.03,0.0023], stagger )
 
     
     # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
