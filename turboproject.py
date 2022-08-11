@@ -26,7 +26,7 @@ phi=0.86 #from slide 10 achial compressors
 chi=0.5 #reaction degree
 psi=0.34 #from first graph slide 12
 Rm=0.32 #mean line radius
-efficiency_TT=0.9
+efficiency_TT=0.905
 eta_S = 0.92
 eta_R = 0.92
 
@@ -164,5 +164,3 @@ b = (x[1])[0]
 
 rtip = Rm + b_1/2
 rhub = Rm - b_1/2 
-
-print(V1t,V2t)

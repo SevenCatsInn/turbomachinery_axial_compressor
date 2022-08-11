@@ -1,7 +1,4 @@
-# Naca 65 series plotter
-
-import numpy as np
-import matplotlib.pyplot as plt
+# Naca 65 series plotter function
 
 def naca65(theta, maxTh, chord, origin, angle_rot):
     # theta = equivalent camber angle
@@ -9,7 +6,8 @@ def naca65(theta, maxTh, chord, origin, angle_rot):
     # origin = Origin point for the profile rotation
     # angle_rot = angle of rotation
 
-
+    import numpy as np
+    import matplotlib.pyplot as plt
     # Starting Point Naca 65-(10)10 
     # C_l = 1.0
     # max thickness / chord = 0.10 

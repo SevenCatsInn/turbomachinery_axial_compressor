@@ -25,7 +25,7 @@ beta=1.48/beta #compression ratio
 ## achi2al compressor
 #vavra: get reaction degree and flow coefficient to get machi2mum efficiency
 chi2=0.5 #reaction degree
-efficiency_TT=0.91
+efficiency_TT=0.905
 eta_S = 0.92
 eta_R = 0.92
 Um = U[mean_index]
