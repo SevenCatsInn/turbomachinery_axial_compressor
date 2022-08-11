@@ -278,7 +278,7 @@ exec(open("./turboproject_S2.py").read()) # Mean line design for 2nd stage
 print("")
 print("########## STATOR OUTLET ##########")
 
-# Geometry
+# Geometr
 R_h2 = R_m - b_2 / 2   # Hub Radius          [m]   
 R_t2 = R_m + b_2 / 2  # Tip Radius          [m]
 
@@ -324,7 +324,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     for j in list(range(0,mean_index)):
         for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
             dV_a3[q] = 1 / V_a3[q] * ( dh_t3[q] - T_3[q] * ds_3[q] - V_t3[q] / rr2[q] * drV_t3[q] )
-            V_a3[q + k*1] = V_a3[q] + dV_a3[q] * k * deltaR 
+            V_a3[q + k*1] = V_a3[q] + dV_a3[q] * k * deltaR2 
 
     # Initiate all the lists
     V_3 , alpha_3, p_3, rho_3, M_3, p_t3, integrand_3, W_t3, W_a3, W_3, beta_3, M_3r, p_t3, p_t3r = (np.zeros(pts) for t in range(14))
@@ -358,7 +358,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
         s_3[j]  = s_2[j] - R * np.log(p_t3[j] / p_t2[j])
 
-    ds_3 = finDiff(s_3,deltaR) # Derivative of s_3
+    ds_3 = finDiff(s_3,deltaR2) # Derivative of s_3
 
     m_dot_trap = np.trapz(integrand_3, rr2)
 
@@ -414,7 +414,7 @@ omega_loss_R = 0.00 # Coefficient of loss
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
 ds_4 = list(ds_3) # Dertivative wrt r of entropy
 
-V_t4 = arrayLst( a22 * rr[t]**n + b22 / rr[t] for t in range(pts))
+V_t4 = arrayLst( a22 * rr2[t]**n + b22 / rr2[t] for t in range(pts))
 # V_t4 = arrayLst( V_t4m * R_m / rr[t] for t in range(pts))
 
 
@@ -512,7 +512,7 @@ omega_loss_S = 0.00
 V_t5 = list( V_t5m * R_m / rr2[t]  for t in range(pts))
 
 rV_t5  = arrayLst(rr2[t] * V_t5[t] for t in range(pts))
-drV_t5 = finDiff(rV_t5,deltaR)
+drV_t5 = finDiff(rV_t5,deltaR2)
 
 # Initial assumptions
 T_5  = list(T_5m * np.ones(pts))
@@ -537,7 +537,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     for j in list(range(0,mean_index)):
         for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
             dV_a5[q] = 1 / V_a5[q] * ( dh_t5[q] - T_5[q] * ds_5[q] - V_t5[q] / rr2[q] * drV_t5[q] )
-            V_a5[q + k*1] = V_a5[q] + dV_a5[q] * k * deltaR 
+            V_a5[q + k*1] = V_a5[q] + dV_a5[q] * k * deltaR2 
 
     # Initiate all the lists
     V_5 , alpha_5, p_5, rho_5, M_5, p_t5, integrand_5, W_t5, W_a5, W_5, beta_5, M_5r, p_t5, p_t5r = (np.zeros(pts) for t in range(14))
@@ -571,7 +571,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
         s_5[j]  = s_4[j] - R * np.log(p_t5[j] / p_t4[j])
 
-    ds_5 = finDiff(s_5,deltaR) # Derivative of s_5
+    ds_5 = finDiff(s_5,deltaR2) # Derivative of s_5
 
     m_dot_trap = np.trapz(integrand_5, rr)
 
@@ -778,124 +778,124 @@ print("Design deflection   TIP = ", abs(deltabeta1_tip))
 ############################ PLOTS BELOW ############################
 
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,W_1,"b")
-# plt.plot(rr,W_2,"g")
-# plt.plot(rr,W_3,"r")
-# plt.plot(rr,W_4,"c")
-# plt.ylabel(r" $W$ $[m/s]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Rotor 2 In", "Rotor 2 Out"])
-# plt.title("Relative Velocity")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,W_1,"b")
+plt.plot(rr,W_2,"g")
+plt.plot(rr,W_3,"r")
+plt.plot(rr,W_4,"c")
+plt.ylabel(r" $W$ $[m/s]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Rotor 2 In", "Rotor 2 Out"])
+plt.title("Relative Velocity")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,V_a1,"b")
-# plt.plot(rr,V_a2,"g")
-# plt.plot(rr,V_a3,"r")
-# plt.plot(rr,V_a4,"c")
-# plt.plot(rr,V_a5,"m")
-# plt.ylabel(r"$V_a$ $[m/s]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Axial Absolute Velocity")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,V_a1,"b")
+plt.plot(rr,V_a2,"g")
+plt.plot(rr,V_a3,"r")
+plt.plot(rr,V_a4,"c")
+plt.plot(rr,V_a5,"m")
+plt.ylabel(r"$V_a$ $[m/s]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Axial Absolute Velocity")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,V_t1,"b")
-# plt.plot(rr,V_t2,"g")
-# plt.plot(rr,V_t3,"r")
-# plt.plot(rr,V_t4,"c")
-# plt.plot(rr,V_t5,"m")
-# plt.ylabel(r"$V_t$ $[m/s]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Tangential Absolute Velocity")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,V_t1,"b")
+plt.plot(rr,V_t2,"g")
+plt.plot(rr,V_t3,"r")
+plt.plot(rr,V_t4,"c")
+plt.plot(rr,V_t5,"m")
+plt.ylabel(r"$V_t$ $[m/s]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Tangential Absolute Velocity")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,p_1,"b")
-# plt.plot(rr,p_2,"g")
-# plt.plot(rr,p_3,"r")
-# plt.plot(rr,p_4,"c")
-# plt.plot(rr,p_5,"m")
-# plt.ylabel(r"$p$ $[Pa]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Static Pressure")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,p_1,"b")
+plt.plot(rr,p_2,"g")
+plt.plot(rr,p_3,"r")
+plt.plot(rr,p_4,"c")
+plt.plot(rr,p_5,"m")
+plt.ylabel(r"$p$ $[Pa]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Static Pressure")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,p_t1,"b")
-# plt.plot(rr,p_t2,"g")
-# plt.plot(rr,p_t3,"r")
-# plt.plot(rr,p_t4,"c")
-# plt.plot(rr,p_t5,"m")
-# plt.ylabel(r"$p_t$ $[Pa]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Total Pressure")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,p_t1,"b")
+plt.plot(rr,p_t2,"g")
+plt.plot(rr,p_t3,"r")
+plt.plot(rr,p_t4,"c")
+plt.plot(rr,p_t5,"m")
+plt.ylabel(r"$p_t$ $[Pa]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Total Pressure")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,h_t1,"b")
-# plt.plot(rr,h_t2,"g")
-# plt.plot(rr,h_t3,"r")
-# plt.plot(rr,h_t4,"c")
-# plt.plot(rr,h_t5,"m")
-# plt.ylabel(r"$h_t$ $[Pa]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Total Enthalpy")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,h_t1,"b")
+plt.plot(rr,h_t2,"g")
+plt.plot(rr,h_t3,"r")
+plt.plot(rr,h_t4,"c")
+plt.plot(rr,h_t5,"m")
+plt.ylabel(r"$h_t$ $[Pa]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Total Enthalpy")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr, T_1 ,"b")
-# plt.plot(rr, T_2 ,"g")
-# plt.plot(rr, T_3 ,"r")
-# plt.plot(rr, T_4,"c")
-# plt.plot(rr, T_5,"m")
-# plt.ylabel(r"$T$ $[K]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Static Temperature")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr, T_1 ,"b")
+plt.plot(rr, T_2 ,"g")
+plt.plot(rr, T_3 ,"r")
+plt.plot(rr, T_4,"c")
+plt.plot(rr, T_5,"m")
+plt.ylabel(r"$T$ $[K]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Static Temperature")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,rho_1,"b")
-# plt.plot(rr,rho_2,"g")
-# plt.plot(rr,rho_3,"r")
-# plt.plot(rr,rho_4,"c")
-# plt.plot(rr,rho_5,"m")
-# plt.ylabel(r"$\rho$ $[kg/m^3]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Density")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,rho_1,"b")
+plt.plot(rr,rho_2,"g")
+plt.plot(rr,rho_3,"r")
+plt.plot(rr,rho_4,"c")
+plt.plot(rr,rho_5,"m")
+plt.ylabel(r"$\rho$ $[kg/m^3]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Density")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,s_1,"b")
-# plt.plot(rr,s_2,"g")
-# plt.plot(rr,s_3,"r")
-# plt.plot(rr,s_4,"c")
-# plt.plot(rr,s_5,"m")
-# plt.ylabel(r"$s$ $[J/K]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Entropy")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,s_1,"b")
+plt.plot(rr,s_2,"g")
+plt.plot(rr,s_3,"r")
+plt.plot(rr,s_4,"c")
+plt.plot(rr,s_5,"m")
+plt.ylabel(r"$s$ $[J/K]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Entropy")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
-# plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
-# plt.plot(rr,180/np.pi * np.array(alpha_3),"r")
-# plt.plot(rr,180/np.pi * np.array(alpha_4),"c")
-# plt.plot(rr,180/np.pi * np.array(alpha_5),"m")
-# plt.ylabel(r"$\alpha$ [deg]")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Absolute Flow Angle")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
+plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
+plt.plot(rr,180/np.pi * np.array(alpha_3),"r")
+plt.plot(rr,180/np.pi * np.array(alpha_4),"c")
+plt.plot(rr,180/np.pi * np.array(alpha_5),"m")
+plt.ylabel(r"$\alpha$ [deg]")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Absolute Flow Angle")
+plt.grid(alpha=0.2)
  
  
 plt.figure(figsize=(6, 5), dpi=80)
