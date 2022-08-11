@@ -17,6 +17,7 @@ mdot=100 #mass flow rate
 Pt3=p_t3 # pressure [bar]
 Tt3=T_t3 #inlet temperature [K]
 beta=1.48/beta #compression ratio
+b2=0.92*b1
 
 
 
@@ -55,7 +56,7 @@ T3=Tt3-V3_mag**2/(2*cp)
 M3=V3_mag/sqrt(gamma*R*T3)
 p3=Pt3*(1+(gamma-1)/2*M3**2)**((-gamma)/(gamma-1))
 rho3=p3/(R*T3)
-b2=b1
+
 
 
 #quantities at station 4 (after rotor)
@@ -141,7 +142,7 @@ print("\u03C7, \u03A6, \u03A8 = ", chi2, phi, psi)
 # a * R_m + b / R_m = V_t2m
 
 
-n = 0.8
+n = 0.6
 matA2 = np.array([[R_m**n, -1 / R_m], 
                   [R_m**n,  1 / R_m]])
 
