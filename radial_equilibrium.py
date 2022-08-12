@@ -279,7 +279,7 @@ exec(open("./turboproject_S2.py").read()) # Mean line design for 2nd stage
 print("")
 print("########## STATOR OUTLET ##########")
 
-# Geometr
+# Geometry
 R_h2 = R_m - b_2 / 2   # Hub Radius          [m]   
 R_t2 = R_m + b_2 / 2  # Tip Radius          [m]
 
@@ -720,7 +720,7 @@ plt.legend(["Hub","","Mean","","","Tip"])
 percent_th3 = 10               # [%] Max thickness WRT chord of blade profile 
 chord3      = 0.08             # [m] Starting point from reference procedure
 solidity3   = 1.3              # [ ] ! Initial assumption at midspan
-theta3 = [34, 28, -4]
+theta3 = [35, 29, -4]
 
 inc3, theta3, dev3, deltaBeta3 = lieblein_design(beta_3,beta_4,percent_th3,chord3,solidity3, theta3, rr2)
 
@@ -772,7 +772,7 @@ plt.legend(["Hub","","Mean","","","Tip"])
 percent_th4 = 10               # [%] Max thickness WRT chord of blade profile 
 chord4      = 0.08             # [m] Starting point from reference procedure
 solidity4   = 0.5              # [ ] ! Initial assumption at midspan
-theta4 = [15, 20, 38    ]
+theta4 = [15, 19, 37 ]
 
 
 inc4, theta4, dev4, deltaAlpha4 = lieblein_design(alpha_4,alpha_5,percent_th4,chord4,solidity4, theta4, rr2)
