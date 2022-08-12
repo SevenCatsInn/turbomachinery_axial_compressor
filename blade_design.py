@@ -8,7 +8,6 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
     R_t = rr[-1]
     R_h = rr[0]
     th = chord * percent_th / 100 # [m] Actual thickness
-
     
     beta_1 = beta_in
     beta_1root = beta_1[0]          * 180 / np.pi #deg
@@ -135,14 +134,14 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
     j = 0
     for bb in Beta:
         if bb < 0 :
-                Theta.append(-theta[j])
-                Inc.append(-inc[j])
-                Dev.append(-dev[j])
-                DeltaBeta.append(Theta[j] - Dev[j] + Inc[j])
+            Theta.append(-theta[j])
+            Inc.append(-inc[j])
+            Dev.append(-dev[j])
         else:
             Theta.append(theta[j])
             Inc.append(inc[j])
             Dev.append(dev[j])
+        DeltaBeta.append(Theta[j] - Dev[j] + Inc[j])
     
         
 

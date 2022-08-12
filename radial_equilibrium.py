@@ -610,7 +610,7 @@ inc1, theta1, dev1, deltaBeta1 = lieblein_design(beta_1,beta_2,percent_th1,chord
 
 
 print("")
-print("###### STAGE 1 BLADE DESIGN ######")
+print("###### STAGE 1 ROTOR BLADE DESIGN ######")
 print("")
 print("Lieblein deflection ROOT = ", deltaBeta1[0])
 print("Design deflection   ROOT = ", (180/np.pi*(beta_1[0]-beta_2[0])))
@@ -625,6 +625,97 @@ print("Design deflection   TIP = ", (180/np.pi*(beta_1[-1]-beta_2[-1])))
 
 
 input()
+
+Beta1 = np.array([beta_1[0],beta_1[mean_index],beta_1[-1]]) * 180/np.pi
+
+for theta, beta, inc, color in zip(theta1, Beta1, inc1, ['c','b','y']):
+    
+    stagger =  beta - inc
+
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th1/100 , chord1, [0.03,0.0023], stagger )
+
+    
+    # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
+    plt.plot(Ux,Uy, color)
+    plt.plot(Lx,Ly, color)
+
+    plt.axis('square')
+    plt.grid(alpha=0.2)
+    # plt.title(profile_name)
+plt.title("Stage 1 Rotor")
+plt.legend(["Hub","","Mean","","","Tip"])
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+############### Blade design (Stage 1 Stator) ##############
+
+percent_th2 = 10               # [%] Max thickness WRT chord of blade profile 
+chord2      = 0.08             # [m] Starting point from reference procedure
+solidity2   = 0.5              # [ ] ! Initial assumption at midspan
+theta2 = [4, 5, 32]
+
+
+inc2, theta2, dev2, deltaAlpha2 = lieblein_design(alpha_2,alpha_3,percent_th2,chord2,solidity2, theta2, rr)
+
+print("")
+print("###### STAGE 1 STATOR BLADE DESIGN ######")
+print("")
+print("Lieblein deflection ROOT = ", deltaAlpha2[0])
+print("Design deflection   ROOT = ", (180/np.pi*(alpha_2[0]-alpha_3[0])))
+
+print("")
+print("Lieblein deflection MID = ", deltaAlpha2[1])
+print("Design deflection   MID = ", (180/np.pi*(alpha_2[mean_index]-alpha_3[mean_index])))
+
+print("")
+print("Lieblein deflection TIP = ", deltaAlpha2[2])
+print("Design deflection   TIP = ", (180/np.pi*(alpha_2[-1]-alpha_3[-1])))
+
+input()
+
+
+Beta3 = np.array([beta_3[0],beta_3[mean_index],beta_3[-1]]) * 180/np.pi
+
+
+plt.figure()
+for theta, beta, inc, color in zip(theta3, Beta3, inc3, ['c','b','y']):
+    
+    stagger =  beta - inc
+
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th3/100 , chord3, [0.03,0.0023], stagger )
+
+    
+    # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
+    plt.plot(Ux,Uy, color)
+    plt.plot(Lx,Ly, color)
+
+    plt.axis('square')
+    plt.grid(alpha=0.2)
+    # plt.title(profile_name)
+plt.title("Stage 2 Rotor")
+plt.legend(["Hub","","Mean","","","Tip"])
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ############### Blade design (Stage 2 Rotor) ##############
@@ -652,26 +743,9 @@ print("Design deflection   TIP = ", (180/np.pi*(beta_3[-1]-beta_4[-1])))
 
 input()
 
-Beta1 = np.array([beta_1[0],beta_1[mean_index],beta_1[-1]]) * 180/np.pi
+
 Beta3 = np.array([beta_3[0],beta_3[mean_index],beta_3[-1]]) * 180/np.pi
 
-
-for theta, beta, inc, color in zip(theta1, Beta1, inc1, ['c','b','y']):
-    
-    stagger =  beta - inc
-
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th1/100 , chord1, [0.03,0.0023], stagger )
-
-    
-    # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-    plt.plot(Ux,Uy, color)
-    plt.plot(Lx,Ly, color)
-
-    plt.axis('square')
-    plt.grid(alpha=0.2)
-    # plt.title(profile_name)
-plt.title("Stage 1 Rotor")
-plt.legend(["Hub","","Mean","","","Tip"])
 
 plt.figure()
 for theta, beta, inc, color in zip(theta3, Beta3, inc3, ['c','b','y']):
@@ -691,7 +765,7 @@ for theta, beta, inc, color in zip(theta3, Beta3, inc3, ['c','b','y']):
 plt.title("Stage 2 Rotor")
 plt.legend(["Hub","","Mean","","","Tip"])
 
-plt.show()
+# plt.show()
 
 
 
@@ -819,29 +893,29 @@ print("")
 # plt.title("Entropy")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
-# plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
-# plt.plot(rr2,180/np.pi * np.array(alpha_3),"r")
-# plt.plot(rr2,180/np.pi * np.array(alpha_4),"c")
-# plt.plot(rr2,180/np.pi * np.array(alpha_5),"m")
-# plt.ylabel(r"$\alpha$ [deg]")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Absolute Flow Angle")
-# plt.grid(alpha=0.2)
-
 plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,180/np.pi * np.array(beta_1),"b")
-plt.plot(rr,180/np.pi * np.array(beta_2),"g")
-plt.plot(rr2,180/np.pi * np.array(beta_3),"r")
-plt.plot(rr2,180/np.pi * np.array(beta_4),"c")
-plt.plot(rr2,180/np.pi * np.array(beta_5),"m")
-plt.ylabel(r"$\beta$ [deg]")
+plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
+plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
+plt.plot(rr2,180/np.pi * np.array(alpha_3),"r")
+plt.plot(rr2,180/np.pi * np.array(alpha_4),"c")
+plt.plot(rr2,180/np.pi * np.array(alpha_5),"m")
+plt.ylabel(r"$\alpha$ [deg]")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-plt.title("Relative Flow Angle")
+plt.title("Absolute Flow Angle")
 plt.grid(alpha=0.2)
+
+# plt.figure(figsize=(6, 5), dpi=80)
+# plt.plot(rr,180/np.pi * np.array(beta_1),"b")
+# plt.plot(rr,180/np.pi * np.array(beta_2),"g")
+# plt.plot(rr2,180/np.pi * np.array(beta_3),"r")
+# plt.plot(rr2,180/np.pi * np.array(beta_4),"c")
+# plt.plot(rr2,180/np.pi * np.array(beta_5),"m")
+# plt.ylabel(r"$\beta$ [deg]")
+# plt.xlabel(r"$r \  [m]$")
+# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+# plt.title("Relative Flow Angle")
+# plt.grid(alpha=0.2)
  
  
 # plt.figure(figsize=(6, 5), dpi=80)
