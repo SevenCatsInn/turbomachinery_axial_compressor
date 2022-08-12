@@ -758,7 +758,7 @@ for theta, beta, inc, color in zip(theta3, Beta3, inc3, ['c','b','y']):
     plt.axis('square')
     plt.grid(alpha=0.2)
     # plt.title(profile_name)
-plt.title("Stage 2 Stator")
+plt.title("Stage 2 Rotor")
 plt.legend(["Hub","","Mean","","","Tip"])
 
 
@@ -772,7 +772,7 @@ plt.legend(["Hub","","Mean","","","Tip"])
 percent_th4 = 10               # [%] Max thickness WRT chord of blade profile 
 chord4      = 0.08             # [m] Starting point from reference procedure
 solidity4   = 0.5              # [ ] ! Initial assumption at midspan
-theta4 = [20, 30, 70]
+theta4 = [15, 20, 38    ]
 
 
 inc4, theta4, dev4, deltaAlpha4 = lieblein_design(alpha_4,alpha_5,percent_th4,chord4,solidity4, theta4, rr2)
