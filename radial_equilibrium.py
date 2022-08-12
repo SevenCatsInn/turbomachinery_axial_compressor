@@ -597,6 +597,61 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 print("")
 print("--------------- BLADE DESIGN ---------------" )
 
+############### Blade design Deflector ##############
+percent_th0 = 10               # [%] Max thickness WRT chord of blade profile 
+chord0      = 0.08             # [m] Starting point from reference procedure
+solidity0   = 1.0              # [ ] ! Initial assumption at midspan
+theta0 = [-0.8, -16, -29]
+
+alpha_0 = np.zeros(pts)
+
+inc0, theta0, dev0, deltaAlpha0 = lieblein_design(alpha_0,alpha_1,percent_th0,chord0,solidity0, theta0, rr)
+
+print("")
+print("###### DEFLECTOR BLADE DESIGN ######")
+print("")
+print("Lieblein deflection ROOT = ", deltaAlpha0[0])
+print("Design deflection   ROOT = ", (180/np.pi*(alpha_0[0]-alpha_1[0])))
+
+print("")
+print("Lieblein deflection MID = ", deltaAlpha0[1])
+print("Design deflection   MID = ", (180/np.pi*(alpha_0[mean_index]-alpha_1[mean_index])))
+
+print("")
+print("Lieblein deflection TIP = ", deltaAlpha0[2])
+print("Design deflection   TIP = ", (180/np.pi*(alpha_0[-1]-alpha_1[-1])))
+
+
+
+Alpha0 = np.array([alpha_0[0],alpha_0[mean_index],alpha_0[-1]]) * 180/np.pi
+
+
+plt.figure()
+for theta, beta, inc, color in zip(theta0, Alpha0, inc0, ['c','b','y']):
+    
+    stagger =  beta - inc
+
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th0/100 , chord0, [0.03,0.0023], stagger )
+
+    
+    # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
+    plt.plot(Ux,Uy, color)
+    plt.plot(Lx,Ly, color)
+
+    plt.axis('square')
+    plt.grid(alpha=0.2)
+    # plt.title(profile_name)
+plt.title("Deflector")
+plt.legend(["Hub","","Mean","","","Tip"])
+
+input()
+
+
+
+
+
+
+
 
 ############### Blade design (Stage 1 Rotor) ##############
 
@@ -627,6 +682,7 @@ print("Design deflection   TIP = ", (180/np.pi*(beta_1[-1]-beta_2[-1])))
 
 Beta1 = np.array([beta_1[0],beta_1[mean_index],beta_1[-1]]) * 180/np.pi
 
+plt.figure()
 for theta, beta, inc, color in zip(theta1, Beta1, inc1, ['c','b','y']):
     
     stagger =  beta - inc
@@ -817,7 +873,7 @@ plt.title("Stage 2 Stator")
 plt.legend(["Hub","","Mean","","","Tip"])
 
 
-plt.show()
+# plt.show()
 
 
 
@@ -946,6 +1002,7 @@ print("")
 # plt.grid(alpha=0.2)
 
 plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,180/np.pi * np.array(alpha_0),"k")
 plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
 plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
 plt.plot(rr2,180/np.pi * np.array(alpha_3),"r")
@@ -953,7 +1010,7 @@ plt.plot(rr2,180/np.pi * np.array(alpha_4),"c")
 plt.plot(rr2,180/np.pi * np.array(alpha_5),"m")
 plt.ylabel(r"$\alpha$ [deg]")
 plt.xlabel(r"$r \  [m]$")
-plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
 plt.title("Absolute Flow Angle")
 plt.grid(alpha=0.2)
 
