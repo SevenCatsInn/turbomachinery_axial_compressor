@@ -1,7 +1,7 @@
 from numpy import sqrt, arctan, tan, pi, cos
 
 print("")
-print("####### MEAN LINE DESIGN STAGE 2 #######")
+print("--------------- MEAN LINE DESIGN STAGE 2 ---------------")
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
@@ -96,8 +96,18 @@ chi2=(W3_mag**2-W4_mag_new**2)/(2*L_eul)
 # Mean line design for the stator
 
 alpha4 = arctan(V4t/V4a)
-alpha5 = 0 * pi/180# Design choice
+alpha5 = 20 * pi/180# Design choice
 
+print("")
+print("Relative deflection in rotor")
+print(cos(beta3) / cos(beta4), "> 0.72 ?") 
+
+# Mean line design for the stator
+alpha2 = arctan(V2t/V2a)
+alpha3 = 30 * pi/180 # Design choice
+
+print("")
+print("Absolute deflection in stator")
 print(cos(alpha5) / cos(alpha4), "> 0.72 ?") 
 
 V5a = V4a

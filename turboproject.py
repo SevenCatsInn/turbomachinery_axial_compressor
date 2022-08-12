@@ -4,7 +4,7 @@ import numpy as np
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
 
-print("###### MEAN LINE DESIGN ######")
+print("--------------- MEAN LINE DESIGN STAGE 1 ---------------")
 # Thermophysical properties
 c_p = cp = 1005  # Constant pressure specific heat [J/(kg K)]
 gamma = 1.4 # Specific heat ratio
