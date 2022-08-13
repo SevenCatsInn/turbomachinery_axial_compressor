@@ -631,7 +631,7 @@ for theta, beta, inc, color in zip(theta0, Alpha0, inc0, ['c','b','y']):
     
     stagger =  beta - inc
 
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th0/100 , chord0, [0.03,0.0023], stagger )
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, _ = naca65(theta, percent_th0/100 , chord0, [0.03,0.0023], stagger )
 
     
     # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
@@ -644,7 +644,7 @@ for theta, beta, inc, color in zip(theta0, Alpha0, inc0, ['c','b','y']):
 plt.title("Deflector")
 plt.legend(["Hub","","Mean","","","Tip"])
 
-input()
+
 
 
 
@@ -687,7 +687,7 @@ for theta, beta, inc, color in zip(theta1, Beta1, inc1, ['c','b','y']):
     
     stagger =  beta - inc
 
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th1/100 , chord1, [0.03,0.0023], stagger )
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, area = naca65(theta, percent_th1/100 , chord1, [0.03,0.0023], stagger )
 
     
     # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
@@ -745,7 +745,7 @@ for theta, beta, inc, color in zip(theta2, Alpha2, inc2, ['c','b','y']):
     
     stagger =  beta - inc
 
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th2/100 , chord2, [0.03,0.0023], stagger )
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, _ = naca65(theta, percent_th2/100 , chord2, [0.03,0.0023], stagger )
 
     
     # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
@@ -798,13 +798,12 @@ print("Design deflection   TIP = ", (180/np.pi*(beta_3[-1]-beta_4[-1])))
 
 Beta3 = np.array([beta_3[0],beta_3[mean_index],beta_3[-1]]) * 180/np.pi
 
-
 plt.figure()
 for theta, beta, inc, color in zip(theta3, Beta3, inc3, ['c','b','y']):
     
     stagger =  beta - inc
 
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th3/100 , chord3, [0.03,0.0023], stagger )
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, _ = naca65(theta, percent_th3/100 , chord3, [0.03,0.0023], stagger )
 
     
     # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
@@ -816,7 +815,6 @@ for theta, beta, inc, color in zip(theta3, Beta3, inc3, ['c','b','y']):
     # plt.title(profile_name)
 plt.title("Stage 2 Rotor")
 plt.legend(["Hub","","Mean","","","Tip"])
-
 
 
 
@@ -859,7 +857,7 @@ for theta, beta, inc, color in zip(theta4, Alpha4, inc4, ['c','b','y']):
     
     stagger =  beta - inc
 
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name = naca65(theta, percent_th4/100 , chord4, [0.03,0.0023], stagger )
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, _ = naca65(theta, percent_th4/100 , chord4, [0.03,0.0023], stagger )
 
     
     # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
