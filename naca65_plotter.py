@@ -47,8 +47,13 @@ def naca65(theta, maxTh, chord, origin, angle_rot):
     # Profile Area Calculation
     profile_area = np.trapz(uy,xc) - np.trapz(ly,xc)
     
-    xAc = (np.trapz( uy * xc , xc) - np.trapz(ly * xc,xc) )* 1/profile_area  # Center of the Area position
-    index_Ac = np.where(abs(xc-xAc) < 0.05*xAc ) # Approximate the position of A.c. w/ a point on the camber line
+    xAc = (np.trapz( uy * xc , xc) - np.trapz(ly * xc,xc) )* 1/profile_area  # Center of the Area position in x
+    index_Ac = np.where(abs(xc-xAc) < 0.05*xAc ) # Approximate the position of A.C. w/ a point on the camber line
+
+    # Moment calculation
+    S_x = - np.trapz(xc * uy ,uy) + np.trapz(xc * ly ,ly) # First order (static) moment
+    I_x = - np.trapz(xc * uy**2 ,uy) + np.trapz(xc * ly**2 ,ly) # Moment of inertia
+    yAc = S_x / profile_area
 
     ## Rotation
     xi = angle_rot * np.pi/180  # Rotation angle
@@ -64,31 +69,31 @@ def naca65(theta, maxTh, chord, origin, angle_rot):
 
     Xc,Yc,Ux,Uy,Lx,Ly = (np.zeros(len(xc)) for t in range(6)) # Initiate empty arrays
 
-    # Rotation loop
+    # Rotation loop, remove ox oy for centering at the origin of rotation
     for j in range(len(xc)):
-        Xc[j] =  (xc[j]-ox) * np.cos(xi) - (yc[j]-oy) * np.sin(xi)
-        Yc[j] =  (xc[j]-ox) * np.sin(xi) + (yc[j]-oy) * np.cos(xi)
-        Ux[j] =  (ux[j]-ox) * np.cos(xi) - (uy[j]-oy) * np.sin(xi)
-        Uy[j] =  (ux[j]-ox) * np.sin(xi) + (uy[j]-oy) * np.cos(xi)
-        Lx[j] =  (lx[j]-ox) * np.cos(xi) - (ly[j]-oy) * np.sin(xi)
-        Ly[j] =  (lx[j]-ox) * np.sin(xi) + (ly[j]-oy) * np.cos(xi)
+        Xc[j] =  (xc[j]-ox) * np.cos(xi) - (yc[j]-oy) * np.sin(xi) + ox
+        Yc[j] =  (xc[j]-ox) * np.sin(xi) + (yc[j]-oy) * np.cos(xi) + oy
+        Ux[j] =  (ux[j]-ox) * np.cos(xi) - (uy[j]-oy) * np.sin(xi) + ox
+        Uy[j] =  (ux[j]-ox) * np.sin(xi) + (uy[j]-oy) * np.cos(xi) + oy
+        Lx[j] =  (lx[j]-ox) * np.cos(xi) - (ly[j]-oy) * np.sin(xi) + ox
+        Ly[j] =  (lx[j]-ox) * np.sin(xi) + (ly[j]-oy) * np.cos(xi) + oy
     
-    geom = [profile_area, index_Ac]
+    geom = [profile_area, index_Ac, ]
     return Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom
 
 # Test
 
-# chord = 1
-# for angle in [0]:
-#     Xc,Yc,Ux,Uy,Lx,Ly, profile_name, Area = naca65(10, 0.1, chord, [0.470,0.023], angle)
-#     # Plot
-#     plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-#     plt.plot(Ux,Uy, 'k')
-#     plt.plot(Lx,Ly, 'k')
-#     #plt.axis('scaled')
-#     plt.axis('square')
-#     plt.grid(alpha=0.2)
-#     #plt.xlim(-0.1*chord*np.cos(angle * np.pi/180), 1.1*chord*np.cos(angle*np.pi/180))
-#     #plt.ylim(-0.1*chord*np.sin(angle * np.pi/180), 1.1*chord*np.sin(angle*np.pi/180))
-#     plt.title(profile_name)
-# plt.show()
+chord = 1
+for angle in [0]:
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, Area = naca65(10, 0.1, chord, [0.470,0.023], angle)
+    # Plot
+    plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
+    plt.plot(Ux,Uy, 'k')
+    plt.plot(Lx,Ly, 'k')
+    #plt.axis('scaled')
+    plt.axis('square')
+    plt.grid(alpha=0.2)
+    #plt.xlim(-0.1*chord*np.cos(angle * np.pi/180), 1.1*chord*np.cos(angle*np.pi/180))
+    #plt.ylim(-0.1*chord*np.sin(angle * np.pi/180), 1.1*chord*np.sin(angle*np.pi/180))
+    plt.title(profile_name)
+plt.show()
