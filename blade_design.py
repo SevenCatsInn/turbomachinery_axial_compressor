@@ -160,7 +160,7 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
 
 
 def compute_C_l(theta, pts):
-    # Simple function to compute C_l starting from the equivalent camber
+    # Simple function to compute an interpolation of C_l starting from the equivalent camber at 3 sections
     C_l_tmp0 = (list(np.linspace( theta[0]/25, theta[1]/25, pts//2 + 1) ))[0:-1]
     C_l_tmp1 =  list(np.linspace( theta[1]/25, theta[2]/25, pts//2 + 1) )
 
@@ -176,6 +176,7 @@ def compute_C_l(theta, pts):
 
 
 def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, chord0, pts) :
+    # Prints the relevant angles and plots the 3 blades at hub, mid and tip
     mean_index = pts // 2
 
     print("")

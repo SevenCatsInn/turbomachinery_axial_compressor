@@ -651,7 +651,9 @@ stress1 = np.zeros(pts)
 for j in range(pts):
     stress1[j] = rho_b*omega**2 * (R_t**2 - rr[j]**2) / 2
 
+C_l1 = compute_C_l(theta1,pts)
 integrand_tmp1 = np.zeros(pts)
+
 L1 = np.zeros(pts) #Lift per unit length
 for j in range(pts):
     L1[j] = 0.5 * (p_1[j]/(R*T_1[j])) * W_1[j]**2 * chord1
@@ -745,7 +747,7 @@ print("###### STAGE 2 STATOR BLADE DESIGN ######")
 
 inc4, theta4, dev4, deltaAlpha4 = lieblein_design(alpha_4,alpha_5,percent_th4,chord4,solidity4, theta4, rr2)
 
-printPlot_blade(alpha_2,alpha_3, deltaAlpha2, inc2, theta2, percent_th2, chord2, pts)
+printPlot_blade(alpha_4, alpha_5, deltaAlpha4, inc2, theta4, percent_th4, chord4, pts)
 plt.title("Stator Stage 2")
 
 
@@ -891,17 +893,17 @@ plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "S
 plt.title("Absolute Flow Angle")
 plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,180/np.pi * np.array(beta_1),"b")
-# plt.plot(rr,180/np.pi * np.array(beta_2),"g")
-# plt.plot(rr2,180/np.pi * np.array(beta_3),"r")
-# plt.plot(rr2,180/np.pi * np.array(beta_4),"c")
-# plt.plot(rr2,180/np.pi * np.array(beta_5),"m")
-# plt.ylabel(r"$\beta$ [deg]")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Relative Flow Angle")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,180/np.pi * np.array(beta_1),"b")
+plt.plot(rr,180/np.pi * np.array(beta_2),"g")
+plt.plot(rr2,180/np.pi * np.array(beta_3),"r")
+plt.plot(rr2,180/np.pi * np.array(beta_4),"c")
+plt.plot(rr2,180/np.pi * np.array(beta_5),"m")
+plt.ylabel(r"$\beta$ [deg]")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Relative Flow Angle")
+plt.grid(alpha=0.2)
  
  
 # plt.figure(figsize=(6, 5), dpi=80)
