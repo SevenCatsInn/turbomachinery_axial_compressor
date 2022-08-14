@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+from naca65_plotter import * 
 
 def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
     # Design Parameters from computations above
@@ -150,3 +152,63 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
             
             
     return Inc, Theta, Dev, DeltaBeta
+
+
+
+
+
+
+
+def compute_C_l(theta, pts):
+    # Simple function to compute C_l starting from the equivalent camber
+    C_l_tmp0 = (list(np.linspace( theta[0]/25, theta[1]/25, pts//2 + 1) ))[0:-1]
+    C_l_tmp1 =  list(np.linspace( theta[1]/25, theta[2]/25, pts//2 + 1) )
+
+    C_l = C_l_tmp0 + C_l_tmp1
+
+    return C_l
+
+
+
+
+
+
+
+
+def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, chord0, pts) :
+    mean_index = pts // 2
+
+    print("")
+    print("Lieblein deflection ROOT = ", deltaAlpha0[0])
+    print("Design deflection   ROOT = ", (180/np.pi*(alpha_0[0]-alpha_1[0])))
+
+    print("")
+    print("Lieblein deflection MID = ", deltaAlpha0[1])
+    print("Design deflection   MID = ", (180/np.pi*(alpha_0[mean_index]-alpha_1[mean_index])))
+
+    print("")
+    print("Lieblein deflection TIP = ", deltaAlpha0[2])
+    print("Design deflection   TIP = ", (180/np.pi*(alpha_0[-1]-alpha_1[-1])))
+
+
+
+    Alpha0 = np.array([alpha_0[0],alpha_0[mean_index],alpha_0[-1]]) * 180/np.pi
+
+
+    plt.figure()
+
+    for theta, beta, inc, color in zip(theta0, Alpha0, inc0, ['c','b','y']):
+        
+        stagger =  beta - inc
+
+        Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th0/100 , chord0, "False", stagger )
+
+        
+        # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
+        plt.plot(Ux,Uy, color)
+        plt.plot(Lx,Ly, color)
+
+        plt.axis('square')
+        plt.grid(alpha=0.2)
+        # plt.title(profile_name)
+    plt.legend(["Hub","","Mean","","","Tip"])

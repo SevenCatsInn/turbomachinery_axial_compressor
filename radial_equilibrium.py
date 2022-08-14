@@ -598,15 +598,6 @@ print("")
 print("--------------- BLADE DESIGN ---------------" )
 
 
-def compute_C_l(theta):
-    # Simple function to compute C_l starting from the equivalent camber
-    C_l_tmp0 = (list(np.linspace( theta[0]/25, theta[1]/25, pts//2 + 1) ))[0:-1]
-    C_l_tmp1 =  list(np.linspace( theta[1]/25, theta[2]/25, pts//2 + 1) )
-
-    C_l = C_l_tmp0 + C_l_tmp1
-
-    return C_l
-
 ############### Blade design Deflector ##############
 percent_th0 = 10               # [%] Max thickness WRT chord of blade profile 
 chord0      = 0.08             # [m] Starting point from reference procedure
@@ -615,51 +606,14 @@ theta0 = [-0.8, -16, -29]
 
 alpha_0 = np.zeros(pts)
 
-inc0, theta0, dev0, deltaAlpha0 = lieblein_design(alpha_0,alpha_1,percent_th0,chord0,solidity0, theta0, rr)
-
 print("")
 print("###### DEFLECTOR BLADE DESIGN ######")
-print("")
-print("Lieblein deflection ROOT = ", deltaAlpha0[0])
-print("Design deflection   ROOT = ", (180/np.pi*(alpha_0[0]-alpha_1[0])))
-
-print("")
-print("Lieblein deflection MID = ", deltaAlpha0[1])
-print("Design deflection   MID = ", (180/np.pi*(alpha_0[mean_index]-alpha_1[mean_index])))
-
-print("")
-print("Lieblein deflection TIP = ", deltaAlpha0[2])
-print("Design deflection   TIP = ", (180/np.pi*(alpha_0[-1]-alpha_1[-1])))
 
 
+inc0, theta0, dev0, deltaAlpha0 = lieblein_design(alpha_0,alpha_1,percent_th0,chord0,solidity0, theta0, rr)
 
-Alpha0 = np.array([alpha_0[0],alpha_0[mean_index],alpha_0[-1]]) * 180/np.pi
-
-
-plt.figure()
-
-for theta, beta, inc, color in zip(theta0, Alpha0, inc0, ['c','b','y']):
-    
-    stagger =  beta - inc
-
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th0/100 , chord0, "False", stagger )
-
-    
-    # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-    plt.plot(Ux,Uy, color)
-    plt.plot(Lx,Ly, color)
-
-    plt.axis('square')
-    plt.grid(alpha=0.2)
-    # plt.title(profile_name)
+printPlot_blade(alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, chord0,pts)
 plt.title("Deflector")
-plt.legend(["Hub","","Mean","","","Tip"])
-
-
-
-
-
-
 
 
 
@@ -675,55 +629,20 @@ chord1      = 0.08             # [m] Starting point from reference procedure
 solidity1   = 1.3              # [ ] ! Initial assumption at midspan
 theta1 = [33, 26, -2.6]
 
+print("")
+print("###### STAGE 1 STATOR BLADE DESIGN ######")
 
 inc1, theta1, dev1, deltaBeta1 = lieblein_design(beta_1,beta_2,percent_th1,chord1,solidity1, theta1, rr)
 
-
-print("")
-print("###### STAGE 1 ROTOR BLADE DESIGN ######")
-print("")
-print("Lieblein deflection ROOT = ", deltaBeta1[0])
-print("Design deflection   ROOT = ", (180/np.pi*(beta_1[0]-beta_2[0])))
-
-print("")
-print("Lieblein deflection MID = ", deltaBeta1[1])
-print("Design deflection   MID = ", (180/np.pi*(beta_1[mean_index]-beta_2[mean_index])))
-
-print("")
-print("Lieblein deflection TIP = ", deltaBeta1[2])
-print("Design deflection   TIP = ", (180/np.pi*(beta_1[-1]-beta_2[-1])))
+printPlot_blade(beta_1,beta_2, deltaBeta1, inc1, theta1, percent_th1, chord1, pts)
+plt.title("Rotor Stage 1")
 
 
-
-Beta1 = np.array([beta_1[0],beta_1[mean_index],beta_1[-1]]) * 180/np.pi
-
-plt.figure()
-
-for theta, beta, inc, color in zip(theta1, Beta1, inc1, ['c','b','y']):
-    
-    stagger =  beta - inc
-
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th1/100 , chord1, "False", stagger )
-
-    
-    # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-    plt.plot(Ux,Uy, color)
-    plt.plot(Lx,Ly, color)
-
-    plt.axis('square')
-    plt.grid(alpha=0.2)
-    # plt.title(profile_name)
-plt.title("Stage 1 Rotor")
-plt.legend(["Hub","","Mean","","","Tip"])
-
-
+# Stress Calculations on First Rotor
 stress1 = np.zeros(pts)
 
 for j in range(pts):
     stress1[j] = rho_b*omega**2 * (R_t**2 - rr[j]**2) / 2
-
-
-
 
 
 
@@ -737,50 +656,13 @@ chord2      = 0.08             # [m] Starting point from reference procedure
 solidity2   = 0.5              # [ ] ! Initial assumption at midspan
 theta2 = [4, 5, 32]
 
+print("")
+print("###### STAGE 1 STATOR BLADE DESIGN ######")
 
 inc2, theta2, dev2, deltaAlpha2 = lieblein_design(alpha_2,alpha_3,percent_th2,chord2,solidity2, theta2, (rr+rr2)/2)
 
-print("")
-print("###### STAGE 1 STATOR BLADE DESIGN ######")
-print("")
-print("Lieblein deflection ROOT = ", deltaAlpha2[0])
-print("Design deflection   ROOT = ", (180/np.pi*(alpha_2[0]-alpha_3[0])))
-
-print("")
-print("Lieblein deflection MID = ", deltaAlpha2[1])
-print("Design deflection   MID = ", (180/np.pi*(alpha_2[mean_index]-alpha_3[mean_index])))
-
-print("")
-print("Lieblein deflection TIP = ", deltaAlpha2[2])
-print("Design deflection   TIP = ", (180/np.pi*(alpha_2[-1]-alpha_3[-1])))
-
-
-
-Alpha2 = np.array([alpha_2[0],alpha_2[mean_index],alpha_2[-1]]) * 180/np.pi
-
-
-plt.figure()
-
-for theta, beta, inc, color in zip(theta2, Alpha2, inc2, ['c','b','y']):
-    
-    stagger =  beta - inc
-
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th2/100 , chord2, "False", stagger )
-
-    
-    # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-    plt.plot(Ux,Uy, color)
-    plt.plot(Lx,Ly, color)
-
-    plt.axis('square')
-    plt.grid(alpha=0.2)
-    # plt.title(profile_name)
-plt.title("Stage 1 Stator")
-plt.legend(["Hub","","Mean","","","Tip"])
-
-
-
-
+printPlot_blade(alpha_2,alpha_3, deltaAlpha2, inc2, theta2, percent_th2, chord2, pts)
+plt.title("Stator Stage 1 ")
 
 
 
@@ -798,52 +680,24 @@ chord3      = 0.08             # [m] Starting point from reference procedure
 solidity3   = 1.3              # [ ] ! Initial assumption at midspan
 theta3 = [35, 29, -4]
 
-inc3, theta3, dev3, deltaBeta3 = lieblein_design(beta_3,beta_4,percent_th3,chord3,solidity3, theta3, rr2)
-
 print("")
 print("###### STAGE 2 ROTOR BLADE DESIGN ######")
-print("")
-print("Lieblein deflection ROOT = ", deltaBeta3[0])
-print("Design deflection   ROOT = ", (180/np.pi*(beta_3[0]-beta_4[0])))
 
-print("")
-print("Lieblein deflection MID = ", deltaBeta3[1])
-print("Design deflection   MID = ", (180/np.pi*(beta_3[mean_index]-beta_4[mean_index])))
+inc3, theta3, dev3, deltaBeta3 = lieblein_design(beta_3,beta_4,percent_th3,chord3,solidity3, theta3, rr2)
 
-print("")
-print("Lieblein deflection TIP = ", deltaBeta3[2])
-print("Design deflection   TIP = ", (180/np.pi*(beta_3[-1]-beta_4[-1])))
+printPlot_blade(beta_3,beta_4, deltaBeta3, inc3, theta3, percent_th3, chord3, pts)
+plt.title("Rotor Stage 2")
 
 
 
-Beta3 = np.array([beta_3[0],beta_3[mean_index],beta_3[-1]]) * 180/np.pi
-
-plt.figure()
-
-for theta, beta, inc, color in zip(theta3, Beta3, inc3, ['c','b','y']):
-    
-    stagger =  beta - inc
-
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th3/100 , chord3, "False", stagger )
-    
-    
-    # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-    plt.plot(Ux,Uy, color)
-    plt.plot(Lx,Ly, color)
-
-    plt.axis('square')
-    plt.grid(alpha=0.2)
-    # plt.title(profile_name)
-plt.title("Stage 2 Rotor")
-plt.legend(["Hub","","Mean","","","Tip"])
-
+# Mechanical Stress Calculations 
 
 stress3 = np.zeros(pts)
 
 for j in range(pts):
     stress3[j] = rho_b*omega**2 * (R_t**2 - rr2[j]**2) / 2
 
-C_l3 = compute_C_l(theta3)
+C_l3 = compute_C_l(theta3,pts)
 
 integrand_tmp3 = np.zeros(pts)
 L3 = np.zeros(pts)
@@ -852,7 +706,7 @@ for j in range(pts):
     integrand_tmp3[j] = ( 0.5 * (p_3[j]/(R*T_3[j])) * W_3[j]**2 * chord3 * C_l3[j] * (rr2[j] - R_h)  ) # [N * m / m]
 
 
-M_f_hub = np.trapz(integrand_tmp3, rr2)
+M_f_hub3 = np.trapz(integrand_tmp3, rr2)
 
 
 
@@ -864,49 +718,14 @@ chord4      = 0.08             # [m] Starting point from reference procedure
 solidity4   = 0.5              # [ ] ! Initial assumption at midspan
 theta4 = [15, 19, 37 ]
 
+print("")
+print("###### STAGE 2 STATOR BLADE DESIGN ######")
 
 inc4, theta4, dev4, deltaAlpha4 = lieblein_design(alpha_4,alpha_5,percent_th4,chord4,solidity4, theta4, rr2)
 
-print("")
-print("###### STAGE 2 STATOR BLADE DESIGN ######")
-print("")
-print("Lieblein deflection ROOT = ", deltaAlpha4[0])
-print("Design deflection   ROOT = ", (180/np.pi*(alpha_4[0]-alpha_5[0])))
+printPlot_blade(alpha_2,alpha_3, deltaAlpha2, inc2, theta2, percent_th2, chord2, pts)
+plt.title("Stator Stage 2")
 
-print("")
-print("Lieblein deflection MID = ", deltaAlpha4[1])
-print("Design deflection   MID = ", (180/np.pi*(alpha_4[mean_index]-alpha_5[mean_index])))
-
-print("")
-print("Lieblein deflection TIP = ", deltaAlpha4[2])
-print("Design deflection   TIP = ", (180/np.pi*(alpha_4[-1]-alpha_5[-1])))
-
-
-
-input()
-
-Alpha4 = np.array([alpha_4[0],alpha_4[mean_index],alpha_4[-1]]) * 180/np.pi
-
-
-plt.figure()
-
-for theta, beta, inc, color in zip(theta4, Alpha4, inc4, ['c','b','y']):
-    
-    stagger =  beta - inc
-
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th4/100 , chord4, "False", stagger )
-
-
-    
-    # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-    plt.plot(Ux,Uy, color)
-    plt.plot(Lx,Ly, color)
-
-    plt.axis('square')
-    plt.grid(alpha=0.2)
-    # plt.title(profile_name)
-plt.title("Stage 2 Stator")
-plt.legend(["Hub","","Mean","","","Tip"])
 
 
 # plt.show()
