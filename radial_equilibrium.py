@@ -411,7 +411,7 @@ iter = 1
 # Entropy inputs, NOTE: absolute values are meaningless
 omega_loss_R = 0.00 # Coefficient of loss
 
-# Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s     and s_4, even with s_4 = s_3[:] why??
+# Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s_3 and s_4, even with s_4 = s_3[:] why??
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
 ds_4 = list(ds_3) # Dertivative wrt r of entropy
 
@@ -597,6 +597,16 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 print("")
 print("--------------- BLADE DESIGN ---------------" )
 
+
+def compute_C_l(theta):
+    # Simple function to compute C_l starting from the equivalent camber
+    C_l_tmp0 = (list(np.linspace( theta[0]/25, theta[1]/25, pts//2 + 1) ))[0:-1]
+    C_l_tmp1 =  list(np.linspace( theta[1]/25, theta[2]/25, pts//2 + 1) )
+
+    C_l = C_l_tmp0 + C_l_tmp1
+
+    return C_l
+
 ############### Blade design Deflector ##############
 percent_th0 = 10               # [%] Max thickness WRT chord of blade profile 
 chord0      = 0.08             # [m] Starting point from reference procedure
@@ -627,11 +637,12 @@ Alpha0 = np.array([alpha_0[0],alpha_0[mean_index],alpha_0[-1]]) * 180/np.pi
 
 
 plt.figure()
+
 for theta, beta, inc, color in zip(theta0, Alpha0, inc0, ['c','b','y']):
     
     stagger =  beta - inc
 
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, _ = naca65(theta, percent_th0/100 , chord0, [0.03,0.0023], stagger )
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th0/100 , chord0, "False", stagger )
 
     
     # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
@@ -654,6 +665,10 @@ plt.legend(["Hub","","Mean","","","Tip"])
 
 
 ############### Blade design (Stage 1 Rotor) ##############
+
+# Mechanical Properties
+rho_b = 600                    # [kg/m^3] Blade material density
+stress_Y = 1.2e8               # [Pa]   Material Yield stress
 
 percent_th1 = 10               # [%] Max thickness WRT chord of blade profile 
 chord1      = 0.08             # [m] Starting point from reference procedure
@@ -683,11 +698,12 @@ print("Design deflection   TIP = ", (180/np.pi*(beta_1[-1]-beta_2[-1])))
 Beta1 = np.array([beta_1[0],beta_1[mean_index],beta_1[-1]]) * 180/np.pi
 
 plt.figure()
+
 for theta, beta, inc, color in zip(theta1, Beta1, inc1, ['c','b','y']):
     
     stagger =  beta - inc
 
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, area = naca65(theta, percent_th1/100 , chord1, [0.03,0.0023], stagger )
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th1/100 , chord1, "False", stagger )
 
     
     # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
@@ -701,7 +717,10 @@ plt.title("Stage 1 Rotor")
 plt.legend(["Hub","","Mean","","","Tip"])
 
 
+stress1 = np.zeros(pts)
 
+for j in range(pts):
+    stress1[j] = rho_b*omega**2 * (R_t**2 - rr[j]**2) / 2
 
 
 
@@ -741,11 +760,12 @@ Alpha2 = np.array([alpha_2[0],alpha_2[mean_index],alpha_2[-1]]) * 180/np.pi
 
 
 plt.figure()
+
 for theta, beta, inc, color in zip(theta2, Alpha2, inc2, ['c','b','y']):
     
     stagger =  beta - inc
 
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, _ = naca65(theta, percent_th2/100 , chord2, [0.03,0.0023], stagger )
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th2/100 , chord2, "False", stagger )
 
     
     # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
@@ -799,12 +819,13 @@ print("Design deflection   TIP = ", (180/np.pi*(beta_3[-1]-beta_4[-1])))
 Beta3 = np.array([beta_3[0],beta_3[mean_index],beta_3[-1]]) * 180/np.pi
 
 plt.figure()
+
 for theta, beta, inc, color in zip(theta3, Beta3, inc3, ['c','b','y']):
     
     stagger =  beta - inc
 
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, _ = naca65(theta, percent_th3/100 , chord3, [0.03,0.0023], stagger )
-
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th3/100 , chord3, "False", stagger )
+    
     
     # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
     plt.plot(Ux,Uy, color)
@@ -817,6 +838,21 @@ plt.title("Stage 2 Rotor")
 plt.legend(["Hub","","Mean","","","Tip"])
 
 
+stress3 = np.zeros(pts)
+
+for j in range(pts):
+    stress3[j] = rho_b*omega**2 * (R_t**2 - rr2[j]**2) / 2
+
+C_l3 = compute_C_l(theta3)
+
+integrand_tmp3 = np.zeros(pts)
+L3 = np.zeros(pts)
+for j in range(pts):
+    L3[j] = 0.5 * (p_3[j]/(R*T_3[j])) * W_3[j]**2 * chord3
+    integrand_tmp3[j] = ( 0.5 * (p_3[j]/(R*T_3[j])) * W_3[j]**2 * chord3 * C_l3[j] * (rr2[j] - R_h)  ) # [N * m / m]
+
+
+M_f_hub = np.trapz(integrand_tmp3, rr2)
 
 
 
@@ -853,11 +889,13 @@ Alpha4 = np.array([alpha_4[0],alpha_4[mean_index],alpha_4[-1]]) * 180/np.pi
 
 
 plt.figure()
+
 for theta, beta, inc, color in zip(theta4, Alpha4, inc4, ['c','b','y']):
     
     stagger =  beta - inc
 
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, _ = naca65(theta, percent_th4/100 , chord4, [0.03,0.0023], stagger )
+    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th4/100 , chord4, "False", stagger )
+
 
     
     # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
