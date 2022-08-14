@@ -652,17 +652,15 @@ for j in range(pts):
     stress1[j] = rho_b*omega**2 * (R_t**2 - rr[j]**2) / 2
 
 C_l1 = compute_C_l(theta1,pts)
-integrand_tmp1 = np.zeros(pts)
 
-L1 = np.zeros(pts) #Lift per unit length
+integrand_tmp1 = np.zeros(pts)
 for j in range(pts):
-    L1[j] = 0.5 * (p_1[j]/(R*T_1[j])) * W_1[j]**2 * chord1
     integrand_tmp1[j] = ( 0.5 * (p_1[j]/(R*T_1[j])) * W_1[j]**2 * chord1 * C_l1[j] * (rr[j] - R_h)  ) # [N * m / m]
 
 
 M_f_hub1 = np.trapz(integrand_tmp1, rr)
 
-input()
+
 
 
 
@@ -713,16 +711,13 @@ plt.title("Rotor Stage 2")
 stress3 = np.zeros(pts)
 
 for j in range(pts):
-    stress3[j] = rho_b*omega**2 * (R_t**2 - rr2[j]**2) / 2
+    stress3[j] = rho_b*omega**2 * (R_t2**2 - rr2[j]**2) / 2
 
 C_l3 = compute_C_l(theta3,pts)
 
 integrand_tmp3 = np.zeros(pts)
-L3 = np.zeros(pts)
 for j in range(pts):
-    L3[j] = 0.5 * (p_3[j]/(R*T_3[j])) * W_3[j]**2 * chord3
-    integrand_tmp3[j] = ( 0.5 * (p_3[j]/(R*T_3[j])) * W_3[j]**2 * chord3 * C_l3[j] * (rr2[j] - R_h)  ) # [N * m / m]
-
+    integrand_tmp3[j] = ( 0.5 * (p_3[j]/(R*T_3[j])) * W_3[j]**2 * chord3 * C_l3[j] * (rr2[j] - R_h2)  ) # [N * m / m]
 
 M_f_hub3 = np.trapz(integrand_tmp3, rr2)
 
