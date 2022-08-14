@@ -618,6 +618,13 @@ plt.title("Deflector")
 
 
 
+
+
+
+
+
+
+
 ############### Blade design (Stage 1 Rotor) ##############
 
 # Mechanical Properties
@@ -644,7 +651,16 @@ stress1 = np.zeros(pts)
 for j in range(pts):
     stress1[j] = rho_b*omega**2 * (R_t**2 - rr[j]**2) / 2
 
+integrand_tmp1 = np.zeros(pts)
+L1 = np.zeros(pts) #Lift per unit length
+for j in range(pts):
+    L1[j] = 0.5 * (p_1[j]/(R*T_1[j])) * W_1[j]**2 * chord1
+    integrand_tmp1[j] = ( 0.5 * (p_1[j]/(R*T_1[j])) * W_1[j]**2 * chord1 * C_l1[j] * (rr[j] - R_h)  ) # [N * m / m]
 
+
+M_f_hub1 = np.trapz(integrand_tmp1, rr)
+
+input()
 
 
 
@@ -707,6 +723,12 @@ for j in range(pts):
 
 
 M_f_hub3 = np.trapz(integrand_tmp3, rr2)
+
+
+
+
+
+
 
 
 
