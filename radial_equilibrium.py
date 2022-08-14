@@ -4,7 +4,6 @@ exec(open("./turboproject.py").read()) # Run mean line design
 
 import numpy as np
 import matplotlib.pyplot as plt
-from naca65_plotter import *
 from blade_design import *
 
 plt.rcParams.update({"text.usetex": True})
@@ -612,7 +611,7 @@ print("###### DEFLECTOR BLADE DESIGN ######")
 
 inc0, theta0, dev0, deltaAlpha0 = lieblein_design(alpha_0,alpha_1,percent_th0,chord0,solidity0, theta0, rr)
 
-printPlot_blade(alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, chord0,pts)
+geom, prof_names = printPlot_blade(alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, chord0,pts)
 plt.title("Deflector")
 
 
@@ -641,7 +640,7 @@ print("###### STAGE 1 STATOR BLADE DESIGN ######")
 
 inc1, theta1, dev1, deltaBeta1 = lieblein_design(beta_1,beta_2,percent_th1,chord1,solidity1, theta1, rr)
 
-printPlot_blade(beta_1,beta_2, deltaBeta1, inc1, theta1, percent_th1, chord1, pts)
+geom, prof_names = printPlot_blade(beta_1,beta_2, deltaBeta1, inc1, theta1, percent_th1, chord1, pts)
 plt.title("Rotor Stage 1")
 
 
@@ -664,7 +663,6 @@ M_f_hub1 = np.trapz(integrand_tmp1, rr)
 
 
 
-
 ############### Blade design (Stage 1 Stator) ##############
 
 percent_th2 = 10               # [%] Max thickness WRT chord of blade profile 
@@ -677,7 +675,7 @@ print("###### STAGE 1 STATOR BLADE DESIGN ######")
 
 inc2, theta2, dev2, deltaAlpha2 = lieblein_design(alpha_2,alpha_3,percent_th2,chord2,solidity2, theta2, (rr+rr2)/2)
 
-printPlot_blade(alpha_2,alpha_3, deltaAlpha2, inc2, theta2, percent_th2, chord2, pts)
+geom, prof_names = printPlot_blade(alpha_2,alpha_3, deltaAlpha2, inc2, theta2, percent_th2, chord2, pts)
 plt.title("Stator Stage 1 ")
 
 
@@ -701,7 +699,7 @@ print("###### STAGE 2 ROTOR BLADE DESIGN ######")
 
 inc3, theta3, dev3, deltaBeta3 = lieblein_design(beta_3,beta_4,percent_th3,chord3,solidity3, theta3, rr2)
 
-printPlot_blade(beta_3,beta_4, deltaBeta3, inc3, theta3, percent_th3, chord3, pts)
+geom, prof_names = printPlot_blade(beta_3,beta_4, deltaBeta3, inc3, theta3, percent_th3, chord3, pts)
 plt.title("Rotor Stage 2")
 
 
@@ -742,7 +740,7 @@ print("###### STAGE 2 STATOR BLADE DESIGN ######")
 
 inc4, theta4, dev4, deltaAlpha4 = lieblein_design(alpha_4,alpha_5,percent_th4,chord4,solidity4, theta4, rr2)
 
-printPlot_blade(alpha_4, alpha_5, deltaAlpha4, inc2, theta4, percent_th4, chord4, pts)
+geom, prof_names = printPlot_blade(alpha_4, alpha_5, deltaAlpha4, inc2, theta4, percent_th4, chord4, pts)
 plt.title("Stator Stage 2")
 
 

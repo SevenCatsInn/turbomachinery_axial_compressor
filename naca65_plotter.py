@@ -30,7 +30,7 @@ def naca65(theta, maxTh, chord, origin, angle_rot):
     
     C_l = theta / 25
 
-    profile_name = "NACA 65-(" + str(int(round(10*C_l))) + ")" + str(int(maxTh * 100))
+    profile_name = "NACA 65-(" + str(int(round(abs(10*C_l)))) + ")" + str(int(maxTh * 100))
 
     # Scaling and correction for chosen theta, thickness and chord
     yc = yc * chord * C_l / 100        # Multiply camber line by C_l to obtain a different lift
@@ -78,22 +78,22 @@ def naca65(theta, maxTh, chord, origin, angle_rot):
         Lx[j] =  (lx[j]-ox) * np.cos(xi) - (ly[j]-oy) * np.sin(xi) + ox
         Ly[j] =  (lx[j]-ox) * np.sin(xi) + (ly[j]-oy) * np.cos(xi) + oy
     
-    geom = [profile_area, index_Ac, ]
+    geom = [profile_area, index_Ac[0][0], I_x]
     return Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom
 
 # Test
 
-chord = 1
-for angle in [0]:
-    Xc,Yc,Ux,Uy,Lx,Ly, profile_name, Area = naca65(10, 0.1, chord, [0.470,0.023], angle)
-    # Plot
-    plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-    plt.plot(Ux,Uy, 'k')
-    plt.plot(Lx,Ly, 'k')
-    #plt.axis('scaled')
-    plt.axis('square')
-    plt.grid(alpha=0.2)
-    #plt.xlim(-0.1*chord*np.cos(angle * np.pi/180), 1.1*chord*np.cos(angle*np.pi/180))
-    #plt.ylim(-0.1*chord*np.sin(angle * np.pi/180), 1.1*chord*np.sin(angle*np.pi/180))
-    plt.title(profile_name)
-plt.show()
+# chord = 1
+# for angle in [0]:
+#     Xc,Yc,Ux,Uy,Lx,Ly, profile_name, Area = naca65(10, 0.1, chord, [0.470,0.023], angle)
+#     # Plot
+#     plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
+#     plt.plot(Ux,Uy, 'k')
+#     plt.plot(Lx,Ly, 'k')
+#     #plt.axis('scaled')
+#     plt.axis('square')
+#     plt.grid(alpha=0.2)
+#     #plt.xlim(-0.1*chord*np.cos(angle * np.pi/180), 1.1*chord*np.cos(angle*np.pi/180))
+#     #plt.ylim(-0.1*chord*np.sin(angle * np.pi/180), 1.1*chord*np.sin(angle*np.pi/180))
+#     plt.title(profile_name)
+# plt.show()

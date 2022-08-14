@@ -197,6 +197,8 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
 
 
     plt.figure()
+    Geom = []
+    Prof_names = []
 
     for theta, beta, inc, color in zip(theta0, Alpha0, inc0, ['c','b','y']):
         
@@ -204,6 +206,8 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
 
         Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th0/100 , chord0, "False", stagger )
 
+        Geom.append(geom)
+        Prof_names.append(profile_name)
         
         # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
         plt.plot(Ux,Uy, color)
@@ -213,3 +217,7 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
         plt.grid(alpha=0.2)
         # plt.title(profile_name)
     plt.legend(["Hub","","Mean","","","Tip"])
+
+    
+
+    return Geom, Prof_names
