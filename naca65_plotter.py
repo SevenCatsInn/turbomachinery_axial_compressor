@@ -83,10 +83,11 @@ def naca65(theta, maxTh, chord, origin, angle_rot):
 
 # Test
 
-# chord = 1
+# chord = 0.08
 # for angle in [0]:
-#     Xc,Yc,Ux,Uy,Lx,Ly, profile_name, Area = naca65(10, 0.1, chord, [0.470,0.023], angle)
+#     Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(33, 0.1, chord, "False", angle)
 #     # Plot
+    
 #     plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
 #     plt.plot(Ux,Uy, 'k')
 #     plt.plot(Lx,Ly, 'k')
@@ -96,4 +97,6 @@ def naca65(theta, maxTh, chord, origin, angle_rot):
 #     #plt.xlim(-0.1*chord*np.cos(angle * np.pi/180), 1.1*chord*np.cos(angle*np.pi/180))
 #     #plt.ylim(-0.1*chord*np.sin(angle * np.pi/180), 1.1*chord*np.sin(angle*np.pi/180))
 #     plt.title(profile_name)
+
+# print(geom[2])
 # plt.show()

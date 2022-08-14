@@ -627,11 +627,11 @@ plt.title("Deflector")
 ############### Blade design (Stage 1 Rotor) ##############
 
 # Mechanical Properties
-rho_b = 600                    # [kg/m^3] Blade material density
-stress_Y = 1.2e8               # [Pa]   Material Yield stress
+rho_b = 7850                   # [kg/m^3] Blade material density
+stress_Y = 472e6               # [Pa]   Material Yield stress (Annealed 4340 steel)
 
 percent_th1 = 10               # [%] Max thickness WRT chord of blade profile 
-chord1      = 0.08             # [m] Starting point from reference procedure
+chord1      = 0.1             # [m] Starting point from reference procedure
 solidity1   = 1.3              # [ ] ! Initial assumption at midspan
 theta1 = [33, 26, -2.6]
 
@@ -640,15 +640,16 @@ print("###### STAGE 1 STATOR BLADE DESIGN ######")
 
 inc1, theta1, dev1, deltaBeta1 = lieblein_design(beta_1,beta_2,percent_th1,chord1,solidity1, theta1, rr)
 
-geom, prof_names = printPlot_blade(beta_1,beta_2, deltaBeta1, inc1, theta1, percent_th1, chord1, pts)
+geom1, prof_names1 = printPlot_blade(beta_1,beta_2, deltaBeta1, inc1, theta1, percent_th1, chord1, pts)
 plt.title("Rotor Stage 1")
 
 
 # Stress Calculations on First Rotor
-stress1 = np.zeros(pts)
+stress_Ax1 = np.zeros(pts)
 
 for j in range(pts):
-    stress1[j] = rho_b*omega**2 * (R_t**2 - rr[j]**2) / 2
+    stress_Ax1[j] = rho_b*omega**2 * (R_t**2 - rr[j]**2) / 2
+
 
 C_l1 = compute_C_l(theta1,pts)
 
@@ -659,7 +660,15 @@ for j in range(pts):
 
 M_f_hub1 = np.trapz(integrand_tmp1, rr)
 
+I_x1 = geom1[0][2] # First index is the Hub (1 mid, 2 tip) and second index is the geometrical information to extract
 
+stress_Bend1 = M_f_hub1 / I_x1 * (percent_th1*chord1/100)/2 
+
+stress_tot1 = abs(stress_Ax1[0]) + abs(stress_Bend1)
+
+print("")
+print("Total Stress at Hub = ", stress_tot1, "[Pa]")
+print("Safety Factor =", stress_Y/stress_tot1)
 
 
 
@@ -683,10 +692,6 @@ plt.title("Stator Stage 1 ")
 
 
 
-
-
-
-
 ############### Blade design (Stage 2 Rotor) ##############
 
 percent_th3 = 10               # [%] Max thickness WRT chord of blade profile 
@@ -699,17 +704,17 @@ print("###### STAGE 2 ROTOR BLADE DESIGN ######")
 
 inc3, theta3, dev3, deltaBeta3 = lieblein_design(beta_3,beta_4,percent_th3,chord3,solidity3, theta3, rr2)
 
-geom, prof_names = printPlot_blade(beta_3,beta_4, deltaBeta3, inc3, theta3, percent_th3, chord3, pts)
+geom3, prof_names = printPlot_blade(beta_3,beta_4, deltaBeta3, inc3, theta3, percent_th3, chord3, pts)
 plt.title("Rotor Stage 2")
 
 
 
-# Mechanical Stress Calculations 
-
-stress3 = np.zeros(pts)
+# Stress Calculations on Second Rotor
+stress_Ax3 = np.zeros(pts)
 
 for j in range(pts):
-    stress3[j] = rho_b*omega**2 * (R_t2**2 - rr2[j]**2) / 2
+    stress_Ax3[j] = rho_b*omega**2 * (R_t2**2 - rr2[j]**2) / 2
+
 
 C_l3 = compute_C_l(theta3,pts)
 
@@ -717,7 +722,18 @@ integrand_tmp3 = np.zeros(pts)
 for j in range(pts):
     integrand_tmp3[j] = ( 0.5 * (p_3[j]/(R*T_3[j])) * W_3[j]**2 * chord3 * C_l3[j] * (rr2[j] - R_h2)  ) # [N * m / m]
 
+
 M_f_hub3 = np.trapz(integrand_tmp3, rr2)
+
+I_x3 = geom3[0][2] # First index is the Hub (1 mid, 2 tip) and second index is the geometrical information to extract
+
+stress_Bend3 = M_f_hub3 / I_x3 * (percent_th3*chord3/100)/2 
+
+stress_tot3 = abs(stress_Ax3[0]) + abs(stress_Bend3)
+
+print("")
+print("Total Stress at Hub = ", stress_tot3, "[Pa]")
+print("Safety Factor =", stress_Y/stress_tot3)
 
 
 

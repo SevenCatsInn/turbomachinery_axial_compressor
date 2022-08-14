@@ -197,6 +197,7 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
 
 
     plt.figure()
+    
     Geom = []
     Prof_names = []
 
@@ -221,3 +222,4 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
     
 
     return Geom, Prof_names
+
