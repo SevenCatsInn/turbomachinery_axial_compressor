@@ -631,7 +631,7 @@ rho_b = 7850                   # [kg/m^3] Blade material density
 stress_Y = 472e6               # [Pa]   Material Yield stress (Annealed 4340 steel)
 
 percent_th1 = 10               # [%] Max thickness WRT chord of blade profile 
-chord1      = 0.1             # [m] Starting point from reference procedure
+chord1      = 0.1              # [m] Starting point from reference procedure
 solidity1   = 1.3              # [ ] ! Initial assumption at midspan
 theta1 = [33, 26, -2.6]
 
@@ -670,6 +670,8 @@ print("")
 print("Total Stress at Hub = ", stress_tot1, "[Pa]")
 print("Safety Factor =", stress_Y/stress_tot1)
 
+
+Re1 = rho_1 * W_1 * chord1 / 1.81e-5
 
 
 ############### Blade design (Stage 1 Stator) ##############

@@ -49,7 +49,7 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
     theta_eq_mid  = abs(theta[1])
     theta_eq_tip  = abs(theta[2])
 
-    # Zero camber incidence angle
+    # Zero camber incidencence, Theta, Dev, DeltaBeta angle
 
     # Semiempirical exponents
     p_mid  = 0.914 + sigma_mid **3 / 160
