@@ -47,6 +47,11 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
     sigma_tip  = sigma[-1]
     sigma_root = sigma[0]
 
+    print("")
+    print("Number of blades = ", n_blade)
+    print("sigma_root,mid,tip = ", sigma_root, sigma_mid, sigma_tip)
+    print("")
+
     # Equivalent camber theta: from graphs on slide 9 ppt
     # NOTE: TUNABLE
     theta_eq_root = abs(theta[0])

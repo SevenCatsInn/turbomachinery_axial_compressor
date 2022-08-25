@@ -724,7 +724,7 @@ stress_Y = 472e6               # [Pa]   Material Yield stress (Annealed 4340 ste
 percent_th1 = 10               # [%] Max thickness WRT chord of blade profile 
 chord1      = 0.1              # [m] Starting point from reference procedure
 solidity1   = 1.3              # [ ] ! Initial assumption at midspan
-theta1 = [33, 26, -2.6]
+theta1 = [33, 26, -2]
 
 print("")
 print("###### STAGE 1 ROTOR BLADE DESIGN ######")
@@ -770,7 +770,7 @@ Re1 = rho_1 * W_1 * chord1 / 1.81e-5
 percent_th2 = 10               # [%] Max thickness WRT chord of blade profile 
 chord2      = 0.08             # [m] Starting point from reference procedure
 solidity2   = 0.5              # [ ] ! Initial assumption at midspan
-theta2 = [4, 5, 32]
+theta2 = [5, 5, 28]
 
 print("")
 print("###### STAGE 1 STATOR BLADE DESIGN ######")
@@ -790,7 +790,7 @@ plt.title("Stator Stage 1 ")
 percent_th3 = 10               # [%] Max thickness WRT chord of blade profile 
 chord3      = 0.08             # [m] Starting point from reference procedure
 solidity3   = 1.3              # [ ] ! Initial assumption at midspan
-theta3 = [35, 29, -4]
+theta3 = [32, 28, -5]
 
 print("")
 print("###### STAGE 2 ROTOR BLADE DESIGN ######")
@@ -842,7 +842,7 @@ print("Safety Factor =", stress_Y/stress_tot3)
 percent_th4 = 10               # [%] Max thickness WRT chord of blade profile 
 chord4      = 0.08             # [m] Starting point from reference procedure
 solidity4   = 0.5              # [ ] ! Initial assumption at midspan
-theta4 = [15, 19, 37 ]
+theta4 = [14, 18, 38 ]
 
 print("")
 print("###### STAGE 2 STATOR BLADE DESIGN ######")
@@ -1027,8 +1027,8 @@ plt.grid(alpha=0.2)
 # P stands for plotting
 
 
-print("Average Exit Total Pressure = " , np.average(p_t3))
-print("Average Exit Total Pressure = " , np.average(p_t5))
+print("Average Exit Total Pressure S1 = " , np.average(p_t3))
+print("Average Exit Total Pressure S2 = " , np.average(p_t5))
 
 
 
