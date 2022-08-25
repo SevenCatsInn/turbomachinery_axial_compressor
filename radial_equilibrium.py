@@ -847,11 +847,6 @@ theta4 = [15, 19, 37 ]
 print("")
 print("###### STAGE 2 STATOR BLADE DESIGN ######")
 
-sigma_distr4 = sigma_distr(solidity4,chord4,rr2)
-
-print(sigma_distr4)
-input()
-
 inc4, theta4, dev4, deltaAlpha4 = lieblein_design(alpha_4,alpha_5,percent_th4,chord4,solidity4, theta4, rr2)
 
 geom, prof_names = printPlot_blade(alpha_4, alpha_5, deltaAlpha4, inc2, theta4, percent_th4, chord4, pts)

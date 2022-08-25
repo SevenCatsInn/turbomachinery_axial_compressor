@@ -15,14 +15,14 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 mdot=100 #mass flow rate
 Pt1=99439 # pressure [bar]
 Tt1=300 #inlet temperature [K]
-beta=1.23 #compression ratio
+beta=1.21 #compression ratio
 
 
 ## Non dimensional quantities
 
 ## axial compressor
 #vavra: get reaction degree and flow coefficient to get machimum efficiency
-phi=0.86 #from slide 10 achial compressors
+phi=0.88 #from slide 10 achial compressors
 chi=0.5 #reaction degree
 psi=0.34 #from first graph slide 12
 Rm=0.32 #mean line radius
