@@ -71,12 +71,12 @@ def naca65(theta, maxTh, chord, origin, angle_rot):
 
     # Rotation loop, remove ox oy for centering at the origin of rotation
     for j in range(len(xc)):
-        Xc[j] =  (xc[j]-ox) * np.cos(xi) - (yc[j]-oy) * np.sin(xi) + ox
-        Yc[j] =  (xc[j]-ox) * np.sin(xi) + (yc[j]-oy) * np.cos(xi) + oy
-        Ux[j] =  (ux[j]-ox) * np.cos(xi) - (uy[j]-oy) * np.sin(xi) + ox
-        Uy[j] =  (ux[j]-ox) * np.sin(xi) + (uy[j]-oy) * np.cos(xi) + oy
-        Lx[j] =  (lx[j]-ox) * np.cos(xi) - (ly[j]-oy) * np.sin(xi) + ox
-        Ly[j] =  (lx[j]-ox) * np.sin(xi) + (ly[j]-oy) * np.cos(xi) + oy
+        Xc[j] =  (xc[j]-ox) * np.cos(xi) - (yc[j]-oy) * np.sin(xi) #+ ox
+        Yc[j] =  (xc[j]-ox) * np.sin(xi) + (yc[j]-oy) * np.cos(xi) #+ oy
+        Ux[j] =  (ux[j]-ox) * np.cos(xi) - (uy[j]-oy) * np.sin(xi) #+ ox
+        Uy[j] =  (ux[j]-ox) * np.sin(xi) + (uy[j]-oy) * np.cos(xi) #+ oy
+        Lx[j] =  (lx[j]-ox) * np.cos(xi) - (ly[j]-oy) * np.sin(xi) #+ ox
+        Ly[j] =  (lx[j]-ox) * np.sin(xi) + (ly[j]-oy) * np.cos(xi) #+ oy
     
     geom = [profile_area, index_Ac[0][0], I_x]
     return Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom
