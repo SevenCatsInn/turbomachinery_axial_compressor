@@ -65,7 +65,6 @@ tol = 1e-3 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_D = 0.02
 
 V_t0 = np.zeros(pts)
 
@@ -160,7 +159,7 @@ drV_t1 = finDiff(rV_t1, deltaR)
 s_1  = arrayLst( s_0)    # Initial radial entropy distribution in 2
 ds_1 = arrayLst(ds_0) # Dertivative wrt r of entropy
 
-omega_loss_R = 0.02
+omega_loss_D = 0.02
 
 print("")
 print("########## ROTOR INLET ##########")
@@ -207,14 +206,15 @@ while abs(err) > tol:
         M_1[j]  = V_1[j] / np.sqrt(gamma * R * T_1[j])
         M_1r[j] = W_1[j] / np.sqrt(gamma * R * T_1[j])
         p_t1[j]  = p_1[j]*(1 + (gamma-1) / 2 * M_1[j]**2  ) ** (gamma/(gamma-1))
-        #p_t1r[j] = p_1[j]*(1 + (gamma-1) / 2 * M_1r[j]**2 ) ** (gamma/(gamma-1))
-        p_t1r[j] = p_t0r[j] - omega_loss_R * (p_t0r[j] - p_0[j])
+        p_t1r[j] = p_1[j]*(1 + (gamma-1) / 2 * M_1r[j]**2 ) ** (gamma/(gamma-1))
+        
+        p_t1[j] = p_t0[j] - omega_loss_D * (p_t0[j] - p_0[j])
         
         integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
         
         # ENTROPY EVALUATION
 
-        s_1[j]  = s_0[j] - R * np.log(p_t1r[j] / p_t0r[j])
+        s_1[j]  = s_0[j] - R * np.log(p_t1[j] / p_t0[j])
     
     ds_1 = finDiff(s_1,deltaR)
     
