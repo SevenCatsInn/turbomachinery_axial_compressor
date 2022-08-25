@@ -151,20 +151,28 @@ while abs(err)>tol:
 V3 = [V3a, V3t]
 
 # Change variables names for radial equilibrium script
+T_0m  = T0
+p_0m  = p0
+V_a0m = V0a
+V_t0m = V0t
+
 T_1m  = T1
 p_1m  = p1
 V_a1m = V1a
 V_t1m = V1t
+
 T_2m  = T2
 p_2m  = p2
 V_a2m = V2a
 V_t2m = V2t
+
 T_3m  = T3
 p_3m  = p3
 p_t3  = Pt3
 T_t3  = Tt3
 V_a3m = V3a
 V_t3m = V3t
+
 b_1 = b1
 R_m = Rm
 rpm = RPM
