@@ -29,7 +29,7 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
     
     deltaBeta = [deltabeta1_root, deltabeta1_mid, deltabeta1_tip]
 
-    s_mid = solidity * chord
+    s_mid =  chord/solidity
 
     n_blade = round( 2 * np.pi * R_m / s_mid) # Number of blades
 
@@ -237,7 +237,7 @@ def sigma_distr(solidity,chord,rr):
     
     mean_index = len(rr) // 2
     R_m = rr[mean_index]
-    s_mid = solidity * chord
+    s_mid = chord/solidity
 
     n_blade = round( 2 * np.pi * R_m / s_mid) # Number of blades
 

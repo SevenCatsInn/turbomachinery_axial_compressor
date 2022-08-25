@@ -769,7 +769,7 @@ Re1 = rho_1 * W_1 * chord1 / 1.81e-5
 
 percent_th2 = 10               # [%] Max thickness WRT chord of blade profile 
 chord2      = 0.08             # [m] Starting point from reference procedure
-solidity2   = 0.5              # [ ] ! Initial assumption at midspan
+solidity2   = 1              # [ ] ! Initial assumption at midspan
 theta2 = [5, 5, 28]
 
 print("")
@@ -841,7 +841,7 @@ print("Safety Factor =", stress_Y/stress_tot3)
 
 percent_th4 = 10               # [%] Max thickness WRT chord of blade profile 
 chord4      = 0.08             # [m] Starting point from reference procedure
-solidity4   = 0.5              # [ ] ! Initial assumption at midspan
+solidity4   = 1              # [ ] ! Initial assumption at midspan
 theta4 = [14, 18, 38 ]
 
 print("")
@@ -1032,7 +1032,7 @@ print("Average Exit Total Pressure S2 = " , np.average(p_t5))
 
 
 
-plt.show()
+# plt.show()
 
 
 
