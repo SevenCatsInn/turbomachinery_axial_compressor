@@ -34,14 +34,18 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
     n_blade = round( 2 * np.pi * R_m / s_mid) # Number of blades
 
     # Pitch along blade span
-    s_mid  = 2 * np.pi * R_m / n_blade
-    s_tip  = 2 * np.pi * R_t / n_blade
-    s_root = 2 * np.pi * R_h / n_blade
+    s = 2 * np.pi * rr / n_blade
+
+    s_mid  = s[mean_index]
+    s_tip  = s[-1]
+    s_root = s[0]
 
     # Solidity along blade span, recomputed after choosing n blades
-    sigma_mid  = chord / s_mid
-    sigma_tip  = chord / s_tip
-    sigma_root = chord / s_root
+    sigma = chord / s
+
+    sigma_mid  = sigma[mean_index]
+    sigma_tip  = sigma[-1]
+    sigma_root = sigma[0]
 
     # Equivalent camber theta: from graphs on slide 9 ppt
     # NOTE: TUNABLE
@@ -151,7 +155,7 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
 
             
             
-    return Inc, Theta, Dev, DeltaBeta
+    return Inc, Theta, Dev, DeltaBeta, sigma
 
 
 
