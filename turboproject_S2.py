@@ -1,7 +1,7 @@
 from numpy import sqrt, arctan, tan, pi, cos
 
 print("")
-print("####### MEAN LINE DESIGN STAGE 2 #######")
+print("--------------- MEAN LINE DESIGN STAGE 2 ---------------")
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
@@ -25,7 +25,7 @@ beta=1.48/beta #compression ratio
 ## achi2al compressor
 #vavra: get reaction degree and flow coefficient to get machi2mum efficiency
 chi2=0.5 #reaction degree
-efficiency_TT=0.91
+efficiency_TT=0.905
 eta_S = 0.92
 eta_R = 0.92
 Um = U[mean_index]
@@ -55,7 +55,7 @@ T3=Tt3-V3_mag**2/(2*cp)
 M3=V3_mag/sqrt(gamma*R*T3)
 p3=Pt3*(1+(gamma-1)/2*M3**2)**((-gamma)/(gamma-1))
 rho3=p3/(R*T3)
-b2=b1
+
 
 
 #quantities at station 4 (after rotor)
@@ -96,8 +96,18 @@ chi2=(W3_mag**2-W4_mag_new**2)/(2*L_eul)
 # Mean line design for the stator
 
 alpha4 = arctan(V4t/V4a)
-alpha5 = 0 * pi/180# Design choice
+alpha5 = 20 * pi/180# Design choice
 
+print("")
+print("Relative deflection in rotor")
+print(cos(beta3) / cos(beta4), "> 0.72 ?") 
+
+# Mean line design for the stator
+alpha2 = arctan(V2t/V2a)
+alpha3 = 30 * pi/180 # Design choice
+
+print("")
+print("Absolute deflection in stator")
 print(cos(alpha5) / cos(alpha4), "> 0.72 ?") 
 
 V5a = V4a
@@ -141,7 +151,7 @@ print("\u03C7, \u03A6, \u03A8 = ", chi2, phi, psi)
 # a * R_m + b / R_m = V_t2m
 
 
-n = 1.0
+n = 0.25
 matA2 = np.array([[R_m**n, -1 / R_m], 
                   [R_m**n,  1 / R_m]])
 

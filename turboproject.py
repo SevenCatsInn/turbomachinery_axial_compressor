@@ -1,10 +1,10 @@
-from numpy import sqrt, arctan, tan, pi, cos
+from numpy import sqrt, arctan, tan, pi, cos, sin
 import numpy as np
 
 Norm = lambda x : sqrt(x[0]**2 + x[1]**2)
 
 
-print("###### MEAN LINE DESIGN ######")
+print("--------------- MEAN LINE DESIGN STAGE 1 ---------------")
 # Thermophysical properties
 c_p = cp = 1005  # Constant pressure specific heat [J/(kg K)]
 gamma = 1.4 # Specific heat ratio
@@ -15,18 +15,18 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 mdot=100 #mass flow rate
 Pt1=100000 # pressure [bar]
 Tt1=300 #inlet temperature [K]
-beta=1.227 #compression ratio
+beta=1.22 #compression ratio
 
 
 ## Non dimensional quantities
 
 ## axial compressor
 #vavra: get reaction degree and flow coefficient to get machimum efficiency
-phi=0.85 #from slide 10 achial compressors
-chi=0.7 #reaction degree
-psi=0.29 #from first graph slide 12
-Rm=0.33 #mean line radius
-efficiency_TT=0.91
+phi=0.86 #from slide 10 achial compressors
+chi=0.5 #reaction degree
+psi=0.34 #from first graph slide 12
+Rm=0.32 #mean line radius
+efficiency_TT=0.905
 eta_S = 0.92
 eta_R = 0.92
 
@@ -54,7 +54,7 @@ p1=Pt1*(1+(gamma-1)/2*M1**2)**((-gamma)/(gamma-1))
 rho1=p1/(R*T1)
 
 b1=mdot/(rho1*V1a*2*pi*Rm)
-
+b2=0.9*b1
 
 #quantities at station 2 (after rotor)
 V2t=L_eul/Um+V1t
@@ -116,7 +116,7 @@ while abs(err)>tol:
     T3is=T2 + eta_S*(T3-T2)
     p3=(T3is/Tt2)**(gamma/(gamma-1))*Pt2
     rho3=p3/(R*T3)
-    V3a_new=mdot/(rho3*2*pi*b1*Rm)
+    V3a_new=mdot/(rho3*2*pi*b2*Rm)
     err=abs(V3a_new-V3a)
     V3a=V3a_new
     M3 = V3_mag / sqrt(gamma * R * T3)
@@ -150,7 +150,7 @@ print("\u03C7, \u03A6, \u03A8 = ", chi, phi, psi)
 # a * R_m - b / R_m = V_t1m
 # a * R_m + b / R_m = V_t2m
 
-n = 1.65
+n = 1
 matA = np.array([[R_m**n, -1 / R_m], 
                  [R_m**n,  1 / R_m]])
 
@@ -161,3 +161,6 @@ x = np.linalg.solve(matA,vecB)
 
 a = (x[0])[0]
 b = (x[1])[0]
+
+rtip = Rm + b_1/2
+rhub = Rm - b_1/2 
