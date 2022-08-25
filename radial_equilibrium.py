@@ -36,8 +36,8 @@ U = arrayLst( omega * rr[t] for t in range(pts)) # Peripheral velocity  [m/s]
 # Input data
 T_t1 = 300 * np.ones(pts) # [K]     --> f(r)
 p_t1 = 1e5 * np.ones(pts) # [Pa] --> f(r)
-s_1 = np.zeros(pts)
-ds_1 = np.zeros(pts)
+s_0 = np.zeros(pts)
+ds_0 = np.zeros(pts)
 m_dot_req = 100 # Required mass flow [kg/s]
 T_1 = T_1m * np.ones(pts)
 
@@ -45,8 +45,11 @@ T_1 = T_1m * np.ones(pts)
 h_t1 = c_p * T_t1 # Total enthalpy [J/kg]
 dh_t1 = finDiff(h_t1,deltaR)
 
-for j in range(pts):
-    ds_1[j]  = -R * finDiff(p_t1,deltaR)[j] / p_t1[j] + c_p * finDiff(T_t1,deltaR)[j] / T_t1[j] # Derivative over r of entropy [J/(kg K)]
+# !! WARNING !!
+#  Here the values pt1, Tt1 refer to the freestream, NOT ROTOR 1 INLET, I won't change them here yet to a 0 index (correct)
+#  These values are nonetheless used to compute ds_0 (which is 0 actually lol) 
+for j in range(pts): 
+    ds_0[j]  = -R * finDiff(p_t1,deltaR)[j] / p_t1[j] + c_p * finDiff(T_t1,deltaR)[j] / T_t1[j] # Derivative over r of entropy [J/(kg K)]
 
 
 
@@ -54,7 +57,84 @@ for j in range(pts):
 
 
 
+print("")
+print("########## DEFLECTOR INLET ##########")
 
+err = 1e10 # Inital value to enter the loop, meaningless
+tol = 1e-3 # Tolerance of error wrt the desires mass flow value
+iter = 1
+
+# Input data
+omega_loss_D = 0.02
+
+V_t0 = np.zeros(pts)
+
+rV_t0  = arrayLst(rr[t] * V_t0[t] for t in range(pts))
+drV_t0 = finDiff(rV_t0,deltaR)
+
+# Initial assumptions
+T_0  = list(T_0m * np.ones(pts))
+s_0  = np.zeros(pts)
+# ds0 TODO
+
+# Imposed by thermodynamics
+h_t0 = h_t1
+dh_t0 = dh_t1
+T_t0 = T_t1
+
+# This loop can be avoided using flaired blades b_2 != b_1
+while abs(err) > tol: # Begin loop to get mass flow convergence
+    print("")
+    print("---Iteration no. " + str(iter))
+
+    V_a0 = list(np.zeros(pts)) # Create the list
+    V_a0[mean_index] = V_a0m  # Initial value for forward integration starting from mean radius
+    dV_a0 = list(np.zeros(pts))
+    
+    # N.I.S.R.E at stator outlet (0)
+    for j in list(range(0,mean_index)):
+        for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
+            dV_a0[q] = 1 / V_a0[q] * ( dh_t0[q] - T_0[q] * ds_0[q] - V_t0[q] / rr[q] * drV_t0[q] )
+            V_a0[q + k*1] = V_a0[q] + dV_a0[q] * k * deltaR
+
+    # Initiate all the lists
+    V_0 , alpha_0, p_0, rho_0, M_0, p_t0, integrand_0, W_t0, W_a0, W_0, beta_0, M_0r, p_t0, p_t0r = (np.zeros(pts) for t in range(14))
+
+    for j in list(range(pts)): # Compute quantities along the radius
+        # Kinematics
+        alpha_0[j] = np.arctan(V_t0[j]/V_a0[j])
+        V_0[j] = np.sqrt(float(V_a0[j]**2 + V_t0[j]**2))
+        W_t0[j] = V_t0[j] - U[j]
+        W_a0[j] = V_a0[j]
+        W_0[j] = np.sqrt(W_t0[j]**2 + W_a0[j]**2)
+        beta_0[j] = np.arctan(W_t0[j]/W_a0[j])
+        
+        # Thermodynamics
+        T_0[j] = T_t0[j] - V_0[j]**2 / (2 * c_p)
+        p_0[j] = p_0m * (T_0[j] / T_0m)**(gamma/(gamma-1)) * np.exp(- (s_0[j] - s_0[mean_index]) / R)
+        rho_0[j] = p_0[j] / (R*T_0[j])
+        M_0[j]   = V_0[j] / np.sqrt(gamma * R * T_0[j])
+        M_0r[j]  = W_0[j] / np.sqrt(gamma * R * T_0[j])
+        p_t0[j]  = p_0[j]*(1 + (gamma-1) / 2 * M_0[j]**2  ) ** (gamma/(gamma-1))
+        p_t0r[j] = p_0[j]*(1 + (gamma-1) / 2 * M_0r[j]**2 ) ** (gamma/(gamma-1))
+
+        integrand_0[j] = 2 * np.pi * rr[j] * rho_0[j] * V_a0[j]
+        
+        #Evaluate the q.ties in section 1 (np.expressions) at the current radius
+        # tmp = overwritten at every iteration, no need for a new array for _1 quantities
+        
+
+    m_dot_trap = np.trapz(integrand_0, rr)
+
+    err  = 1 - m_dot_trap/m_dot_req # Error
+    V_a0m = V_a0m*(1 + err) # New axial velocity
+    
+    
+
+    print("mass flow = "+ str(m_dot_trap) + " [kg/s]")
+    print("V_a0m = "+ str(V_a0m) + " [m/s]")
+    print("err = "+ str(err))
+    iter += 1
 
 
 
@@ -74,9 +154,13 @@ for j in range(pts):
 # V_t1 = arrayLst( V_t1m * R_m / rr[t] for t in range(pts)) # Free Vortex
 V_t1 = arrayLst( a * rr[t]**n - b / rr[t] for t in range(pts)) # Power Design
 
-
 rV_t1 = arrayLst(rr[t] * V_t1[t] for t in range(pts))
 drV_t1 = finDiff(rV_t1, deltaR)
+
+s_1  = arrayLst( s_0)    # Initial radial entropy distribution in 2
+ds_1 = arrayLst(ds_0) # Dertivative wrt r of entropy
+
+omega_loss_R = 0.02
 
 print("")
 print("########## ROTOR INLET ##########")
@@ -123,12 +207,19 @@ while abs(err) > tol:
         M_1[j]  = V_1[j] / np.sqrt(gamma * R * T_1[j])
         M_1r[j] = W_1[j] / np.sqrt(gamma * R * T_1[j])
         p_t1[j]  = p_1[j]*(1 + (gamma-1) / 2 * M_1[j]**2  ) ** (gamma/(gamma-1))
-        p_t1r[j] = p_1[j]*(1 + (gamma-1) / 2 * M_1r[j]**2 ) ** (gamma/(gamma-1))
+        #p_t1r[j] = p_1[j]*(1 + (gamma-1) / 2 * M_1r[j]**2 ) ** (gamma/(gamma-1))
+        p_t1r[j] = p_t0r[j] - omega_loss_R * (p_t0r[j] - p_0[j])
         
         integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
+        
+        # ENTROPY EVALUATION
 
+        s_1[j]  = s_0[j] - R * np.log(p_t1r[j] / p_t0r[j])
+    
+    ds_1 = finDiff(s_1,deltaR)
+    
     m_dot_trap = np.trapz(integrand_1, rr)
-
+    
     err  = 1 - m_dot_trap/m_dot_req # Error
     V_a1m = V_a1m*(1 + err) # New axial velocity
     
@@ -173,7 +264,7 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.00 # Coefficient of loss
+omega_loss_R = 0.02 # Coefficient of loss
 
 # Need to transform s_2 and ds_2 into lists otherwise numpy will assign the same id to s_1 and s_2, even with s_2 = s_1[:] why??
 s_2  = list( s_1)    # Initial radial entropy distribution in 2
@@ -292,7 +383,7 @@ tol = 1e-5 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_S = 0.00
+omega_loss_S = 0.02
 
 V_t3 = arrayLst( a22 * rr2[t]**n - b22 / rr2[t] for t in range(pts))
 
@@ -408,7 +499,7 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.00 # Coefficient of loss
+omega_loss_R = 0.02 # Coefficient of loss
 
 # Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s_3 and s_4, even with s_4 = s_3[:] why??
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
@@ -507,7 +598,7 @@ tol = 1e-3 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_S = 0.00
+omega_loss_S = 0.02
 
 V_t5 = list( V_t5m / R_m * rr2[t]  for t in range(pts))
 
@@ -879,42 +970,43 @@ print("")
 # plt.title("Density")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,s_1,"b")
-# plt.plot(rr,s_2,"g")
-# plt.plot(rr2,s_3,"r")
-# plt.plot(rr2,s_4,"c")
-# plt.plot(rr2,s_5,"m")
-# plt.ylabel(r"$s$ $[J/K]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Entropy")
-# plt.grid(alpha=0.2)
-
 plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,180/np.pi * np.array(alpha_0),"k")
-plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
-plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
-plt.plot(rr2,180/np.pi * np.array(alpha_3),"r")
-plt.plot(rr2,180/np.pi * np.array(alpha_4),"c")
-plt.plot(rr2,180/np.pi * np.array(alpha_5),"m")
-plt.ylabel(r"$\alpha$ [deg]")
+plt.plot(rr,s_0,"k")
+plt.plot(rr,s_1,"b")
+plt.plot(rr,s_2,"g")
+plt.plot(rr2,s_3,"r")
+plt.plot(rr2,s_4,"c")
+plt.plot(rr2,s_5,"m")
+plt.ylabel(r"$s$ $[J/K]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-plt.title("Absolute Flow Angle")
+plt.title("Entropy")
 plt.grid(alpha=0.2)
 
-plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,180/np.pi * np.array(beta_1),"b")
-plt.plot(rr,180/np.pi * np.array(beta_2),"g")
-plt.plot(rr2,180/np.pi * np.array(beta_3),"r")
-plt.plot(rr2,180/np.pi * np.array(beta_4),"c")
-plt.plot(rr2,180/np.pi * np.array(beta_5),"m")
-plt.ylabel(r"$\beta$ [deg]")
-plt.xlabel(r"$r \  [m]$")
-plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-plt.title("Relative Flow Angle")
-plt.grid(alpha=0.2)
+# plt.figure(figsize=(6, 5), dpi=80)
+# plt.plot(rr,180/np.pi * np.array(alpha_0),"k")
+# plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
+# plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
+# plt.plot(rr2,180/np.pi * np.array(alpha_3),"r")
+# plt.plot(rr2,180/np.pi * np.array(alpha_4),"c")
+# plt.plot(rr2,180/np.pi * np.array(alpha_5),"m")
+# plt.ylabel(r"$\alpha$ [deg]")
+# plt.xlabel(r"$r \  [m]$")
+# plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+# plt.title("Absolute Flow Angle")
+# plt.grid(alpha=0.2)
+
+# plt.figure(figsize=(6, 5), dpi=80)
+# plt.plot(rr,180/np.pi * np.array(beta_1),"b")
+# plt.plot(rr,180/np.pi * np.array(beta_2),"g")
+# plt.plot(rr2,180/np.pi * np.array(beta_3),"r")
+# plt.plot(rr2,180/np.pi * np.array(beta_4),"c")
+# plt.plot(rr2,180/np.pi * np.array(beta_5),"m")
+# plt.ylabel(r"$\beta$ [deg]")
+# plt.xlabel(r"$r \  [m]$")
+# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+# plt.title("Relative Flow Angle")
+# plt.grid(alpha=0.2)
  
  
 # plt.figure(figsize=(6, 5), dpi=80)

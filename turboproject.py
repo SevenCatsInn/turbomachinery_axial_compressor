@@ -13,7 +13,7 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 
 #Input
 mdot=100 #mass flow rate
-Pt1=100000 # pressure [bar]
+Pt1=99439 # pressure [bar]
 Tt1=300 #inlet temperature [K]
 beta=1.22 #compression ratio
 
@@ -96,11 +96,37 @@ print(cos(beta1) / cos(beta2), "> 0.72 ?")
 
 # Mean line design for the stator
 alpha2 = arctan(V2t/V2a)
-alpha3 = 30 * pi/180 # Design choice
+alpha3 = 30 * pi/180 # Design choice, stage 2 inlet
 
 print("")
 print("Absolute deflection in stator")
 print(cos(alpha3) / cos(alpha2), "> 0.72 ?") 
+
+V0a = V1a
+V0t = 0
+Tt0 = Tt1 # Imposed by thermodynamics, no work in stator
+
+
+err = 1e10
+tol = 0.0001
+iter = 0
+
+while abs(err)>tol:
+    V0_mag=sqrt(V0a**2+V0t**2)
+    T0 = Tt0 - V0_mag**2/(2*cp)
+    T0is= T1 - 1/eta_S * (T1-T0)
+    p0=(T0is/Tt1)**(gamma/(gamma-1))*Pt1
+    T1is=T0 + eta_S*(T1-T0)
+    rho0=p0/(R*T0)
+    V0a_new=mdot/(rho0*2*pi*b1*Rm)
+    err=abs(V0a_new-V0a)
+    V0a=V0a_new
+    M0 = V0_mag / sqrt(gamma * R * T0)
+    Pt0 = p0 * (1 + (gamma-1)/2 * M0**2)**(gamma/(gamma-1))
+    iter=iter+1
+
+print(Pt0, "Pt0 = 100000 Pa ?")
+
 
 V3a = V2a
 V3t = V3a * tan(alpha3)
@@ -125,20 +151,28 @@ while abs(err)>tol:
 V3 = [V3a, V3t]
 
 # Change variables names for radial equilibrium script
+T_0m  = T0
+p_0m  = p0
+V_a0m = V0a
+V_t0m = V0t
+
 T_1m  = T1
 p_1m  = p1
 V_a1m = V1a
 V_t1m = V1t
+
 T_2m  = T2
 p_2m  = p2
 V_a2m = V2a
 V_t2m = V2t
+
 T_3m  = T3
 p_3m  = p3
 p_t3  = Pt3
 T_t3  = Tt3
 V_a3m = V3a
 V_t3m = V3t
+
 b_1 = b1
 R_m = Rm
 rpm = RPM
