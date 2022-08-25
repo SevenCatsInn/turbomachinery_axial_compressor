@@ -65,7 +65,7 @@ tol = 1e-3 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_D = 0.00
+omega_loss_D = 0.02
 
 V_t0 = np.zeros(pts)
 
@@ -160,6 +160,8 @@ drV_t1 = finDiff(rV_t1, deltaR)
 s_1  = arrayLst( s_0)    # Initial radial entropy distribution in 2
 ds_1 = arrayLst(ds_0) # Dertivative wrt r of entropy
 
+omega_loss_R = 0.02
+
 print("")
 print("########## ROTOR INLET ##########")
 
@@ -206,7 +208,7 @@ while abs(err) > tol:
         M_1r[j] = W_1[j] / np.sqrt(gamma * R * T_1[j])
         p_t1[j]  = p_1[j]*(1 + (gamma-1) / 2 * M_1[j]**2  ) ** (gamma/(gamma-1))
         #p_t1r[j] = p_1[j]*(1 + (gamma-1) / 2 * M_1r[j]**2 ) ** (gamma/(gamma-1))
-        p_t1r[j] = p_t0r[j] - omega_loss_D * (p_t0r[j] - p_0[j])
+        p_t1r[j] = p_t0r[j] - omega_loss_R * (p_t0r[j] - p_0[j])
         
         integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
         
@@ -262,7 +264,7 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.00 # Coefficient of loss
+omega_loss_R = 0.02 # Coefficient of loss
 
 # Need to transform s_2 and ds_2 into lists otherwise numpy will assign the same id to s_1 and s_2, even with s_2 = s_1[:] why??
 s_2  = list( s_1)    # Initial radial entropy distribution in 2
@@ -381,7 +383,7 @@ tol = 1e-5 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_S = 0.00
+omega_loss_S = 0.02
 
 V_t3 = arrayLst( a22 * rr2[t]**n - b22 / rr2[t] for t in range(pts))
 
@@ -497,7 +499,7 @@ iter = 1
 # Inputs
 
 # Entropy inputs, NOTE: absolute values are meaningless
-omega_loss_R = 0.00 # Coefficient of loss
+omega_loss_R = 0.02 # Coefficient of loss
 
 # Need to transform s_4 and ds_4 into lists otherwise numpy will assign the same id to s_3 and s_4, even with s_4 = s_3[:] why??
 s_4  = list( s_3)    # Initial radial entropy distribution in 2
@@ -596,7 +598,7 @@ tol = 1e-3 # Tolerance of error wrt the desires mass flow value
 iter = 1
 
 # Input data
-omega_loss_S = 0.00
+omega_loss_S = 0.02
 
 V_t5 = list( V_t5m / R_m * rr2[t]  for t in range(pts))
 
@@ -968,17 +970,18 @@ print("")
 # plt.title("Density")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,s_1,"b")
-# plt.plot(rr,s_2,"g")
-# plt.plot(rr2,s_3,"r")
-# plt.plot(rr2,s_4,"c")
-# plt.plot(rr2,s_5,"m")
-# plt.ylabel(r"$s$ $[J/K]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Entropy")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,s_0,"k")
+plt.plot(rr,s_1,"b")
+plt.plot(rr,s_2,"g")
+plt.plot(rr2,s_3,"r")
+plt.plot(rr2,s_4,"c")
+plt.plot(rr2,s_5,"m")
+plt.ylabel(r"$s$ $[J/K]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Entropy")
+plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,180/np.pi * np.array(alpha_0),"k")
