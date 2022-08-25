@@ -155,7 +155,7 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
 
             
             
-    return Inc, Theta, Dev, DeltaBeta, sigma
+    return Inc, Theta, Dev, DeltaBeta
 
 
 
@@ -227,3 +227,19 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
 
     return Geom, Prof_names
 
+
+def sigma_distr(solidity,chord,rr):
+    
+    mean_index = len(rr) // 2
+    R_m = rr[mean_index]
+    s_mid = solidity * chord
+
+    n_blade = round( 2 * np.pi * R_m / s_mid) # Number of blades
+
+    # Pitch along blade span
+    s = 2 * np.pi * rr / n_blade
+
+    # Solidity along blade span, recomputed after choosing n blades
+    sigma = chord / s
+
+    return sigma

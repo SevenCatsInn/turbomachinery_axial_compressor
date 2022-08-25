@@ -15,7 +15,7 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 mdot=100 #mass flow rate
 Pt1=99439 # pressure [bar]
 Tt1=300 #inlet temperature [K]
-beta=1.22 #compression ratio
+beta=1.23 #compression ratio
 
 
 ## Non dimensional quantities

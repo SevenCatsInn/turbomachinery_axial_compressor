@@ -700,7 +700,7 @@ print("")
 print("###### DEFLECTOR BLADE DESIGN ######")
 
 
-inc0, theta0, dev0, deltaAlpha0, sigma0 = lieblein_design(alpha_0,alpha_1,percent_th0,chord0,solidity0, theta0, rr)
+inc0, theta0, dev0, deltaAlpha0 = lieblein_design(alpha_0,alpha_1,percent_th0,chord0,solidity0, theta0, rr)
 
 geom, prof_names = printPlot_blade(alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, chord0,pts)
 plt.title("Deflector")
@@ -727,9 +727,9 @@ solidity1   = 1.3              # [ ] ! Initial assumption at midspan
 theta1 = [33, 26, -2.6]
 
 print("")
-print("###### STAGE 1 STATOR BLADE DESIGN ######")
+print("###### STAGE 1 ROTOR BLADE DESIGN ######")
 
-inc1, theta1, dev1, deltaBeta1, sigma1 = lieblein_design(beta_1,beta_2,percent_th1,chord1,solidity1, theta1, rr)
+inc1, theta1, dev1, deltaBeta1 = lieblein_design(beta_1,beta_2,percent_th1,chord1,solidity1, theta1, rr)
 
 geom1, prof_names1 = printPlot_blade(beta_1,beta_2, deltaBeta1, inc1, theta1, percent_th1, chord1, pts)
 plt.title("Rotor Stage 1")
@@ -775,7 +775,7 @@ theta2 = [4, 5, 32]
 print("")
 print("###### STAGE 1 STATOR BLADE DESIGN ######")
 
-inc2, theta2, dev2, deltaAlpha2, sigma2 = lieblein_design(alpha_2,alpha_3,percent_th2,chord2,solidity2, theta2, (rr+rr2)/2)
+inc2, theta2, dev2, deltaAlpha2 = lieblein_design(alpha_2,alpha_3,percent_th2,chord2,solidity2, theta2, (rr+rr2)/2)
 
 geom, prof_names = printPlot_blade(alpha_2,alpha_3, deltaAlpha2, inc2, theta2, percent_th2, chord2, pts)
 plt.title("Stator Stage 1 ")
@@ -795,7 +795,7 @@ theta3 = [35, 29, -4]
 print("")
 print("###### STAGE 2 ROTOR BLADE DESIGN ######")
 
-inc3, theta3, dev3, deltaBeta3, sigma3 = lieblein_design(beta_3,beta_4,percent_th3,chord3,solidity3, theta3, rr2)
+inc3, theta3, dev3, deltaBeta3 = lieblein_design(beta_3,beta_4,percent_th3,chord3,solidity3, theta3, rr2)
 
 geom3, prof_names = printPlot_blade(beta_3,beta_4, deltaBeta3, inc3, theta3, percent_th3, chord3, pts)
 plt.title("Rotor Stage 2")
@@ -847,7 +847,12 @@ theta4 = [15, 19, 37 ]
 print("")
 print("###### STAGE 2 STATOR BLADE DESIGN ######")
 
-inc4, theta4, dev4, deltaAlpha4, sigma4 = lieblein_design(alpha_4,alpha_5,percent_th4,chord4,solidity4, theta4, rr2)
+sigma_distr4 = sigma_distr(solidity4,chord4,rr2)
+
+print(sigma_distr4)
+input()
+
+inc4, theta4, dev4, deltaAlpha4 = lieblein_design(alpha_4,alpha_5,percent_th4,chord4,solidity4, theta4, rr2)
 
 geom, prof_names = printPlot_blade(alpha_4, alpha_5, deltaAlpha4, inc2, theta4, percent_th4, chord4, pts)
 plt.title("Stator Stage 2")
@@ -1009,14 +1014,14 @@ plt.grid(alpha=0.2)
 # plt.grid(alpha=0.2)
  
  
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,chi)
-# plt.plot(rr2,chi_2)
-# plt.ylabel(r"$\chi$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.title("Reaction Degree")
-# plt.legend(["Stage 1","Stage 2"])
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,chi)
+plt.plot(rr2,chi_2)
+plt.ylabel(r"$\chi$")
+plt.xlabel(r"$r \  [m]$")
+plt.title("Reaction Degree")
+plt.legend(["Stage 1","Stage 2"])
+plt.grid(alpha=0.2)
 
 # This should be constant if a free vortex distribution is used
 # plt.figure(figsize=(6, 5), dpi=80)
