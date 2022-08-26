@@ -692,7 +692,7 @@ print("--------------- BLADE DESIGN ---------------" )
 percent_th0 = 10               # [%] Max thickness WRT chord of blade profile 
 chord0      = 0.08             # [m] Starting point from reference procedure
 solidity0   = 1.0              # [ ] ! Initial assumption at midspan
-theta0 = [-0.8, -16, -29]
+theta0 = [-0.8, -16, -28]
 
 alpha_0 = np.zeros(pts)
 
@@ -724,7 +724,7 @@ stress_Y = 472e6               # [Pa]   Material Yield stress (Annealed 4340 ste
 percent_th1 = 10               # [%] Max thickness WRT chord of blade profile 
 chord1      = 0.1              # [m] Starting point from reference procedure
 solidity1   = 1.3              # [ ] ! Initial assumption at midspan
-theta1 = [33, 26, -2]
+theta1 = [27, 16, -3.5]
 
 print("")
 print("###### STAGE 1 ROTOR BLADE DESIGN ######")
@@ -769,8 +769,8 @@ Re1 = rho_1 * W_1 * chord1 / 1.81e-5
 
 percent_th2 = 10               # [%] Max thickness WRT chord of blade profile 
 chord2      = 0.08             # [m] Starting point from reference procedure
-solidity2   = 1              # [ ] ! Initial assumption at midspan
-theta2 = [5, 5, 28]
+solidity2   = 1.5              # [ ] ! Initial assumption at midspan
+theta2 = [9, 7, 34]
 
 print("")
 print("###### STAGE 1 STATOR BLADE DESIGN ######")
@@ -790,7 +790,7 @@ plt.title("Stator Stage 1 ")
 percent_th3 = 10               # [%] Max thickness WRT chord of blade profile 
 chord3      = 0.08             # [m] Starting point from reference procedure
 solidity3   = 1.3              # [ ] ! Initial assumption at midspan
-theta3 = [32, 28, -5]
+theta3 = [27, 17, -7]
 
 print("")
 print("###### STAGE 2 ROTOR BLADE DESIGN ######")
@@ -841,8 +841,8 @@ print("Safety Factor =", stress_Y/stress_tot3)
 
 percent_th4 = 10               # [%] Max thickness WRT chord of blade profile 
 chord4      = 0.08             # [m] Starting point from reference procedure
-solidity4   = 1              # [ ] ! Initial assumption at midspan
-theta4 = [14, 18, 38 ]
+solidity4   = 2              # [ ] ! Initial assumption at midspan
+theta4 = [13, 18, 42 ]
 
 print("")
 print("###### STAGE 2 STATOR BLADE DESIGN ######")
@@ -854,7 +854,7 @@ plt.title("Stator Stage 2")
 
 
 
-# plt.show()
+plt.show()
 
 
 

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from naca65_plotter import * 
 
-def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
+def lieblein_design(beta_in, beta_out, percent_th, chord, solidity_mid, theta, rr):
     # Design Parameters from computations above
     # Inlet
     mean_index = len(beta_in)//2
@@ -29,7 +29,7 @@ def lieblein_design(beta_in, beta_out, percent_th, chord, solidity, theta, rr):
     
     deltaBeta = [deltabeta1_root, deltabeta1_mid, deltabeta1_tip]
 
-    s_mid =  chord/solidity
+    s_mid =  chord/solidity_mid
 
     n_blade = round( 2 * np.pi * R_m / s_mid) # Number of blades
 
