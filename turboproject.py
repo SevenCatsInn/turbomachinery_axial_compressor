@@ -197,4 +197,6 @@ a = (x[0])[0]
 b = (x[1])[0]
 
 rtip = Rm + b_1/2
-rhub = Rm - b_1/2 
+rhub = Rm - b_1/2
+
+print(b1) 

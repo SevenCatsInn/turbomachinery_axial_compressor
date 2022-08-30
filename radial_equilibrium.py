@@ -5,6 +5,8 @@ exec(open("./turboproject.py").read()) # Run mean line design
 import numpy as np
 import matplotlib.pyplot as plt
 from blade_design import *
+from losses import *
+from off_design import *
 
 plt.rcParams.update({"text.usetex": True})
 
@@ -208,8 +210,19 @@ while abs(err) > tol:
         p_t1[j]  = p_1[j]*(1 + (gamma-1) / 2 * M_1[j]**2  ) ** (gamma/(gamma-1))
         p_t1r[j] = p_1[j]*(1 + (gamma-1) / 2 * M_1r[j]**2 ) ** (gamma/(gamma-1))
         
-        p_t1[j] = p_t0[j] - omega_loss_D * (p_t0[j] - p_0[j])
+        #Losses across the deflector
+        chordD1=0.1
+        solidityD1=0.4
+        staggerD1=30*np.pi/180
+        NrowD1=1
+        bladesD1=34
+        p1=90000
+        shrouded_D1=0
+        b_D1=0.3
+        statorD1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
+        omega_overall_D1= losses(rr[j],chordD1,R_m,b_1,V_a1[j],V_a0[j],beta_0[j],beta_1[j],alpha_0[j],alpha_1[j],V_0[j],V_1[j],W_a0[j],W_a1[j],W_0[j],W_1[j],rho_0[j],rho_1[j],staggerD1,NrowD1,bladesD1,mdot,Pt0,p0,shrouded_D1,statorD1) # Coefficient of loss # Coefficient of loss
         
+        p_t1[j] = p_t0[j] - omega_overall_D1 * (p_t0[j] - p_0[j])
         integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
         
         # ENTROPY EVALUATION
@@ -326,9 +339,17 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         chi[j] = (W_1[j]**2 - W_2[j]**2) / (2 * L_eul[j])
 
         integrand_2[j] = 2 * np.pi * rr[j] * rho_2[j] * V_a2[j] 
-                
 
-        p_t2r[j] = p_t1r[j] - omega_loss_R * (p_t1r[j] - p_1[j])
+        #LOSSES across first rotor: between section 1 and 2        
+        chordR1=0.1
+        staggerR1=30*np.pi/180
+        NrowR1=2
+        bladesR1=34
+        shrouded_R1=0
+        b_R1=0.3
+        statorR1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
+        omega_overall_R1= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1,NrowR1,bladesR1,mdot,Pt1,p1,shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
+        p_t2r[j] = p_t1r[j] - omega_overall_R1 * (p_t1r[j] - p_1[j])
 
         # ENTROPY EVALUATION
 
@@ -443,7 +464,18 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         #Evaluate the q.ties in section 1 (np.expressions) at the current radius
         # tmp = overwritten at every iteration, no need for a new array for _1 quantities
         
-        p_t3[j] = p_t2[j] - omega_loss_S * (p_t2[j] - p_2[j])
+        #LOSSES across stator of the first stage: between section 2 and 3        
+        chordS1=0.1
+        staggerS1=30*np.pi/180
+        NrowS1=3
+        bladesS1=34
+        shrouded_S1=0
+        b_S1=0.3
+        statorS1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
+        omega_overall_S1= losses(rr[j],chordS1,R_m,b_1,V_a3[j],V_a2[j],beta_2[j],beta_3[j],alpha_2[j],alpha_3[j],V_2[j],V_3[j],W_a2[j],W_a3[j],W_2[j],W_3[j],rho_2[j],rho_3[j],staggerS1,NrowS1,bladesS1,mdot,Pt2,p2,shrouded_S1,statorS1) # Coefficient of loss # Coefficient of loss
+    
+        
+        p_t3[j] = p_t2[j] - omega_overall_S1 * (p_t2[j] - p_2[j])
 
         # ENTROPY EVALUATION
 
@@ -561,8 +593,17 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
         integrand_4[j] = 2 * np.pi * rr2[j] * rho_4[j] * V_a4[j] 
                 
-
-        p_t4r[j] = p_t3r[j] - omega_loss_R * (p_t3r[j] - p_3[j])
+        #LOSSES across rotor of the second stage: between section 3 and 4        
+        chordR2=0.1
+        staggerR2=30*np.pi/180
+        NrowR2=4
+        bladesR2=34
+        shrouded_R2=0
+        b_R2=0.3
+        statorR2=0 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
+        omega_overall_R2= losses(rr[j],chordR2,R_m,b_2,V_a4[j],V_a3[j],beta_3[j],beta_4[j],alpha_3[j],alpha_4[j],V_3[j],V_4[j],W_a3[j],W_a4[j],W_3[j],W_4[j],rho_3[j],rho_4[j],staggerR2,NrowR2,bladesR2,mdot,Pt3,p3,shrouded_R2,statorR2) # Coefficient of loss # Coefficient of loss
+                
+        p_t4r[j] = p_t3r[j] - omega_overall_R2 * (p_t3r[j] - p_3[j])
 
         # ENTROPY EVALUATION
 
@@ -652,7 +693,15 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         p_t5r[j] = p_5[j]*(1 + (gamma-1) / 2 * M_5r[j]**2 ) ** (gamma/(gamma-1))
 
         integrand_5[j] = 2 * np.pi * rr2[j] * rho_5[j] * V_a5[j]
-        
+        #LOSSES across stator of the second stage: between section 4 and 5        
+        chordS2=0.1
+        staggerS2=30*np.pi/180
+        NrowS2=4
+        bladesS2=34
+        shrouded_S2=0
+        b_S2=0.3
+        statorS2=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
+        omega_overall_S2= losses(rr[j],chordS2,R_m,b_2,V_a5[j],V_a4[j],beta_4[j],beta_5[j],alpha_4[j],alpha_5[j],V_4[j],V_5[j],W_a4[j],W_a5[j],W_4[j],W_5[j],rho_4[j],rho_5[j],staggerS2,NrowS2,bladesS2,mdot,Pt4,p4,shrouded_S2,statorS2) # Coefficient of loss # Coefficient of loss        
         #Evaluate the q.ties in section 1 (np.expressions) at the current radius
         # tmp = overwritten at every iteration, no need for a new array for _1 quantities
         
@@ -855,6 +904,26 @@ plt.title("Stator Stage 2")
 
 
 plt.show()
+
+print("##### OFF-DESIGN ######")
+
+mdot_off = 90
+Leul1_off, beta1_off= off_design(R_m,mdot_off,beta2,rho2,Um,alpha1,rho1,gamma,efficiency_TT,cp,T_t1[mean_index],b1)
+#Leul1_off, beta1_off= off_design(R_m,mdot_off,beta_2[mean_index],rho2[mean_index],U[mean_index],alpha_1[mean_index],rho1_[mean_index],gamma,efficiency_TT,cp,T_t1[mean_index],b1)
+
+Leul2_off, beta2_off = off_design(R_m,mdot_off,beta4,rho4,Um,alpha3,rho3,gamma,efficiency_TT,cp,T_t3[mean_index],b2)
+#Leul2_off, beta2_off= off_design(rr[mean_index],mdot_off,beta_4[mean_index],rho_4[mean_index],U[mean_index],alpha_3[mean_index],rho_3[mean_index],gamma,efficiency_TT,cp,T_t3[mean_index],b2)
+
+print("Leul1_off=", Leul1_off)
+print("beta1_off=", beta1_off)
+
+print("Leul2_off=", Leul2_off)
+print("beta2_off=", beta2_off)
+
+beta_off_overall= beta1_off*beta2_off
+
+print("beta_off_overall=",beta_off_overall)
+
 
 
 
