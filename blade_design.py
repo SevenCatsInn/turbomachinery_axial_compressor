@@ -214,6 +214,8 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
         
         stagger =  beta - inc - theta/2
 
+        print("Stagger Angle = ", stagger)
+
         Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th0/100 , chord0, "False", stagger )
 
         Geom.append(geom)

@@ -9,6 +9,7 @@ def   losses(radius,chord,Rm,b,Va_out,Va_in,beta_in,beta_out,alpha_in,alpha_out,
 
     pitch = 2 * pi * radius / blades
     solidity = chord / pitch #computation of the solidity at each radius
+    print(solidity)
 
     #profile losses
 

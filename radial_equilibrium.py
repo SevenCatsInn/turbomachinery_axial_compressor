@@ -1,3 +1,4 @@
+
 ### Radial equilibrium script ###
 
 exec(open("./turboproject.py").read()) # Run mean line design
@@ -213,14 +214,14 @@ while abs(err) > tol:
         #Losses across the deflector
         chordD1=0.1
         solidityD1=0.4
-        staggerD1=30*np.pi/180
+        staggerD1 = 25 * []
         NrowD1=1
         bladesD1=34
         p1=90000
         shrouded_D1=0
-        b_D1=0.3
         statorD1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_D1= losses(rr[j],chordD1,R_m,b_1,V_a1[j],V_a0[j],beta_0[j],beta_1[j],alpha_0[j],alpha_1[j],V_0[j],V_1[j],W_a0[j],W_a1[j],W_0[j],W_1[j],rho_0[j],rho_1[j],staggerD1,NrowD1,bladesD1,mdot,Pt0,p0,shrouded_D1,statorD1) # Coefficient of loss # Coefficient of loss
+
+        omega_overall_D1= losses(rr[j],chordD1,R_m,b_1,V_a1[j],V_a0[j],beta_0[j],beta_1[j],alpha_0[j],alpha_1[j],V_0[j],V_1[j],W_a0[j],W_a1[j],W_0[j],W_1[j],rho_0[j],rho_1[j],staggerD1,NrowD1,bladesD1,mdot,p_t0[j],p_0[j],shrouded_D1,statorD1) # Coefficient of loss # Coefficient of loss
         
         p_t1[j] = p_t0[j] - omega_overall_D1 * (p_t0[j] - p_0[j])
         integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
@@ -346,9 +347,8 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         NrowR1=2
         bladesR1=34
         shrouded_R1=0
-        b_R1=0.3
         statorR1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_R1= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1,NrowR1,bladesR1,mdot,Pt1,p1,shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
+        omega_overall_R1= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1,NrowR1,bladesR1,mdot,pt_1r[j],p_1[j],shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
         p_t2r[j] = p_t1r[j] - omega_overall_R1 * (p_t1r[j] - p_1[j])
 
         # ENTROPY EVALUATION
@@ -472,7 +472,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         shrouded_S1=0
         b_S1=0.3
         statorS1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_S1= losses(rr[j],chordS1,R_m,b_1,V_a3[j],V_a2[j],beta_2[j],beta_3[j],alpha_2[j],alpha_3[j],V_2[j],V_3[j],W_a2[j],W_a3[j],W_2[j],W_3[j],rho_2[j],rho_3[j],staggerS1,NrowS1,bladesS1,mdot,Pt2,p2,shrouded_S1,statorS1) # Coefficient of loss # Coefficient of loss
+        omega_overall_S1= losses(rr[j],chordS1,R_m,b_1,V_a3[j],V_a2[j],beta_2[j],beta_3[j],alpha_2[j],alpha_3[j],V_2[j],V_3[j],W_a2[j],W_a3[j],W_2[j],W_3[j],rho_2[j],rho_3[j],staggerS1,NrowS1,bladesS1,mdot,p_t2[j],p_2[j],shrouded_S1,statorS1) # Coefficient of loss # Coefficient of loss
     
         
         p_t3[j] = p_t2[j] - omega_overall_S1 * (p_t2[j] - p_2[j])
@@ -601,8 +601,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         shrouded_R2=0
         b_R2=0.3
         statorR2=0 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_R2= losses(rr[j],chordR2,R_m,b_2,V_a4[j],V_a3[j],beta_3[j],beta_4[j],alpha_3[j],alpha_4[j],V_3[j],V_4[j],W_a3[j],W_a4[j],W_3[j],W_4[j],rho_3[j],rho_4[j],staggerR2,NrowR2,bladesR2,mdot,Pt3,p3,shrouded_R2,statorR2) # Coefficient of loss # Coefficient of loss
-                
+        omega_overall_R2= losses(rr2[j],chordR2,R_m,b_2,V_a4[j],V_a3[j],beta_3[j],beta_4[j],alpha_3[j],alpha_4[j],V_3[j],V_4[j],W_a3[j],W_a4[j],W_3[j],W_4[j],rho_3[j],rho_4[j],staggerR2,NrowR2,bladesR2,mdot,p_t3r[j],p_3[j],shrouded_R2,statorR2) # Coefficient of loss 
         p_t4r[j] = p_t3r[j] - omega_overall_R2 * (p_t3r[j] - p_3[j])
 
         # ENTROPY EVALUATION
@@ -695,13 +694,13 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         integrand_5[j] = 2 * np.pi * rr2[j] * rho_5[j] * V_a5[j]
         #LOSSES across stator of the second stage: between section 4 and 5        
         chordS2=0.1
-        staggerS2=30*np.pi/180
+        staggerS2=25 * np.array([])
         NrowS2=4
         bladesS2=34
         shrouded_S2=0
         b_S2=0.3
         statorS2=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_S2= losses(rr[j],chordS2,R_m,b_2,V_a5[j],V_a4[j],beta_4[j],beta_5[j],alpha_4[j],alpha_5[j],V_4[j],V_5[j],W_a4[j],W_a5[j],W_4[j],W_5[j],rho_4[j],rho_5[j],staggerS2,NrowS2,bladesS2,mdot,Pt4,p4,shrouded_S2,statorS2) # Coefficient of loss # Coefficient of loss        
+        omega_overall_S2= losses(rr2[j],chordS2,R_m,b_2,V_a5[j],V_a4[j],beta_4[j],beta_5[j],alpha_4[j],alpha_5[j],V_4[j],V_5[j],W_a4[j],W_a5[j],W_4[j],W_5[j],rho_4[j],rho_5[j],staggerS2,NrowS2,bladesS2,mdot,p_t4[j],p_4[j],shrouded_S2,statorS2) # Coefficient of loss # Coefficient of loss        
         #Evaluate the q.ties in section 1 (np.expressions) at the current radius
         # tmp = overwritten at every iteration, no need for a new array for _1 quantities
         
@@ -903,9 +902,10 @@ plt.title("Stator Stage 2")
 
 
 
-plt.show()
+# plt.show()
 
-print("##### OFF-DESIGN ######")
+print("")
+print("--------------- OFF-DESIGN ---------------")
 
 mdot_off = 90
 Leul1_off, beta1_off= off_design(R_m,mdot_off,beta2,rho2,Um,alpha1,rho1,gamma,efficiency_TT,cp,T_t1[mean_index],b1)
