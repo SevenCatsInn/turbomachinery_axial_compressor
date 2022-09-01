@@ -995,18 +995,18 @@ print("")
 # plt.title("Tangential Absolute Velocity")
 # plt.grid(alpha=0.2)
 
-plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,p_0,"b")
-plt.plot(rr,p_1,"b")
-plt.plot(rr,p_2,"g")
-plt.plot(rr2,p_3,"r")
-plt.plot(rr2,p_4,"c")
-plt.plot(rr2,p_5,"m")
-plt.ylabel(r"$p$ $[Pa]$")
-plt.xlabel(r"$r \  [m]$")
-plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-plt.title("Static Pressure")
-plt.grid(alpha=0.2)
+# plt.figure(figsize=(6, 5), dpi=80)
+# plt.plot(rr,p_0,"k")
+# plt.plot(rr,p_1,"b")
+# plt.plot(rr,p_2,"g")
+# plt.plot(rr2,p_3,"r")
+# plt.plot(rr2,p_4,"c")
+# plt.plot(rr2,p_5,"m")
+# plt.ylabel(r"$p$ $[Pa]$")
+# plt.xlabel(r"$r \  [m]$")
+# plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+# plt.title("Static Pressure")
+# plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,p_t1,"b")
@@ -1056,18 +1056,18 @@ plt.grid(alpha=0.2)
 # plt.title("Density")
 # plt.grid(alpha=0.2)
 
-plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,s_0,"k")
-plt.plot(rr,s_1,"b")
-plt.plot(rr,s_2,"g")
-plt.plot(rr2,s_3,"r")
-plt.plot(rr2,s_4,"c")
-plt.plot(rr2,s_5,"m")
-plt.ylabel(r"$s$ $[J/K]$")
-plt.xlabel(r"$r \  [m]$")
-plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-plt.title("Entropy")
-plt.grid(alpha=0.2)
+# plt.figure(figsize=(6, 5), dpi=80)
+# plt.plot(rr,s_0,"k")
+# plt.plot(rr,s_1,"b")
+# plt.plot(rr,s_2,"g")
+# plt.plot(rr2,s_3,"r")
+# plt.plot(rr2,s_4,"c")
+# plt.plot(rr2,s_5,"m")
+# plt.ylabel(r"$s$ $[J/K]$")
+# plt.xlabel(r"$r \  [m]$")
+# plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+# plt.title("Entropy")
+# plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,180/np.pi * np.array(alpha_0),"k")
@@ -1095,14 +1095,14 @@ plt.grid(alpha=0.2)
 # plt.grid(alpha=0.2)
  
  
-plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,chi)
-plt.plot(rr2,chi_2)
-plt.ylabel(r"$\chi$")
-plt.xlabel(r"$r \  [m]$")
-plt.title("Reaction Degree")
-plt.legend(["Stage 1","Stage 2"])
-plt.grid(alpha=0.2)
+# plt.figure(figsize=(6, 5), dpi=80)
+# plt.plot(rr,chi)
+# plt.plot(rr2,chi_2)
+# plt.ylabel(r"$\chi$")
+# plt.xlabel(r"$r \  [m]$")
+# plt.title("Reaction Degree")
+# plt.legend(["Stage 1","Stage 2"])
+# plt.grid(alpha=0.2)
 
 # This should be constant if a free vortex distribution is used
 # plt.figure(figsize=(6, 5), dpi=80)
@@ -1125,11 +1125,12 @@ print("Average Exit Total Pressure S2 = " , np.average(p_t5))
 
 
 
+# VELOCITY TRIANGLES ACROSS ROTOR 1
+fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=70) # Create figure
 
-fig, axs = plt.subplots(3,1, sharex = True,  figsize=(4, 7), dpi=65) # Create figure
 
 j = 0 # Index used to move through the subplots
-for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
+for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
     
     # Find the index of the radius we are considering
     index = np.where(np.isclose(rr, i))
@@ -1150,23 +1151,27 @@ for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
     
     #Plot inlet and outlet triangles
     axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
-    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.,  color=["black","green","green"])
+    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.0,  color=["black","green","green"])
     
     axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
     axs.flat[j].set_ylim(-5,  20 + max(V_a2[0],V_a1[-1]) )  #Set the limits for the y axis
     
     axs[j].set_aspect('equal') #Equal aspect ratio axes
     axs[j].set_ylabel(r"Axial Component $[m/s]$")
+    axs[j].set_xlabel(r"Tangential Component $[m/s]$")
     axs[j].set_title(name)
 
     j = j+1
 
-axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
-fig, axs = plt.subplots(3,1, sharex=True, sharey=True, figsize=(4, 7), dpi=65) # Create figure
+
+
+# VELOCITY TRIANGLES ACROSS STATOR 1
+
+fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=70) # Create figure
 
 j = 0 # Index used to move through the subplots
-for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
+for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
 
     # Find the index of the radius we are considering
     index = np.where(np.isclose(rr, i))
@@ -1183,7 +1188,7 @@ for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
     
     #Plot inlet and outlet triangles
     axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","green"])
-    axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.,  color=["black","red"])
+    axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.0,  color=["black","red"])
     
     
     axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
@@ -1191,11 +1196,34 @@ for i, name in zip([R_t, R_m, R_h], ["Tip", "Mean", "Hub"]):
     
     axs[j].set_aspect('equal') #Equal aspect ratio axes
     axs[j].set_ylabel(r"Axial Component $[m/s]$")
+    axs[j].set_xlabel(r"Tangential Component $[m/s]$")
     axs[j].set_title(name)
 
     j = j+1
 
-axs[2].set_xlabel(r"Tangential Component $[m/s]$")
 
 
-#plt.show()
+
+
+
+
+
+
+
+
+# VELOCITY TRIANGLES ACROSS ROTOR 2
+
+
+
+
+
+
+
+
+
+
+
+# VELOCITY TRIANGLES ACROSS STATOR 2
+
+
+plt.show()
