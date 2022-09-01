@@ -924,10 +924,12 @@ print("")
 print("--------------- OFF-DESIGN ---------------")
 
 mdot_off = 90
-Leul1_off, beta1_off= off_design(R_m,mdot_off,beta2,rho2,Um,alpha1,rho1,gamma,efficiency_TT,cp,T_t1[mean_index],b1)
+#first srage
+#Tt1 and Pt1 are from the file turboproject.py (MLD)
+Leul1_off, beta1_off= off_design(R_m,mdot_off,beta2,rho2,Um,alpha1,rho1,gamma,efficiency_TT,cp,Tt1,b1,Pt1)
 #Leul1_off, beta1_off= off_design(R_m,mdot_off,beta_2[mean_index],rho2[mean_index],U[mean_index],alpha_1[mean_index],rho1_[mean_index],gamma,efficiency_TT,cp,T_t1[mean_index],b1)
 
-Leul2_off, beta2_off = off_design(R_m,mdot_off,beta4,rho4,Um,alpha3,rho3,gamma,efficiency_TT,cp,T_t3[mean_index],b2)
+Leul2_off, beta2_off = off_design(R_m,mdot_off,beta4,rho4,Um,alpha3,rho3,gamma,efficiency_TT,cp,Tt3,b2,Pt3)
 #Leul2_off, beta2_off= off_design(rr[mean_index],mdot_off,beta_4[mean_index],rho_4[mean_index],U[mean_index],alpha_3[mean_index],rho_3[mean_index],gamma,efficiency_TT,cp,T_t3[mean_index],b2)
 
 print("Leul1_off=", Leul1_off)
