@@ -213,19 +213,20 @@ while abs(err) > tol:
         
         #Losses across the deflector
         chordD1=0.1
-        solidityD1=0.4
-        staggerD1 = 25 * []
+        solidityD1=1.0
+
+        tmp_staggerD1 = 25 * np.array([0.4146902837280073, 8.562112644741685, 15.183614432020939]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        staggerD1 = compute_C_l(tmp_staggerD1,pts)
+        
         NrowD1=1
-        bladesD1=34
-        p1=90000
+        bladesD1=20
         shrouded_D1=0
         statorD1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
 
-        omega_overall_D1= losses(rr[j],chordD1,R_m,b_1,V_a1[j],V_a0[j],beta_0[j],beta_1[j],alpha_0[j],alpha_1[j],V_0[j],V_1[j],W_a0[j],W_a1[j],W_0[j],W_1[j],rho_0[j],rho_1[j],staggerD1,NrowD1,bladesD1,mdot,p_t0[j],p_0[j],shrouded_D1,statorD1) # Coefficient of loss # Coefficient of loss
-        
+        omega_overall_D1= losses(rr[j],chordD1,R_m,b_1,V_a1[j],V_a0[j],beta_0[j],beta_1[j],alpha_0[j],alpha_1[j],V_0[j],V_1[j],W_a0[j],W_a1[j],W_0[j],W_1[j],rho_0[j],rho_1[j],staggerD1[j],NrowD1,bladesD1,mdot,p_t0[j],p_0[j],shrouded_D1,statorD1) # Coefficient of loss
         p_t1[j] = p_t0[j] - omega_overall_D1 * (p_t0[j] - p_0[j])
         integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
-        
+
         # ENTROPY EVALUATION
 
         s_1[j]  = s_0[j] - R * np.log(p_t1[j] / p_t0[j])
@@ -343,14 +344,19 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
         #LOSSES across first rotor: between section 1 and 2        
         chordR1=0.1
-        staggerR1=30*np.pi/180
-        NrowR1=2
-        bladesR1=34
-        shrouded_R1=0
-        statorR1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_R1= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1,NrowR1,bladesR1,mdot,pt_1r[j],p_1[j],shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
+        
+        tmp_staggerR1 = 25 * np.array([-11.489765828140431, -24.814831887277165, -47.202019989060574]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        staggerR1 = compute_C_l(tmp_staggerR1,pts)
+        
+        NrowR1 = 2
+        bladesR1 = 26
+        shrouded_R1 = 0
+        statorR1 = 1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
+        
+        omega_overall_R1= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1[j],NrowR1,bladesR1,mdot,p_t1r[j],p_1[j],shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
         p_t2r[j] = p_t1r[j] - omega_overall_R1 * (p_t1r[j] - p_1[j])
-
+        
+        
         # ENTROPY EVALUATION
 
         s_2[j]  = s_1[j] - R * np.log(p_t2r[j] / p_t1r[j])
@@ -466,13 +472,16 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         
         #LOSSES across stator of the first stage: between section 2 and 3        
         chordS1=0.1
-        staggerS1=30*np.pi/180
+        
+        tmp_staggerS1 = 25 * np.array([17.51834399596167, 29.052190090236408, 45.81961904578128]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        staggerS1 = compute_C_l(tmp_staggerS1,pts)
+
         NrowS1=3
-        bladesS1=34
+        bladesS1=30
         shrouded_S1=0
-        b_S1=0.3
         statorS1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_S1= losses(rr[j],chordS1,R_m,b_1,V_a3[j],V_a2[j],beta_2[j],beta_3[j],alpha_2[j],alpha_3[j],V_2[j],V_3[j],W_a2[j],W_a3[j],W_2[j],W_3[j],rho_2[j],rho_3[j],staggerS1,NrowS1,bladesS1,mdot,p_t2[j],p_2[j],shrouded_S1,statorS1) # Coefficient of loss # Coefficient of loss
+        
+        omega_overall_S1= losses(rr[j],chordS1,R_m,b_1,V_a3[j],V_a2[j],beta_2[j],beta_3[j],alpha_2[j],alpha_3[j],V_2[j],V_3[j],W_a2[j],W_a3[j],W_2[j],W_3[j],rho_2[j],rho_3[j],staggerS1[j],NrowS1,bladesS1,mdot,p_t2[j],p_2[j],shrouded_S1,statorS1) # Coefficient of loss # Coefficient of loss
     
         
         p_t3[j] = p_t2[j] - omega_overall_S1 * (p_t2[j] - p_2[j])
@@ -595,13 +604,17 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
                 
         #LOSSES across rotor of the second stage: between section 3 and 4        
         chordR2=0.1
-        staggerR2=30*np.pi/180
+        
+        tmp_staggerR2 = 25 * np.array([-3.531421578896758, -20.285741684351844, -48.50142811907558]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        staggerR2 = compute_C_l(tmp_staggerR2,pts)
+
+
         NrowR2=4
-        bladesR2=34
+        bladesR2=26
         shrouded_R2=0
         b_R2=0.3
         statorR2=0 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_R2= losses(rr2[j],chordR2,R_m,b_2,V_a4[j],V_a3[j],beta_3[j],beta_4[j],alpha_3[j],alpha_4[j],V_3[j],V_4[j],W_a3[j],W_a4[j],W_3[j],W_4[j],rho_3[j],rho_4[j],staggerR2,NrowR2,bladesR2,mdot,p_t3r[j],p_3[j],shrouded_R2,statorR2) # Coefficient of loss 
+        omega_overall_R2= losses(rr2[j],chordR2,R_m,b_2,V_a4[j],V_a3[j],beta_3[j],beta_4[j],alpha_3[j],alpha_4[j],V_3[j],V_4[j],W_a3[j],W_a4[j],W_3[j],W_4[j],rho_3[j],rho_4[j],staggerR2[j],NrowR2,bladesR2,mdot,p_t3r[j],p_3[j],shrouded_R2,statorR2) # Coefficient of loss 
         p_t4r[j] = p_t3r[j] - omega_overall_R2 * (p_t3r[j] - p_3[j])
 
         # ENTROPY EVALUATION
@@ -694,13 +707,16 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         integrand_5[j] = 2 * np.pi * rr2[j] * rho_5[j] * V_a5[j]
         #LOSSES across stator of the second stage: between section 4 and 5        
         chordS2=0.1
-        staggerS2=25 * np.array([])
+        
+        tmp_staggerS2 = 25 * np.array([24.585622837293133, 31.656153626945795, 46.06887281991301]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        staggerS2 = compute_C_l(tmp_staggerS2,pts)
+
         NrowS2=4
-        bladesS2=34
+        bladesS2=36
         shrouded_S2=0
         b_S2=0.3
         statorS2=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_S2= losses(rr2[j],chordS2,R_m,b_2,V_a5[j],V_a4[j],beta_4[j],beta_5[j],alpha_4[j],alpha_5[j],V_4[j],V_5[j],W_a4[j],W_a5[j],W_4[j],W_5[j],rho_4[j],rho_5[j],staggerS2,NrowS2,bladesS2,mdot,p_t4[j],p_4[j],shrouded_S2,statorS2) # Coefficient of loss # Coefficient of loss        
+        omega_overall_S2= losses(rr2[j],chordS2,R_m,b_2,V_a5[j],V_a4[j],beta_4[j],beta_5[j],alpha_4[j],alpha_5[j],V_4[j],V_5[j],W_a4[j],W_a5[j],W_4[j],W_5[j],rho_4[j],rho_5[j],staggerS2[j],NrowS2,bladesS2,mdot,p_t4[j],p_4[j],shrouded_S2,statorS2) # Coefficient of loss # Coefficient of loss        
         #Evaluate the q.ties in section 1 (np.expressions) at the current radius
         # tmp = overwritten at every iteration, no need for a new array for _1 quantities
         
@@ -738,7 +754,7 @@ print("--------------- BLADE DESIGN ---------------" )
 
 ############### Blade design Deflector ##############
 percent_th0 = 10               # [%] Max thickness WRT chord of blade profile 
-chord0      = 0.08             # [m] Starting point from reference procedure
+chord0      = 0.1             # [m] Starting point from reference procedure
 solidity0   = 1.0              # [ ] ! Initial assumption at midspan
 theta0 = [-0.8, -16, -28]
 
@@ -772,7 +788,7 @@ stress_Y = 472e6               # [Pa]   Material Yield stress (Annealed 4340 ste
 percent_th1 = 10               # [%] Max thickness WRT chord of blade profile 
 chord1      = 0.1              # [m] Starting point from reference procedure
 solidity1   = 1.3              # [ ] ! Initial assumption at midspan
-theta1 = [27, 16, -3.5]
+theta1 = [27, 16, -3]
 
 print("")
 print("###### STAGE 1 ROTOR BLADE DESIGN ######")
@@ -816,7 +832,7 @@ Re1 = rho_1 * W_1 * chord1 / 1.81e-5
 ############### Blade design (Stage 1 Stator) ##############
 
 percent_th2 = 10               # [%] Max thickness WRT chord of blade profile 
-chord2      = 0.08             # [m] Starting point from reference procedure
+chord2      = 0.1             # [m] Starting point from reference procedure
 solidity2   = 1.5              # [ ] ! Initial assumption at midspan
 theta2 = [9, 7, 34]
 
@@ -836,9 +852,9 @@ plt.title("Stator Stage 1 ")
 ############### Blade design (Stage 2 Rotor) ##############
 
 percent_th3 = 10               # [%] Max thickness WRT chord of blade profile 
-chord3      = 0.08             # [m] Starting point from reference procedure
+chord3      = 0.1             # [m] Starting point from reference procedure
 solidity3   = 1.3              # [ ] ! Initial assumption at midspan
-theta3 = [27, 17, -7]
+theta3 = [28, 17, -7]
 
 print("")
 print("###### STAGE 2 ROTOR BLADE DESIGN ######")
@@ -888,9 +904,9 @@ print("Safety Factor =", stress_Y/stress_tot3)
 ############### Blade design (Stage 2 Stator) ##############
 
 percent_th4 = 10               # [%] Max thickness WRT chord of blade profile 
-chord4      = 0.08             # [m] Starting point from reference procedure
-solidity4   = 2              # [ ] ! Initial assumption at midspan
-theta4 = [13, 18, 42 ]
+chord4      = 0.1             # [m] Starting point from reference procedure
+solidity4   = 1.8              # [ ] ! Initial assumption at midspan
+theta4 = [14, 20, 46 ]
 
 print("")
 print("###### STAGE 2 STATOR BLADE DESIGN ######")
@@ -979,17 +995,18 @@ print("")
 # plt.title("Tangential Absolute Velocity")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,p_1,"b")
-# plt.plot(rr,p_2,"g")
-# plt.plot(rr2,p_3,"r")
-# plt.plot(rr2,p_4,"c")
-# plt.plot(rr2,p_5,"m")
-# plt.ylabel(r"$p$ $[Pa]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Static Pressure")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,p_0,"b")
+plt.plot(rr,p_1,"b")
+plt.plot(rr,p_2,"g")
+plt.plot(rr2,p_3,"r")
+plt.plot(rr2,p_4,"c")
+plt.plot(rr2,p_5,"m")
+plt.ylabel(r"$p$ $[Pa]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Static Pressure")
+plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,p_t1,"b")
@@ -1101,7 +1118,7 @@ print("Average Exit Total Pressure S2 = " , np.average(p_t5))
 
 
 
-# plt.show()
+plt.show()
 
 
 
