@@ -5,7 +5,7 @@ import math
 from numpy.linalg import norm
 from numpy import sqrt, arctan, tan, pi, cos, sin
 
-def off_design(Rm,mdot_off,beta,rho_out,Um,alpha,rho_in,gamma,efficiency_TT,cp,Tt_in,b,Pt_in, n_blades, th, chord, theta):
+def off_design(Rm,mdot_off,beta,rho_out,Um,alpha,rho_in,gamma,efficiency_TT,cp,Tt_in,b_in,b_out,Pt_in, n_blades, th, chord, theta):
 
     sigma = 2 * np.pi * Rm / n_blades
 
@@ -22,8 +22,8 @@ def off_design(Rm,mdot_off,beta,rho_out,Um,alpha,rho_in,gamma,efficiency_TT,cp,T
     delta = delta0 * kdeltath + m * theta / (sigma ** b1)
 
 
-    S_in=np.pi*2*Rm*b
-    S_out=S_in
+    S_in=np.pi*2*Rm*b_in
+    S_out=np.pi*2*Rm*b_out
     alpha = alpha*np.pi/180
     R=gamma/(gamma-1)*cp
     err=10

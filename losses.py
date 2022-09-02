@@ -65,7 +65,7 @@ def   losses(radius,chord,Rm,b,Va_out,Va_in,beta_in,beta_out,alpha_in,alpha_out,
     omega_overall = omega_profile+omega_tip+omega_end
 
 
-    return omega_overall
+    return omega_overall,omega_profile,omega_tip,omega_end
 
 
 #omega_ew=(Pt1_p1-p2_p1*Pt2_p2)/(Pt1_p1-1)

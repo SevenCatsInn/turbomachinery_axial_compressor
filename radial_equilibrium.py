@@ -174,6 +174,11 @@ while abs(err) > tol:
     V_a1 = np.zeros(pts) # Create the list
     V_a1[mean_index] = V_a1m  # Initial value for forward integration starting from mean radius
     dV_a1 = np.zeros(pts)
+    omega_overall_D1=np.zeros(pts)
+    omega_profile_D1=np.zeros(pts)
+    omega_tip_D1=np.zeros(pts)
+    omega_end_D1=np.zeros(pts)
+    
 
     # N.I.S.R.E. 1 numerical integration
     # --> Start from V_1m at R_m and move forwards and backwards up to R_t and R_h
@@ -221,8 +226,8 @@ while abs(err) > tol:
         shrouded_D1=0
         statorD1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
 
-        omega_overall_D1= losses(rr[j],chordD1,R_m,b_1,V_a1[j],V_a0[j],beta_0[j],beta_1[j],alpha_0[j],alpha_1[j],V_0[j],V_1[j],W_a0[j],W_a1[j],W_0[j],W_1[j],rho_0[j],rho_1[j],staggerD1,NrowD1,bladesD1,mdot,p_t0[j],p_0[j],shrouded_D1,statorD1) # Coefficient of loss
-        p_t1[j] = p_t0[j] - omega_overall_D1 * (p_t0[j] - p_0[j])
+        omega_overall_D1[j],omega_profile_D1[j],omega_tip_D1[j],omega_end_D1[j] = losses(rr[j],chordD1,R_m,b_1,V_a1[j],V_a0[j],beta_0[j],beta_1[j],alpha_0[j],alpha_1[j],V_0[j],V_1[j],W_a0[j],W_a1[j],W_0[j],W_1[j],rho_0[j],rho_1[j],staggerD1,NrowD1,bladesD1,mdot,p_t0[j],p_0[j],shrouded_D1,statorD1) # Coefficient of loss
+        p_t1[j] = p_t0[j] - omega_overall_D1[j] * (p_t0[j] - p_0[j])
         
         integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
 
@@ -304,6 +309,10 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     V_a2 = list(np.zeros(pts)) # Create the list
     V_a2[mean_index] = V_a2m  # Initial value for forward integration starting from mean radius
     dV_a2 = list(np.zeros(pts))
+    omega_overall_R1=np.zeros(pts)
+    omega_profile_R1=np.zeros(pts)
+    omega_tip_R1=np.zeros(pts)
+    omega_end_R1=np.zeros(pts)
 
     # N.I.S.R.E. 2 numerical integration 
     for j in list(range(0,mean_index)):
@@ -352,8 +361,9 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         shrouded_R1 = 0
         statorR1 = 1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
         
-        omega_overall_R1= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1,NrowR1,bladesR1,mdot,p_t1r[j],p_1[j],shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
-        p_t2r[j] = p_t1r[j] - omega_overall_R1 * (p_t1r[j] - p_1[j])
+        omega_overall_R1[j],omega_profile_R1[j],omega_tip_R1[j],omega_end_R1[j]= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1,NrowR1,bladesR1,mdot,p_t1r[j],p_1[j],shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
+        p_t2r[j] = p_t1r[j] - omega_overall_R1[j] * (p_t1r[j] - p_1[j])
+        
         
         # ENTROPY EVALUATION
 
@@ -373,6 +383,12 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("V_a2m = " + str(V_a2m))
     print("err = "+ str(err))
     iter += 1
+    print("overall loss coefficient=",omega_overall_R1)
+    print("profile losses=",omega_profile_R1)
+    print("tip leakage losses=",omega_tip_R1)
+    print("end wall losses=",omega_end_R1)
+    
+    
 
 print("")
 
@@ -436,6 +452,10 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     V_a3 = list(np.zeros(pts)) # Create the list
     V_a3[mean_index] = V_a3m  # Initial value for forward integration starting from mean radius
     dV_a3 = list(np.zeros(pts))
+    omega_overall_S1=np.zeros(pts)
+    omega_profile_S1=np.zeros(pts)
+    omega_tip_S1=np.zeros(pts)
+    omega_end_S1=np.zeros(pts)
     
     # N.I.S.R.E at stator outlet (3)
     for j in list(range(0,mean_index)):
@@ -481,10 +501,9 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         shrouded_S1=0
         statorS1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
         
-        omega_overall_S1= losses(rr[j],chordS1,R_m,b_1,V_a3[j],V_a2[j],beta_2[j],beta_3[j],alpha_2[j],alpha_3[j],V_2[j],V_3[j],W_a2[j],W_a3[j],W_2[j],W_3[j],rho_2[j],rho_3[j],staggerS1,NrowS1,bladesS1,mdot,p_t2[j],p_2[j],shrouded_S1,statorS1) # Coefficient of loss # Coefficient of loss
+        omega_overall_S1[j],omega_profile_S1[j],omega_tip_S1[j],omega_end_S1[j]= losses(rr[j],chordS1,R_m,b_1,V_a3[j],V_a2[j],beta_2[j],beta_3[j],alpha_2[j],alpha_3[j],V_2[j],V_3[j],W_a2[j],W_a3[j],W_2[j],W_3[j],rho_2[j],rho_3[j],staggerS1,NrowS1,bladesS1,mdot,p_t2[j],p_2[j],shrouded_S1,statorS1) # Coefficient of loss # Coefficient of loss
     
-        
-        p_t3[j] = p_t2[j] - omega_overall_S1 * (p_t2[j] - p_2[j])
+        p_t3[j] = p_t2[j] - omega_overall_S1[j] * (p_t2[j] - p_2[j])
 
         # ENTROPY EVALUATION
 
@@ -504,6 +523,12 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("V_t3m = "+ str(Vt3_check) + " [m/s]")
     print("err = "+ str(err))
     iter += 1
+    print("overall loss coefficient=",omega_overall_S1)
+    print("profile losses=",omega_profile_S1)
+    print("tip leakage losses=",omega_tip_S1)
+    print("end wall losses=",omega_end_S1)
+    
+    
 
 
 
@@ -574,6 +599,10 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     V_a4 = list(np.zeros(pts)) # Create the list
     V_a4[mean_index] = V_a4m  # Initial value for forward integration starting from mean radius
     dV_a4 = list(np.zeros(pts))
+    omega_overall_R2=np.zeros(pts)
+    omega_profile_R2=np.zeros(pts)
+    omega_tip_R2=np.zeros(pts)
+    omega_end_R2=np.zeros(pts)
 
     # N.I.S.R.E. 4 numerical integration 
     for j in list(range(0,mean_index)):
@@ -619,8 +648,8 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         shrouded_R2=0
         b_R2=0.3
         statorR2=0 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_R2= losses(rr2[j],chordR2,R_m,b_2,V_a4[j],V_a3[j],beta_3[j],beta_4[j],alpha_3[j],alpha_4[j],V_3[j],V_4[j],W_a3[j],W_a4[j],W_3[j],W_4[j],rho_3[j],rho_4[j],staggerR2,NrowR2,bladesR2,mdot,p_t3r[j],p_3[j],shrouded_R2,statorR2) # Coefficient of loss 
-        p_t4r[j] = p_t3r[j] - omega_overall_R2 * (p_t3r[j] - p_3[j])
+        omega_overall_R2[j],omega_profile_R2[j],omega_tip_R2[j],omega_end_R2[j]= losses(rr2[j],chordR2,R_m,b_2,V_a4[j],V_a3[j],beta_3[j],beta_4[j],alpha_3[j],alpha_4[j],V_3[j],V_4[j],W_a3[j],W_a4[j],W_3[j],W_4[j],rho_3[j],rho_4[j],staggerR2,NrowR2,bladesR2,mdot,p_t3r[j],p_3[j],shrouded_R2,statorR2) # Coefficient of loss 
+        p_t4r[j] = p_t3r[j] - omega_overall_R2[j] * (p_t3r[j] - p_3[j])
 
         # ENTROPY EVALUATION
 
@@ -683,7 +712,10 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     V_a5 = list(np.zeros(pts)) # Create the list
     V_a5[mean_index] = V_a5m  # Initial value for forward integration starting from mean radius
     dV_a5 = list(np.zeros(pts))
-    
+    omega_overall_S2=np.zeros(pts)
+    omega_profile_S2=np.zeros(pts)
+    omega_tip_S2=np.zeros(pts)
+    omega_end_S2=np.zeros(pts)
     # N.I.S.R.E at stator outlet (5)
     for j in list(range(0,mean_index)):
         for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
@@ -723,11 +755,11 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         bladesS2=36
         shrouded_S2=0
         statorS2=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_S2= losses(rr2[j],chordS2,R_m,b_2,V_a5[j],V_a4[j],beta_4[j],beta_5[j],alpha_4[j],alpha_5[j],V_4[j],V_5[j],W_a4[j],W_a5[j],W_4[j],W_5[j],rho_4[j],rho_5[j],staggerS2,NrowS2,bladesS2,mdot,p_t4[j],p_4[j],shrouded_S2,statorS2) # Coefficient of loss # Coefficient of loss        
+        omega_overall_S2[j],omega_profile_S2[j],omega_tip_S2[j],omega_end_S2[j]= losses(rr2[j],chordS2,R_m,b_2,V_a5[j],V_a4[j],beta_4[j],beta_5[j],alpha_4[j],alpha_5[j],V_4[j],V_5[j],W_a4[j],W_a5[j],W_4[j],W_5[j],rho_4[j],rho_5[j],staggerS2,NrowS2,bladesS2,mdot,p_t4[j],p_4[j],shrouded_S2,statorS2) # Coefficient of loss # Coefficient of loss        
         #Evaluate the q.ties in section 1 (np.expressions) at the current radius
         # tmp = overwritten at every iteration, no need for a new array for _1 quantities
         
-        p_t5[j] = p_t4[j] - omega_loss_S * (p_t4[j] - p_4[j])
+        p_t5[j] = p_t4[j] - omega_overall_S2[j] * (p_t4[j] - p_4[j])
 
         # ENTROPY EVALUATION
 
@@ -951,10 +983,10 @@ print("--------------- OFF-DESIGN ---------------")
 mdot_off = 90
 #first srage
 #Tt1 and Pt1 are from the file turboproject.py (MLD)
-Leul1_off, beta1_off= off_design(R_m,mdot_off,beta2,rho2,Um,alpha1,rho1,gamma,efficiency_TT,cp,Tt1,b1,Pt1, bladesR1, percent_th1*100,chord1, theta1[1])
+Leul1_off, beta1_off= off_design(R_m,mdot_off,beta2,rho2,Um,alpha1,rho1,gamma,efficiency_TT,cp,Tt1,b1,b1,Pt1, bladesR1, percent_th1*100,chord1, theta1[1])
 #Leul1_off, beta1_off= off_design(R_m,mdot_off,beta_2[mean_index],rho2[mean_index],U[mean_index],alpha_1[mean_index],rho1_[mean_index],gamma,efficiency_TT,cp,T_t1[mean_index],b1)
 
-Leul2_off, beta2_off = off_design(R_m,mdot_off,beta4,rho4,Um,alpha3,rho3,gamma,efficiency_TT,cp,Tt3,b2,Pt3, bladesR2, percent_th3*100,chord3, theta3[1])
+Leul2_off, beta2_off = off_design(R_m,mdot_off,beta4,rho4,Um,alpha3,rho3,gamma,efficiency_TT,cp,Tt3,b2,b2,Pt3, bladesR2, percent_th3*100,chord3, theta3[1])
 #Leul2_off, beta2_off= off_design(rr[mean_index],mdot_off,beta_4[mean_index],rho_4[mean_index],U[mean_index],alpha_3[mean_index],rho_3[mean_index],gamma,efficiency_TT,cp,T_t3[mean_index],b2)
 
 print("Leul1_off=", Leul1_off)
@@ -986,6 +1018,28 @@ print("")
 
 ############################ PLOTS BELOW ############################
 
+##plots for the losses
+#losses in rotor 1
+plt.figure(figsize=(6,5) ,dpi=180)
+plt.plot(rr,omega_overall_R1,"b")
+plt.plot(rr,omega_profile_R1,"g")
+plt.plot(rr,omega_tip_R1,"r")
+plt.plot(rr,omega_end_R1,"c")
+plt.ylabel(r" $omega$ $[-]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+plt.title("Loss coefficients in Rotor 1")
+
+#losses in stator 1
+plt.figure(figsize=(6,5) ,dpi=180)
+plt.plot(rr,omega_overall_S1,"b")
+plt.plot(rr,omega_profile_S1,"g")
+plt.plot(rr,omega_tip_S1,"r")
+plt.plot(rr,omega_end_S1,"c")
+plt.ylabel(r" $omega$ $[-]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+plt.title("Loss coefficients in Stator 1")
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,W_1,"b")
@@ -1227,8 +1281,6 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
     axs[j].set_title(name)
 
     j = j+1
-
-
 
 
 
