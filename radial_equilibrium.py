@@ -37,22 +37,19 @@ omega = 2 * pi * rpm/60                          # Angular velocity     [rad/s]
 U = arrayLst( omega * rr[t] for t in range(pts)) # Peripheral velocity  [m/s]
 
 # Input data
-T_t1 = 300 * np.ones(pts) # [K]     --> f(r)
-p_t1 = 1e5 * np.ones(pts) # [Pa] --> f(r)
+T_t0 = 300 * np.ones(pts) # [K]     --> f(r)
+p_t0 = 1e5 * np.ones(pts) # [Pa] --> f(r)
 s_0 = np.zeros(pts)
 ds_0 = np.zeros(pts)
 m_dot_req = 100 # Required mass flow [kg/s]
-T_1 = T_1m * np.ones(pts)
+T_0 = T_0m * np.ones(pts)
 
 # Computed Quantities
-h_t1 = c_p * T_t1 # Total enthalpy [J/kg]
-dh_t1 = finDiff(h_t1,deltaR)
+h_t0 = c_p * T_t0 # Total enthalpy [J/kg]
+dh_t0 = finDiff(h_t0,deltaR)
 
-# !! WARNING !!
-#  Here the values pt1, Tt1 refer to the freestream, NOT ROTOR 1 INLET, I won't change them here yet to a 0 index (correct)
-#  These values are nonetheless used to compute ds_0 (which is 0 actually lol) 
 for j in range(pts): 
-    ds_0[j]  = -R * finDiff(p_t1,deltaR)[j] / p_t1[j] + c_p * finDiff(T_t1,deltaR)[j] / T_t1[j] # Derivative over r of entropy [J/(kg K)]
+    ds_0[j]  = -R * finDiff(p_t0,deltaR)[j] / p_t0[j] + c_p * finDiff(T_t0,deltaR)[j] / T_t0[j] # Derivative over r of entropy [J/(kg K)]
 
 
 
@@ -79,10 +76,6 @@ T_0  = list(T_0m * np.ones(pts))
 s_0  = np.zeros(pts)
 # ds0 TODO
 
-# Imposed by thermodynamics
-h_t0 = h_t1
-dh_t0 = dh_t1
-T_t0 = T_t1
 
 # This loop can be avoided using flaired blades b_2 != b_1
 while abs(err) > tol: # Begin loop to get mass flow convergence
@@ -162,7 +155,12 @@ drV_t1 = finDiff(rV_t1, deltaR)
 s_1  = arrayLst( s_0)    # Initial radial entropy distribution in 2
 ds_1 = arrayLst(ds_0) # Dertivative wrt r of entropy
 
-omega_loss_D = 0.02
+h_t1 = h_t0
+dh_t1 = finDiff(h_t1,deltaR)
+
+T_t1 = h_t1 / c_p # Total temperature
+
+T_1 = T_1m * np.ones(pts) # Static temperature
 
 print("")
 print("########## ROTOR INLET ##########")
@@ -204,7 +202,7 @@ while abs(err) > tol:
 
         # Thermodynamics
         T_1[j] = T_t1[j] - V_1[j]**2 / (2 * c_p)
-        p_1[j] = p_1m * (T_1[j] / T_1m)**(gamma/(gamma-1))
+        p_1[j] = p_1m * (T_1[j] / T_1m)**(gamma/(gamma-1)) * np.exp(- (s_1[j] - s_1[mean_index]) / R)
         rho_1[j] = p_1[j] / (R*T_1[j])
         M_1[j]  = V_1[j] / np.sqrt(gamma * R * T_1[j])
         M_1r[j] = W_1[j] / np.sqrt(gamma * R * T_1[j])
