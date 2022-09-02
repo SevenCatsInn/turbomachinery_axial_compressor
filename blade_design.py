@@ -209,10 +209,15 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
     
     Geom = []
     Prof_names = []
-
+    
+    print("")
+    print("Stagger Angle Root/Mean/Tip")
     for theta, beta, inc, color in zip(theta0, Alpha0, inc0, ['c','b','y']):
         
         stagger =  beta - inc - theta/2
+
+        
+        print(stagger)
 
         Xc,Yc,Ux,Uy,Lx,Ly, profile_name, geom = naca65(theta, percent_th0/100 , chord0, "False", stagger )
 
