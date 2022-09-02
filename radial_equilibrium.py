@@ -1016,30 +1016,53 @@ print("")
 
 ############################ PLOTS BELOW ############################
 
-##plots for the losses
-#losses in rotor 1
-# plt.figure(figsize=(10,5) ,dpi=80)
-# plt.plot(rr,omega_overall_R2,"b")
-# plt.plot(rr,omega_profile_R2,"g")
-# plt.plot(rr,omega_tip_R2,"r")
-# plt.plot(rr,omega_end_R2,"c")
-# plt.ylabel(r"$\omega \ [-]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
-# plt.title(r"Loss coefficients in Rotor 2")
-# plt.grid(alpha=0.2)
+#plots for the losses
+# losses in rotor 1
+plt.figure(figsize=(10,5) ,dpi=80)
+plt.plot(rr,omega_overall_R1,"b")
+plt.plot(rr,omega_profile_R1,"g")
+plt.plot(rr,omega_tip_R1,"r")
+plt.plot(rr,omega_end_R1,"c")
+plt.ylabel(r"$\omega \ [-]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+plt.title(r"Loss coefficients in Rotor 1")
+plt.grid(alpha=0.2)
 
-# #losses in stator 1
-# plt.figure(figsize=(10,5) ,dpi=80)
-# plt.plot(rr,omega_overall_S2,"b")
-# plt.plot(rr,omega_profile_S2,"g")
-# plt.plot(rr,omega_tip_S2,"r")
-# plt.plot(rr,omega_end_S2,"c")
-# plt.ylabel(r"$\omega \ [-]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
-# plt.title("Loss coefficients in Stator 2")
-# plt.grid(alpha=0.2)
+#losses in stator 1
+plt.figure(figsize=(10,5) ,dpi=80)
+plt.plot(rr,omega_overall_S1,"b")
+plt.plot(rr,omega_profile_S1,"g")
+plt.plot(rr,omega_tip_S1,"r")
+plt.plot(rr,omega_end_S1,"c")
+plt.ylabel(r"$\omega \ [-]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+plt.title("Loss coefficients in Stator 1")
+plt.grid(alpha=0.2)
+
+plt.figure(figsize=(10,5) ,dpi=80)
+plt.plot(rr2,omega_overall_R2,"b")
+plt.plot(rr2,omega_profile_R2,"g")
+plt.plot(rr2,omega_tip_R2,"r")
+plt.plot(rr2,omega_end_R2,"c")
+plt.ylabel(r"$\omega \ [-]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+plt.title(r"Loss coefficients in Rotor 2")
+plt.grid(alpha=0.2)
+
+#losses in stator 1
+plt.figure(figsize=(10,5) ,dpi=80)
+plt.plot(rr2,omega_overall_S2,"b")
+plt.plot(rr2,omega_profile_S2,"g")
+plt.plot(rr2,omega_tip_S2,"r")
+plt.plot(rr2,omega_end_S2,"c")
+plt.ylabel(r"$\omega \ [-]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+plt.title("Loss coefficients in Stator 2")
+plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,W_1,"b")
@@ -1305,4 +1328,4 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
 # VELOCITY TRIANGLES ACROSS STATOR 2
 
 
-# plt.show()
+plt.show()
