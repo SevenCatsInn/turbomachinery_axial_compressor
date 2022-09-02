@@ -217,7 +217,7 @@ while abs(err) > tol:
         chordD1=0.1
         solidityD1=1.0
 
-        tmp_staggerD1 = 25 * np.array([0.4146902837280073, 8.562112644741685, 15.346296015211571]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerD1 = 25 * np.array([0.4146902837280073,8.562112644741685,15.346296015211571]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerD1 = compute_C_l(tmp_staggerD1,pts)
         staggerD1 = np.average(tmp2_staggerD1)
 
@@ -352,7 +352,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         #LOSSES across first rotor: between section 1 and 2        
         chordR1=0.1
         
-        tmp_staggerR1 = 25 * np.array([-11.676659681774582, -24.956847050581516, -47.56992271320476]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerR1 = 25 * np.array([-11.564033405528258, -24.902757149465188, -47.83298303856293]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerR1 = compute_C_l(tmp_staggerR1,pts)
         staggerR1 = np.average(tmp2_staggerR1)
         
@@ -492,7 +492,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         #LOSSES across stator of the first stage: between section 2 and 3        
         chordS1=0.1
         
-        tmp_staggerS1 = 25 * np.array([17.465834987449313, 29.176544391755733, 46.28802243060806]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerS1 = 25 * np.array([18.06104395559695,29.102088170760815,45.74773345596662]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerS1 = compute_C_l(tmp_staggerS1,pts)
         staggerS1= np.average(tmp2_staggerS1)
 
@@ -543,7 +543,6 @@ print("Stator 1 Efficiency = ", (np.average(T_3is)-np.average(T_2))/(np.average(
 deltah_is_stage1 = c_p * ( np.average((p_3/p_2)**((gamma-1)/gamma) * T_2is) - np.average(T_1) )
 
 print("Stage 1 Total Efficiency = " , (deltah_is_stage1 + np.average(V_3**2)/2 - np.average(V_1**2)/2)/np.average(L_eul) )
-input()
 
 
 
@@ -639,7 +638,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         #LOSSES across rotor of the second stage: between section 3 and 4        
         chordR2=0.1
         
-        tmp_staggerR2 = 25 * np.array([-3.731720378208422, -20.285718712071258, -49.148251438192744]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerR2 = 25 * np.array([-2.2458633227303295,-20.085769502650198,-48.96860115284121]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerR2 = compute_C_l(tmp_staggerR2,pts)
         staggerR2 = np.average(tmp2_staggerR2)
 
@@ -747,7 +746,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         #LOSSES across stator of the second stage: between section 4 and 5        
         chordS2=0.1
         
-        tmp_staggerS2 = 25 * np.array([24.160523251671574, 32.05712108570312, 46.50612563659101]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerS2 = 25 * np.array([26.4847698009054,32.35082280569953,47.856605100878205]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerS2 = compute_C_l(tmp_staggerS2,pts)
         staggerS2 = np.average(tmp2_staggerS2)
 
@@ -787,7 +786,6 @@ print("Stator 2 Efficiency = ",(np.average(T_5is)-np.average(T_4))/(np.average(T
 deltah_is_stage2 = c_p * ( np.average((p_5/p_4)**((gamma-1)/gamma) * T_4is) - np.average(T_3) )
 
 print("Stage 2 Total Efficiency = " , (deltah_is_stage2 + np.average(V_5**2)/2 - np.average(V_3**2)/2)/np.average(L_eul) )
-input()
 
 
 
@@ -829,7 +827,7 @@ stress_Y = 472e6               # [Pa]   Material Yield stress (Annealed 4340 ste
 percent_th1 = 10               # [%] Max thickness WRT chord of blade profile 
 chord1      = 0.1              # [m] Starting point from reference procedure
 solidity1   = 1.3              # [ ] ! Initial assumption at midspan
-theta1 = [26.7, 15.8, -3.4]
+theta1 = [26.7, 15.8, -3.6]
 
 print("")
 print("###### STAGE 1 ROTOR BLADE DESIGN ######")
@@ -874,7 +872,7 @@ print("Safety Factor =", stress_Y/stress_tot1)
 percent_th2 = 10               # [%] Max thickness WRT chord of blade profile 
 chord2      = 0.1             # [m] Starting point from reference procedure
 solidity2   = 1.5              # [ ] ! Initial assumption at midspan
-theta2 = [9, 7, 35]
+theta2 = [7.7, 7, 38.8]
 
 print("")
 print("###### STAGE 1 STATOR BLADE DESIGN ######")
@@ -894,7 +892,7 @@ plt.title("Stator Stage 1 ")
 percent_th3 = 10               # [%] Max thickness WRT chord of blade profile 
 chord3      = 0.1              # [m] Starting point from reference procedure
 solidity3   = 1.3              # [ ] ! Initial assumption at midspan
-theta3 = [27.5, 17.3, -7.5]
+theta3 = [28.9, 18, -6.7]
 
 print("")
 print("###### STAGE 2 ROTOR BLADE DESIGN ######")
@@ -946,7 +944,7 @@ print("Safety Factor =", stress_Y/stress_tot3)
 percent_th4 = 10               # [%] Max thickness WRT chord of blade profile 
 chord4      = 0.1             # [m] Starting point from reference procedure
 solidity4   = 1.8              # [ ] ! Initial assumption at midspan
-theta4 = [14.5, 19.5, 48 ]
+theta4 = [13.1, 20.2, 43.7 ]
 
 print("")
 print("###### STAGE 2 STATOR BLADE DESIGN ######")
@@ -1020,26 +1018,28 @@ print("")
 
 ##plots for the losses
 #losses in rotor 1
-plt.figure(figsize=(6,5) ,dpi=180)
-plt.plot(rr,omega_overall_R1,"b")
-plt.plot(rr,omega_profile_R1,"g")
-plt.plot(rr,omega_tip_R1,"r")
-plt.plot(rr,omega_end_R1,"c")
-plt.ylabel(r" $omega$ $[-]$")
-plt.xlabel(r"$r \  [m]$")
-plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
-plt.title("Loss coefficients in Rotor 1")
+# plt.figure(figsize=(10,5) ,dpi=80)
+# plt.plot(rr,omega_overall_R2,"b")
+# plt.plot(rr,omega_profile_R2,"g")
+# plt.plot(rr,omega_tip_R2,"r")
+# plt.plot(rr,omega_end_R2,"c")
+# plt.ylabel(r"$\omega \ [-]$")
+# plt.xlabel(r"$r \  [m]$")
+# plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+# plt.title(r"Loss coefficients in Rotor 2")
+# plt.grid(alpha=0.2)
 
-#losses in stator 1
-plt.figure(figsize=(6,5) ,dpi=180)
-plt.plot(rr,omega_overall_S1,"b")
-plt.plot(rr,omega_profile_S1,"g")
-plt.plot(rr,omega_tip_S1,"r")
-plt.plot(rr,omega_end_S1,"c")
-plt.ylabel(r" $omega$ $[-]$")
-plt.xlabel(r"$r \  [m]$")
-plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
-plt.title("Loss coefficients in Stator 1")
+# #losses in stator 1
+# plt.figure(figsize=(10,5) ,dpi=80)
+# plt.plot(rr,omega_overall_S2,"b")
+# plt.plot(rr,omega_profile_S2,"g")
+# plt.plot(rr,omega_tip_S2,"r")
+# plt.plot(rr,omega_end_S2,"c")
+# plt.ylabel(r"$\omega \ [-]$")
+# plt.xlabel(r"$r \  [m]$")
+# plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+# plt.title("Loss coefficients in Stator 2")
+# plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,W_1,"b")
@@ -1150,18 +1150,18 @@ plt.title("Loss coefficients in Stator 1")
 # plt.title("Entropy")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,180/np.pi * np.array(alpha_0),"k")
-# plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
-# plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
-# plt.plot(rr2,180/np.pi * np.array(alpha_3),"r")
-# plt.plot(rr2,180/np.pi * np.array(alpha_4),"c")
-# plt.plot(rr2,180/np.pi * np.array(alpha_5),"m")
-# plt.ylabel(r"$\alpha$ [deg]")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Absolute Flow Angle")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,180/np.pi * np.array(alpha_0),"k")
+plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
+plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
+plt.plot(rr2,180/np.pi * np.array(alpha_3),"r")
+plt.plot(rr2,180/np.pi * np.array(alpha_4),"c")
+plt.plot(rr2,180/np.pi * np.array(alpha_5),"m")
+plt.ylabel(r"$\alpha$ [deg]")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Absolute Flow Angle")
+plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,180/np.pi * np.array(beta_1),"b")
@@ -1176,14 +1176,14 @@ plt.title("Loss coefficients in Stator 1")
 # plt.grid(alpha=0.2)
  
  
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,chi)
-# plt.plot(rr2,chi_2)
-# plt.ylabel(r"$\chi$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.title("Reaction Degree")
-# plt.legend(["Stage 1","Stage 2"])
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=80)
+plt.plot(rr,chi)
+plt.plot(rr2,chi_2)
+plt.ylabel(r"$\chi$")
+plt.xlabel(r"$r \  [m]$")
+plt.title("Reaction Degree")
+plt.legend(["Stage 1","Stage 2"])
+plt.grid(alpha=0.2)
 
 # This should be constant if a free vortex distribution is used
 # plt.figure(figsize=(6, 5), dpi=80)
@@ -1305,4 +1305,4 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
 # VELOCITY TRIANGLES ACROSS STATOR 2
 
 
-plt.show()
+# plt.show()
