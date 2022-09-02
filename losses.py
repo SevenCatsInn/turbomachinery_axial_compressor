@@ -44,7 +44,25 @@ def   losses(radius,chord,Rm,b,Va_out,Va_in,beta_in,beta_out,alpha_in,alpha_out,
     else: 
         omega_tip=0
 
-    omega_overall = omega_profile+omega_tip
+
+    #secondary losses
+    if stator == 0 :
+       beta_m = arctan((tan(beta_in)+tan(beta_out))*0.5)
+       cl=2*(1/solidity)*cos(beta_m)*(tan(beta_in)-tan(beta_out))
+       omega_sec=0.018*solidity*cos(beta_in)**2*cl**2/cos(beta_m)**3
+    else :
+       alpha_m = arctan((tan(alpha_in)+tan(alpha_out))*0.5)
+       cl=2*(1/solidity)*cos(alpha_m)*(tan(alpha_in)-tan(alpha_out))
+       omega_sec=0.018*solidity*cos(alpha_in)**2*cl**2/cos(alpha_m)**3
+    
+       
+    #end wall losses
+    if stator == 0:
+     omega_end = 0.0146*chord/b*(cos(beta_in)/cos(beta_out))**2
+    else :
+     omega_end = 0.0146*chord/b*(cos(alpha_in)/cos(alpha_out))**2
+    
+    omega_overall = omega_profile+omega_tip+omega_end
 
 
     return omega_overall

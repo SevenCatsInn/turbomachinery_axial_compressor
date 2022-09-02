@@ -1,4 +1,3 @@
-
 ### Radial equilibrium script ###
 
 exec(open("./turboproject.py").read()) # Run mean line design
@@ -267,7 +266,6 @@ while abs(err) > tol:
 
 
 
-
 print("")
 print("########## ROTOR OUTLET ##########")
 
@@ -315,7 +313,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         
         
     # Initiate all the lists
-    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul = (np.zeros(pts) for t in range(15))
+    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul, h_t2r = (np.zeros(pts) for t in range(16))
 
     Beta = np.zeros(pts)
     for j in list(range(pts)): # Compute quantities along the radius
@@ -357,7 +355,6 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         omega_overall_R1= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1,NrowR1,bladesR1,mdot,p_t1r[j],p_1[j],shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
         p_t2r[j] = p_t1r[j] - omega_overall_R1 * (p_t1r[j] - p_1[j])
         
-        
         # ENTROPY EVALUATION
 
         s_2[j]  = s_1[j] - R * np.log(p_t2r[j] / p_t1r[j])
@@ -377,9 +374,9 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("err = "+ str(err))
     iter += 1
 
-
-
-
+print("")
+T_2is = (p_2/p_1)**((gamma-1)/gamma) * T_1
+print("Rotor 1 Efficiency = " ,(np.average(T_2is)-np.average(T_1))/(np.average(T_2)-np.average(T_1)))
 
 
 
@@ -512,7 +509,9 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 
 
 
-
+print("")
+T_3is = (p_3/p_2)**((gamma-1)/gamma) * T_2
+print(("Stator 1 Efficiency = ", (np.average(T_3is)-np.average(T_2))/(np.average(T_3)-np.average(T_2))))
 
 
 
@@ -636,7 +635,9 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("err = "+ str(err))
     iter += 1
 
-
+print("")
+T_4is = (p_4/p_3)**((gamma-1)/gamma) * T_3
+print("Rotor 2 Efficiency = ",(np.average(T_4is)-np.average(T_3))/(np.average(T_4)-np.average(T_3)))
 
 
 
@@ -743,7 +744,9 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     iter += 1
 
 
-
+print("")
+T_5is = (p_5/p_4)**((gamma-1)/gamma) * T_4
+print("Stator 2 Efficiency = ",(np.average(T_5is)-np.average(T_4))/(np.average(T_5)-np.average(T_4)))
 
 
 
