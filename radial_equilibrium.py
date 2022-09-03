@@ -176,7 +176,7 @@ while abs(err) > tol:
     dV_a1 = np.zeros(pts)
     omega_overall_D1=np.zeros(pts)
     omega_profile_D1=np.zeros(pts)
-    omega_tip_D1=np.zeros(pts)
+    #omega_tip_D1=np.zeros(pts)
     omega_end_D1=np.zeros(pts)
     
 
@@ -335,7 +335,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     dV_a2 = list(np.zeros(pts))
     omega_overall_R1=np.zeros(pts)
     omega_profile_R1=np.zeros(pts)
-    omega_tip_R1=np.zeros(pts)
+    #omega_tip_R1=np.zeros(pts)
     omega_end_R1=np.zeros(pts)
 
     # N.I.S.R.E. 2 numerical integration 
@@ -346,7 +346,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         
         
     # Initiate all the lists
-    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul, h_t2r = (np.zeros(pts) for t in range(16))
+    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul = (np.zeros(pts) for t in range(15))
 
     Beta = np.zeros(pts)
     for j in list(range(pts)): # Compute quantities along the radius
@@ -432,7 +432,7 @@ omega_tip_R1=deltaPt_distr_R1/(p_t1r-p_1)
 print("deltaP_tR1,",deltaP_tR1)
 print("deltaPR1,",deltaPR1)
 print("deltap_dist_R1",deltaPt_distr_R1)
-print("omega_tip_R1",omega_tip_R1)
+# print("omega_tip_R1",omega_tip_R1)
 
 #add tip leakage contribution
 p_t2r=p_t2r-deltaPt_distr_R1
@@ -573,10 +573,26 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     iter += 1
     print("overall loss coefficient=",omega_overall_S1)
     print("profile losses=",omega_profile_S1)
-    print("tip leakage losses=",omega_tip_S1)
+    # print("tip leakage losses=",omega_tip_S1)
     print("end wall losses=",omega_end_S1)
     
-    
+delta_c=0.001 #clearance [m]
+r_2=Rm+b_2/2-delta_c # [m]
+r_3=Rm+b_1/2-delta_c
+r_in=rtip # [m]
+r_out=r_in
+if shrouded_S1==0:
+        rho_medS1=(rho_2[pts-1]+rho_3[pts-1])*0.5
+        Vt_2=V_a2[pts-1]*tan(alpha_2[pts-1])
+        Vt_3=V_a3[pts-1]*tan(alpha_3[pts-1])
+        tau_S1=np.pi*delta_c*(rho_2[pts-1]*r_2*V_a2[pts-1]+rho_3[pts-1]*r_3*V_a3[pts-1])*(r_3*Vt_3-r_2*Vt_2) #in reference book C_theta and C_m are the absolute t tangential and meridional comp
+        deltaPS1=abs(tau_S1/(bladesS1*rtip*delta_c*chordS1*cos(staggerS1))) #blades is the blade number
+        U_c_S1=0.816*sqrt(2*deltaPS1/rho_medS1)/NrowS1**(0.2)
+        mdot_cS1=rho_medS1*U_c_S1*bladesS1*delta_c*chordS1*cos(staggerS1)
+        deltaP_tS1=abs(deltaPS1*mdot_cS1/mdot)
+        #omega_tip_S1=deltaP_tS1/(p_t2[pts-1]-p_2[pts-1]);
+else: 
+        print("no tip leakage losses")
 
 #write the linear distribution of deltaP that integrated gives the value of deltaP
 
@@ -842,7 +858,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         bladesS2=36
         shrouded_S2=0
         statorS2=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_S2[j],omega_profile_S2[j],omega_tip_S2[j],omega_end_S2[j]= losses(rr2[j],chordS2,R_m,b_2,V_a5[j],V_a4[j],beta_4[j],beta_5[j],alpha_4[j],alpha_5[j],V_4[j],V_5[j],W_a4[j],W_a5[j],W_4[j],W_5[j],rho_4[j],rho_5[j],staggerS2,NrowS2,bladesS2,mdot,p_t4[j],p_4[j],shrouded_S2,statorS2) # Coefficient of loss # Coefficient of loss        
+        omega_overall_S2[j],omega_profile_S2[j],omega_end_S2[j]= losses(rr2[j],chordS2,R_m,b_2,V_a5[j],V_a4[j],beta_4[j],beta_5[j],alpha_4[j],alpha_5[j],V_4[j],V_5[j],W_a4[j],W_a5[j],W_4[j],W_5[j],rho_4[j],rho_5[j],staggerS2,NrowS2,bladesS2,mdot,p_t4[j],p_4[j],shrouded_S2,statorS2) # Coefficient of loss # Coefficient of loss        
         #Evaluate the q.ties in section 1 (np.expressions) at the current radius
         # tmp = overwritten at every iteration, no need for a new array for _1 quantities
         
@@ -884,8 +900,16 @@ if shrouded_S2==0:
 else: 
         print("no tip leakage losses")
 
+#write the linear distribution of deltaP that integrated gives the value of deltaP
 
+deltaPt_distr_S2=np.linspace(0,b_2,pts)*2*deltaP_tS2/((b_2)**2)
+omega_tip_S2=deltaPt_distr_S2/(p_t4-p_4)
+print("deltaP_tS2,",deltaP_tS2)
+print("deltap_dist_S2",deltaPt_distr_S2)
+print("omega_tip_S2",omega_tip_S2)
 
+#add tip leakage contribution
+p_t5=p_t5-deltaPt_distr_S2
 
 
 print("")
