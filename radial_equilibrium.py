@@ -217,7 +217,7 @@ while abs(err) > tol:
         chordD1=0.1
         solidityD1=1.0
 
-        tmp_staggerD1 = 25 * np.array([0.4146902837280073,8.562112644741685,15.346296015211571]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerD1 = 25 * np.array([0.518695359576454,8.562112644741685,15.236128293232776]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerD1 = compute_C_l(tmp_staggerD1,pts)
         staggerD1 = np.average(tmp2_staggerD1)
 
@@ -376,7 +376,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         #LOSSES across first rotor: between section 1 and 2        
         chordR1=0.1
         
-        tmp_staggerR1 = 25 * np.array([-11.564033405528258, -24.902757149465188, -47.83298303856293]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerR1 = 25 * np.array([-11.961901560367078,-25.087698929651747,-47.680067650794285]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerR1 = compute_C_l(tmp_staggerR1,pts)
         staggerR1 = np.average(tmp2_staggerR1)
         
@@ -540,7 +540,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         #LOSSES across stator of the first stage: between section 2 and 3        
         chordS1=0.1
         
-        tmp_staggerS1 = 25 * np.array([18.06104395559695,29.102088170760815,45.74773345596662]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerS1 = 25 * np.array([19.502033288106308,30.186230679622014,46.978917937869895]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerS1 = compute_C_l(tmp_staggerS1,pts)
         staggerS1= np.average(tmp2_staggerS1)
 
@@ -710,7 +710,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         #LOSSES across rotor of the second stage: between section 3 and 4        
         chordR2=0.1
         
-        tmp_staggerR2 = 25 * np.array([-2.2458633227303295,-20.085769502650198,-48.96860115284121]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerR2 = 25 * np.array([-1.5637002974433614,-18.805459731802536,-48.22212922411502]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerR2 = compute_C_l(tmp_staggerR2,pts)
         staggerR2 = np.average(tmp2_staggerR2)
 
@@ -850,7 +850,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         #LOSSES across stator of the second stage: between section 4 and 5        
         chordS2=0.1
         
-        tmp_staggerS2 = 25 * np.array([26.4847698009054,32.35082280569953,47.856605100878205]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerS2 = 25 * np.array([25.99936542695012, 35.486743513986475, 60.110156165597175]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerS2 = compute_C_l(tmp_staggerS2,pts)
         staggerS2 = np.average(tmp2_staggerS2)
 
@@ -931,7 +931,7 @@ print("--------------- BLADE DESIGN ---------------" )
 percent_th0 = 10               # [%] Max thickness WRT chord of blade profile 
 chord0      = 0.1             # [m] Starting point from reference procedure
 solidity0   = 1.0              # [ ] ! Initial assumption at midspan
-theta0 = [-0.8, -16, -28.3]
+theta0 = [-1, -16, -28.1]
 
 alpha_0 = np.zeros(pts)
 
@@ -960,7 +960,7 @@ stress_Y = 472e6               # [Pa]   Material Yield stress (Annealed 4340 ste
 percent_th1 = 10               # [%] Max thickness WRT chord of blade profile 
 chord1      = 0.1              # [m] Starting point from reference procedure
 solidity1   = 1.3              # [ ] ! Initial assumption at midspan
-theta1 = [26.7, 15.8, -3.6]
+theta1 = [26.1, 15.4, -3.8]
 
 print("")
 print("###### STAGE 1 ROTOR BLADE DESIGN ######")
@@ -1004,8 +1004,8 @@ print("Safety Factor =", stress_Y/stress_tot1)
 
 percent_th2 = 10               # [%] Max thickness WRT chord of blade profile 
 chord2      = 0.1             # [m] Starting point from reference procedure
-solidity2   = 1.5              # [ ] ! Initial assumption at midspan
-theta2 = [7.7, 7, 38.8]
+solidity2   = 1.4              # [ ] ! Initial assumption at midspan
+theta2 = [5.9, 5.7, 37.1]
 
 print("")
 print("###### STAGE 1 STATOR BLADE DESIGN ######")
@@ -1025,7 +1025,7 @@ plt.title("Stator Stage 1 ")
 percent_th3 = 10               # [%] Max thickness WRT chord of blade profile 
 chord3      = 0.1              # [m] Starting point from reference procedure
 solidity3   = 1.3              # [ ] ! Initial assumption at midspan
-theta3 = [28.9, 18, -6.7]
+theta3 = [26, 16.7, -7.1]
 
 print("")
 print("###### STAGE 2 ROTOR BLADE DESIGN ######")
@@ -1076,8 +1076,8 @@ print("Safety Factor =", stress_Y/stress_tot3)
 
 percent_th4 = 10               # [%] Max thickness WRT chord of blade profile 
 chord4      = 0.1             # [m] Starting point from reference procedure
-solidity4   = 1.8              # [ ] ! Initial assumption at midspan
-theta4 = [13.1, 20.2, 43.7 ]
+solidity4   = 1.5              # [ ] ! Initial assumption at midspan
+theta4 = [13.8, 14.5, 21.5 ]
 
 print("")
 print("###### STAGE 2 STATOR BLADE DESIGN ######")
@@ -1355,7 +1355,7 @@ print("Average Exit Total Pressure S2 = " , np.average(p_t5))
 
 
 
-# plt.show()
+plt.show()
 
 
 
@@ -1461,4 +1461,4 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
 # VELOCITY TRIANGLES ACROSS STATOR 2
 
 
-plt.show()
+# plt.show()
