@@ -7,20 +7,24 @@ from numpy import sqrt, arctan, tan, pi, cos, sin
 
 def off_design(Rm,mdot_off,beta,rho_out,Um,alpha,rho_in,gamma,efficiency_TT,cp,Tt_in,b_in,b_out,Pt_in, n_blades, th, chord, theta):
 
-    sigma = 2 * np.pi * Rm / n_blades
+    pitch = 2 * np.pi * Rm / n_blades
 
-    delta0  = 0.01 * sigma  * abs(beta)  + (0.74*sigma**1.9 + 3 * sigma) * (abs(beta) / 90) ** (1.67 + 1.09 * sigma)
+    sigma = chord/pitch
+
+    beta_deg = beta * 180 / np.pi
+    
+    delta0  = 0.01 * sigma  * abs(beta_deg)  + (0.74*sigma**1.9 + 3 * sigma) * (abs(beta_deg) / 90) ** (1.67 + 1.09 * sigma)
 
     kdeltath  = 6.25 * (th/chord) + 37.5 * (th/chord)**2
 
-    b1  = 0.9625 - 0.17 * abs(beta)/100 - 0.85 * (abs(beta)/100)**3
+    b1  = 0.9625 - 0.17 * abs(beta_deg)/100 - 0.85 * (abs(beta_deg)/100)**3
 
-    m1  = 0.17 - 0.0333 * abs(beta) /100 + 0.333 * (beta/100) **2
+    m1  = 0.17 - 0.0333 * abs(beta_deg) /100 + 0.333 * (beta_deg/100) **2
 
     m  = m1  / (sigma  ** b1 )
 
     delta = delta0 * kdeltath + m * theta / (sigma ** b1)
-
+    delta = delta * np.pi/180
 
     S_in=np.pi*2*Rm*b_in
     S_out=np.pi*2*Rm*b_out
@@ -28,7 +32,7 @@ def off_design(Rm,mdot_off,beta,rho_out,Um,alpha,rho_in,gamma,efficiency_TT,cp,T
     R=gamma/(gamma-1)*cp
     err=10
     
-    
+  
 
     while abs(err) > 0.001:
         Leul_off = Um * (Um + mdot_off * tan(beta) /( rho_out * S_out )) - Um * mdot_off * tan(alpha) / (rho_in * S_in)
