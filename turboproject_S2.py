@@ -96,15 +96,13 @@ chi2=(W3_mag**2-W4_mag_new**2)/(2*L_eul)
 # Mean line design for the stator
 
 alpha4 = arctan(V4t/V4a)
-alpha5 = 20 * pi/180# Design choice
+alpha5 = 30 * pi/180# Design choice
 
 print("")
 print("Relative deflection in rotor")
 print(cos(beta3) / cos(beta4), "> 0.72 ?") 
 
-# Mean line design for the stator
-alpha2 = arctan(V2t/V2a)
-alpha3 = 30 * pi/180 # Design choice
+
 
 print("")
 print("Absolute deflection in stator")
@@ -125,6 +123,7 @@ while abs(err)>tol:
     p5=(T5is/Tt4)**(gamma/(gamma-1))*Pt4
     rho5=p5/(R*T5)
     V5a_new=mdot/(rho5*2*pi*b2*Rm)
+    V5t = V5a * tan(alpha5)
     err=abs(V5a_new-V5a)
     V5a=V5a_new
     iter=iter+1

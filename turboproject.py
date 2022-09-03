@@ -15,7 +15,7 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 mdot=100 #mass flow rate
 Pt1=99439 # pressure [bar]
 Tt1=300 #inlet temperature [K]
-beta=1.21 #compression ratio
+beta=1.22 #compression ratio
 
 
 ## Non dimensional quantities
@@ -145,6 +145,7 @@ while abs(err)>tol:
     V3a_new=mdot/(rho3*2*pi*b2*Rm)
     err=abs(V3a_new-V3a)
     V3a=V3a_new
+    V3t = V3a * tan(alpha3)
     M3 = V3_mag / sqrt(gamma * R * T3)
     Pt3 = p3 * (1 + (gamma-1)/2 * M3**2)**(gamma/(gamma-1))
     iter=iter+1
