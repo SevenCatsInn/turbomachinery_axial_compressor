@@ -226,7 +226,7 @@ while abs(err) > tol:
         shrouded_D1=0
         statorD1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
 
-        omega_overall_D1[j],omega_profile_D1[j],omega_tip_D1[j],omega_end_D1[j] = losses(rr[j],chordD1,R_m,b_1,V_a1[j],V_a0[j],beta_0[j],beta_1[j],alpha_0[j],alpha_1[j],V_0[j],V_1[j],W_a0[j],W_a1[j],W_0[j],W_1[j],rho_0[j],rho_1[j],staggerD1,NrowD1,bladesD1,mdot,p_t0[j],p_0[j],shrouded_D1,statorD1) # Coefficient of loss
+        omega_overall_D1[j],omega_profile_D1[j],omega_end_D1[j]= losses(rr[j],chordD1,R_m,b_1,V_a1[j],V_a0[j],beta_0[j],beta_1[j],alpha_0[j],alpha_1[j],V_0[j],V_1[j],W_a0[j],W_a1[j],W_0[j],W_1[j],rho_0[j],rho_1[j],staggerD1,NrowD1,bladesD1,mdot,p_t0[j],p_0[j],shrouded_D1,statorD1) # Coefficient of loss
         p_t1[j] = p_t0[j] - omega_overall_D1[j] * (p_t0[j] - p_0[j])
         
         integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
@@ -250,9 +250,33 @@ while abs(err) > tol:
     print("V_a1m = "+ str(V_a1m) + " [m/s]")
     iter += 1
 
+delta_c=0.001 #clearance [m]
+r_0=Rm+b_1/2-delta_c # [m]
+r_1=Rm+b_1/2-delta_c
+r_in=rtip # [m]
+r_out=r_in
+if shrouded_D1==0:
+        rho_medD1=(rho_0[pts-1]+rho_1[pts-1])*0.5
+        Vt_0=V_a0[pts-1]*tan(alpha_0[pts-1])
+        Vt_1=V_a1[pts-1]*tan(alpha_1[pts-1])
+        tau_D1=np.pi*delta_c*(rho_0[pts-1]*r_0*V_a0[pts-1]+rho_1[pts-1]*r_1*V_a1[pts-1])*(r_1*Vt_1-r_0*Vt_0) #in reference book C_theta and C_m are the absolute t tangential and meridional comp
+        deltaPD1=abs(tau_D1/(bladesD1*rtip*delta_c*chordD1*cos(staggerD1))) #blades is the blade number
+        U_c_D1=0.816*sqrt(2*deltaPD1/rho_medD1)/NrowD1**(0.2)
+        mdot_cD1=rho_medD1*U_c_D1*bladesD1*delta_c*chordD1*cos(staggerD1)
+        deltaP_tD1=abs(deltaPD1*mdot_cD1/mdot)
+        #omega_tip_S1=deltaP_tS1/(p_t2[pts-1]-p_2[pts-1]);
+else: 
+        print("no tip leakage losses")
 
 
+deltaPt_distr_D1=np.linspace(0,b_1,pts)*2*deltaP_tD1/((b_1)**2)
+omega_tip_D1=deltaPt_distr_D1/(p_t0-p_0)
+print("deltaP_tD1,",deltaP_tD1)
+print("deltap_dist_D1",deltaPt_distr_D1)
+print("omega_tip_D1",omega_tip_D1)
 
+#add tip leakage contribution
+p_t1=p_t1-deltaPt_distr_D1
 
 
 
@@ -361,7 +385,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         shrouded_R1 = 0
         statorR1 = 1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
         
-        omega_overall_R1[j],omega_profile_R1[j],omega_tip_R1[j],omega_end_R1[j]= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1,NrowR1,bladesR1,mdot,p_t1r[j],p_1[j],shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
+        omega_overall_R1[j],omega_profile_R1[j],omega_end_R1[j]= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1,NrowR1,bladesR1,mdot,p_t1r[j],p_1[j],shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
         p_t2r[j] = p_t1r[j] - omega_overall_R1[j] * (p_t1r[j] - p_1[j])
         
         
@@ -383,11 +407,35 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("V_a2m = " + str(V_a2m))
     print("err = "+ str(err))
     iter += 1
-    print("overall loss coefficient=",omega_overall_R1)
-    print("profile losses=",omega_profile_R1)
-    print("tip leakage losses=",omega_tip_R1)
-    print("end wall losses=",omega_end_R1)
     
+delta_c=0.001 #clearance [m]
+r_1=Rm+b_1/2-delta_c # [m]
+r_2=Rm+b_1/2-delta_c
+r_in=rtip # [m]
+r_out=r_in
+if shrouded_R1==0:
+        rho_medR1=(rho_1[pts-1]+rho_2[pts-1])*0.5
+        Vt_1=V_a1[pts-1]*tan(alpha_1[pts-1])
+        Vt_2=V_a2[pts-1]*tan(alpha_2[pts-1])
+        tau_R1=np.pi*delta_c*(rho_1[pts-1]*r_1*V_a1[pts-1]+rho_2[pts-1]*r_2*V_a2[pts-1])*(r_2*Vt_2-r_1*Vt_1) #in reference book C_theta and C_m are the absolute t tangential and meridional comp
+        deltaPR1=abs(tau_R1/(bladesR1*rtip*delta_c*chordR1*cos(staggerR1))) #blades is the blade number
+        U_c_R1=0.816*sqrt(2*deltaPR1/rho_medR1)/NrowR1**(0.2)
+        mdot_cR1=rho_medR1*U_c_R1*bladesR1*delta_c*chordR1*cos(staggerR1)
+        deltaP_tR1=abs(deltaPR1*mdot_cR1/mdot)
+        #omega_tip_S1=deltaP_tS1/(p_t2[pts-1]-p_2[pts-1]);
+else: 
+        print("no tip leakage losses")
+
+
+deltaPt_distr_R1=np.linspace(0,b_1,pts)*2*deltaP_tR1/((b_1)**2)
+omega_tip_R1=deltaPt_distr_R1/(p_t1r-p_1)
+print("deltaP_tR1,",deltaP_tR1)
+print("deltaPR1,",deltaPR1)
+print("deltap_dist_R1",deltaPt_distr_R1)
+print("omega_tip_R1",omega_tip_R1)
+
+#add tip leakage contribution
+p_t2r=p_t2r-deltaPt_distr_R1
     
 
 print("")
@@ -454,7 +502,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     dV_a3 = list(np.zeros(pts))
     omega_overall_S1=np.zeros(pts)
     omega_profile_S1=np.zeros(pts)
-    omega_tip_S1=np.zeros(pts)
+    #omega_tip_S1=np.zeros(pts)
     omega_end_S1=np.zeros(pts)
     
     # N.I.S.R.E at stator outlet (3)
@@ -501,7 +549,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         shrouded_S1=0
         statorS1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
         
-        omega_overall_S1[j],omega_profile_S1[j],omega_tip_S1[j],omega_end_S1[j]= losses(rr[j],chordS1,R_m,b_1,V_a3[j],V_a2[j],beta_2[j],beta_3[j],alpha_2[j],alpha_3[j],V_2[j],V_3[j],W_a2[j],W_a3[j],W_2[j],W_3[j],rho_2[j],rho_3[j],staggerS1,NrowS1,bladesS1,mdot,p_t2[j],p_2[j],shrouded_S1,statorS1) # Coefficient of loss # Coefficient of loss
+        omega_overall_S1[j],omega_profile_S1[j],omega_end_S1[j]= losses(rr[j],chordS1,R_m,b_2,V_a3[j],V_a2[j],beta_2[j],beta_3[j],alpha_2[j],alpha_3[j],V_2[j],V_3[j],W_a2[j],W_a3[j],W_2[j],W_3[j],rho_2[j],rho_3[j],staggerS1,NrowS1,bladesS1,mdot,p_t2[j],p_2[j],shrouded_S1,statorS1) # Coefficient of loss # Coefficient of loss
     
         p_t3[j] = p_t2[j] - omega_overall_S1[j] * (p_t2[j] - p_2[j])
 
@@ -530,8 +578,16 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     
     
 
+#write the linear distribution of deltaP that integrated gives the value of deltaP
 
+deltaPt_distr_S1=np.linspace(0,b_2,pts)*2*deltaP_tS1/((b_2)**2)
+omega_tip_S1=deltaPt_distr_S1/(p_t2-p_2)
+print("deltaP_tS1,",deltaP_tS1)
+print("deltap_dist",deltaPt_distr_S1)
+print("omega_tip_S1",omega_tip_S1)
 
+#add tip leakage contribution
+p_t3=p_t3-deltaPt_distr_S1
 
 
 
@@ -600,7 +656,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     dV_a4 = list(np.zeros(pts))
     omega_overall_R2=np.zeros(pts)
     omega_profile_R2=np.zeros(pts)
-    omega_tip_R2=np.zeros(pts)
+    #omega_tip_R2=np.zeros(pts)
     omega_end_R2=np.zeros(pts)
 
     # N.I.S.R.E. 4 numerical integration 
@@ -647,7 +703,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         shrouded_R2=0
         b_R2=0.3
         statorR2=0 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_R2[j],omega_profile_R2[j],omega_tip_R2[j],omega_end_R2[j]= losses(rr2[j],chordR2,R_m,b_2,V_a4[j],V_a3[j],beta_3[j],beta_4[j],alpha_3[j],alpha_4[j],V_3[j],V_4[j],W_a3[j],W_a4[j],W_3[j],W_4[j],rho_3[j],rho_4[j],staggerR2,NrowR2,bladesR2,mdot,p_t3r[j],p_3[j],shrouded_R2,statorR2) # Coefficient of loss 
+        omega_overall_R2[j],omega_profile_R2[j],omega_end_R2[j]= losses(rr2[j],chordR2,R_m,b_2,V_a4[j],V_a3[j],beta_3[j],beta_4[j],alpha_3[j],alpha_4[j],V_3[j],V_4[j],W_a3[j],W_a4[j],W_3[j],W_4[j],rho_3[j],rho_4[j],staggerR2,NrowR2,bladesR2,mdot,p_t3r[j],p_3[j],shrouded_R2,statorR2) # Coefficient of loss 
         p_t4r[j] = p_t3r[j] - omega_overall_R2[j] * (p_t3r[j] - p_3[j])
 
         # ENTROPY EVALUATION
@@ -670,6 +726,38 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 print("")
 T_4is = (p_4/p_3)**((gamma-1)/gamma) * T_3
 print("Rotor 2 Efficiency = ",(np.average(T_4is)-np.average(T_3))/(np.average(T_4)-np.average(T_3)))
+
+
+
+
+delta_c=0.001 #clearance [m]
+r_3=Rm+b_2/2-delta_c # [m]
+r_4=Rm+b_2/2-delta_c
+r_in=rtip # [m]
+r_out=r_in
+if shrouded_R2==0:
+        rho_medR2=(rho_3[pts-1]+rho_4[pts-1])*0.5
+        Vt_3=V_a3[pts-1]*tan(alpha_3[pts-1])
+        Vt_4=V_a4[pts-1]*tan(alpha_4[pts-1])
+        tau_R2=np.pi*delta_c*(rho_3[pts-1]*r_3*V_a3[pts-1]+rho_4[pts-1]*r_4*V_a4[pts-1])*(r_4*Vt_4-r_3*Vt_3) #in reference book C_theta and C_m are the absolute t tangential and meridional comp
+        deltaPR2=abs(tau_R2/(bladesR2*rtip*delta_c*chordR2*cos(staggerR2))) #blades is the blade number
+        U_c_R2=0.816*sqrt(2*deltaPR2/rho_medR2)/NrowR2**(0.2)
+        mdot_cR2=rho_medR2*U_c_R2*bladesR2*delta_c*chordR2*cos(staggerR2)
+        deltaP_tR2=abs(deltaPR2*mdot_cR2/mdot)
+        #omega_tip_S1=deltaP_tS1/(p_t2[pts-1]-p_2[pts-1]);
+else: 
+        print("no tip leakage losses")
+
+
+deltaPt_distr_R2=np.linspace(0,b_1,pts)*2*deltaP_tR2/((b_1)**2)
+omega_tip_R2=deltaPt_distr_R2/(p_t3r-p_3)
+print("deltaP_tR1,",deltaP_tR2)
+print("deltaPR1,",deltaPR2)
+print("deltap_dist_R1",deltaPt_distr_R2)
+print("omega_tip_R1",omega_tip_R2)
+
+#add tip leakage contribution
+p_t4r=p_t4r-deltaPt_distr_R2
 
 
 
@@ -713,7 +801,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     dV_a5 = list(np.zeros(pts))
     omega_overall_S2=np.zeros(pts)
     omega_profile_S2=np.zeros(pts)
-    omega_tip_S2=np.zeros(pts)
+    #omega_tip_S2=np.zeros(pts)
     omega_end_S2=np.zeros(pts)
     # N.I.S.R.E at stator outlet (5)
     for j in list(range(0,mean_index)):
@@ -777,6 +865,27 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("V_a5m = "+ str(V_a5m) + " [m/s]")
     print("err = "+ str(err))
     iter += 1
+
+delta_c=0.001 #clearance [m]
+r_4=Rm+b_2/2-delta_c # [m]
+r_5=Rm+b_1/2-delta_c
+r_in=rtip # [m]
+r_out=r_in
+if shrouded_S2==0:
+        rho_medS2=(rho_4[pts-1]+rho_5[pts-1])*0.5
+        Vt_2=V_a4[pts-1]*tan(alpha_4[pts-1])
+        Vt_5=V_a5[pts-1]*tan(alpha_5[pts-1])
+        tau_S2=np.pi*delta_c*(rho_4[pts-1]*r_4*V_a4[pts-1]+rho_5[pts-1]*r_5*V_a5[pts-1])*(r_5*Vt_5-r_4*Vt_4) #in reference book C_theta and C_m are the absolute t tangential and meridional comp
+        deltaPS2=abs(tau_S2/(bladesS2*rtip*delta_c*chordS2*cos(staggerS2))) #blades is the blade number
+        U_c_S2=0.816*sqrt(2*deltaPS2/rho_medS2)/NrowS2**(0.2)
+        mdot_cS2=rho_medS2*U_c_S2*bladesS2*delta_c*chordS2*cos(staggerS2)
+        deltaP_tS2=abs(deltaPS2*mdot_cS2/mdot)
+        #omega_tip_S1=deltaP_tS1/(p_t2[pts-1]-p_2[pts-1]);
+else: 
+        print("no tip leakage losses")
+
+
+
 
 
 print("")
@@ -981,7 +1090,7 @@ print("--------------- OFF-DESIGN ---------------")
 mdot_off = 90
 #first srage
 #Tt1 and Pt1 are from the file turboproject.py (MLD)
-Leul1_off, beta1_off= off_design(R_m,mdot_off,beta2,rho2,Um,alpha1,rho1,gamma,efficiency_TT,cp,Tt1,b1,b1,Pt1, bladesR1, percent_th1*100,chord1, theta1[1])
+Leul1_off, beta1_off= off_design(R_m,mdot_off,beta2,rho2,Um,alpha1,rho1,gamma,efficiency_TT,cp,Tt1,b1,b2,Pt1, bladesR1, percent_th1*100,chord1, theta1[1])
 #Leul1_off, beta1_off= off_design(R_m,mdot_off,beta_2[mean_index],rho2[mean_index],U[mean_index],alpha_1[mean_index],rho1_[mean_index],gamma,efficiency_TT,cp,T_t1[mean_index],b1)
 
 Leul2_off, beta2_off = off_design(R_m,mdot_off,beta4,rho4,Um,alpha3,rho3,gamma,efficiency_TT,cp,Tt3,b2,b2,Pt3, bladesR2, percent_th3*100,chord3, theta3[1])
