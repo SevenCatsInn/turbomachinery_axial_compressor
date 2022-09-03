@@ -612,10 +612,9 @@ T_3is = (p_3/p_2)**((gamma-1)/gamma) * T_2
 print("Stator 1 Efficiency = ", (np.average(T_3is)-np.average(T_2))/(np.average(T_3)-np.average(T_2)))
 
 
-deltah_is_stage1 = c_p * ( np.average((p_3/p_2)**((gamma-1)/gamma) * T_2is) - np.average(T_1) )
+deltah_is_stage1 = c_p * ( np.average((p_3/p_1)**((gamma-1)/gamma)) * np.average(T_1) - np.average(T_1))
 
 print("Stage 1 Total Efficiency = " , (deltah_is_stage1 + np.average(V_3**2)/2 - np.average(V_1**2)/2)/np.average(L_eul) )
-
 
 
 
@@ -916,7 +915,7 @@ print("")
 T_5is = (p_5/p_4)**((gamma-1)/gamma) * T_4
 print("Stator 2 Efficiency = ",(np.average(T_5is)-np.average(T_4))/(np.average(T_5)-np.average(T_4)))
 
-deltah_is_stage2 = c_p * ( np.average((p_5/p_4)**((gamma-1)/gamma) * T_4is) - np.average(T_3) )
+deltah_is_stage2 = c_p * ( np.average((p_5/p_3)**((gamma-1)/gamma)) * np.average(T_3) - np.average(T_3) )
 
 print("Stage 2 Total Efficiency = " , (deltah_is_stage2 + np.average(V_5**2)/2 - np.average(V_3**2)/2)/np.average(L_eul) )
 
