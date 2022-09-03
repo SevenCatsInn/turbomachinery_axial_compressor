@@ -1151,7 +1151,7 @@ print("")
 #plots for the losses
 # losses in rotor 1
 plt.figure(figsize=(10,5) ,dpi=80)
-plt.plot(rr,omega_overall_R1,"b")
+plt.plot(rr,omega_overall_R1+omega_tip_R1,"b")
 plt.plot(rr,omega_profile_R1,"g")
 plt.plot(rr,omega_tip_R1,"r")
 plt.plot(rr,omega_end_R1,"c")
@@ -1163,7 +1163,7 @@ plt.grid(alpha=0.2)
 
 #losses in stator 1
 plt.figure(figsize=(10,5) ,dpi=80)
-plt.plot(rr,omega_overall_S1,"b")
+plt.plot(rr,omega_overall_S1+omega_tip_S1,"b")
 plt.plot(rr,omega_profile_S1,"g")
 plt.plot(rr,omega_tip_S1,"r")
 plt.plot(rr,omega_end_S1,"c")
@@ -1174,7 +1174,7 @@ plt.title("Loss coefficients in Stator 1")
 plt.grid(alpha=0.2)
 
 plt.figure(figsize=(10,5) ,dpi=80)
-plt.plot(rr2,omega_overall_R2,"b")
+plt.plot(rr2,omega_overall_R2+omega_tip_R2,"b")
 plt.plot(rr2,omega_profile_R2,"g")
 plt.plot(rr2,omega_tip_R2,"r")
 plt.plot(rr2,omega_end_R2,"c")
@@ -1186,7 +1186,7 @@ plt.grid(alpha=0.2)
 
 #losses in stator 1
 plt.figure(figsize=(10,5) ,dpi=80)
-plt.plot(rr2,omega_overall_S2,"b")
+plt.plot(rr2,omega_overall_S2+omega_tip_S2,"b")
 plt.plot(rr2,omega_profile_S2,"g")
 plt.plot(rr2,omega_tip_S2,"r")
 plt.plot(rr2,omega_end_S2,"c")
