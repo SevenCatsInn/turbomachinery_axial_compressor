@@ -346,7 +346,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         
         
     # Initiate all the lists
-    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul = (np.zeros(pts) for t in range(15))
+    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul1 = (np.zeros(pts) for t in range(15))
 
     Beta = np.zeros(pts)
     for j in list(range(pts)): # Compute quantities along the radius
@@ -368,8 +368,8 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         
         Beta[j]=(T_t2[j]/T_t1[j])**(gamma/(gamma-1))
 
-        L_eul[j] = U[j] * (V_t2[j] - V_t1[j])
-        chi[j] = (W_1[j]**2 - W_2[j]**2) / (2 * L_eul[j])
+        L_eul1[j] = U[j] * (V_t2[j] - V_t1[j])
+        chi[j] = (W_1[j]**2 - W_2[j]**2) / (2 * L_eul1[j])
 
         integrand_2[j] = 2 * np.pi * rr[j] * rho_2[j] * V_a2[j] 
 
@@ -614,7 +614,7 @@ print("Stator 1 Efficiency = ", (np.average(T_3is)-np.average(T_2))/(np.average(
 
 deltah_is_stage1 = c_p * ( np.average((p_3/p_1)**((gamma-1)/gamma)) * np.average(T_1) - np.average(T_1))
 
-print("Stage 1 Total Efficiency = " , (deltah_is_stage1 + np.average(V_3**2)/2 - np.average(V_1**2)/2)/np.average(L_eul) )
+print("Stage 1 Total Efficiency = " , (deltah_is_stage1 + np.average(V_3**2)/2 - np.average(V_1**2)/2)/np.average(L_eul1) )
 
 
 
@@ -681,7 +681,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
             V_a4[q + k*1] = V_a4[q] + dV_a4[q] * k * deltaR2 
 
     # Initiate all the lists
-    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi_2, L_eul = (np.zeros(pts) for t in range(15))
+    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi_2, L_eul2 = (np.zeros(pts) for t in range(15))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
@@ -701,8 +701,8 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         p_t4[j] = p_4[j]*(1 + (gamma-1) / 2 * M_4[j]**2 ) ** (gamma/(gamma-1))
 
 
-        L_eul[j] = U2[j] * (V_t4[j] - V_t3[j])
-        chi_2[j] = (W_3[j]**2 - W_4[j]**2) / (2 * L_eul[j])
+        L_eul2[j] = U2[j] * (V_t4[j] - V_t3[j])
+        chi_2[j] = (W_3[j]**2 - W_4[j]**2) / (2 * L_eul2[j])
 
         integrand_4[j] = 2 * np.pi * rr2[j] * rho_4[j] * V_a4[j] 
                 
@@ -917,7 +917,8 @@ print("Stator 2 Efficiency = ",(np.average(T_5is)-np.average(T_4))/(np.average(T
 
 deltah_is_stage2 = c_p * ( np.average((p_5/p_3)**((gamma-1)/gamma)) * np.average(T_3) - np.average(T_3) )
 
-print("Stage 2 Total Efficiency = " , (deltah_is_stage2 + np.average(V_5**2)/2 - np.average(V_3**2)/2)/np.average(L_eul) )
+print("Stage 2 Total Efficiency = " , (deltah_is_stage2 + np.average(V_5**2)/2 - np.average(V_3**2)/2)/np.average(L_eul2) )
+
 
 
 
@@ -1142,7 +1143,6 @@ print("beta_off_overall=",beta_off_overall)
 
 
 
-
 print("")
 
 
@@ -1150,26 +1150,26 @@ print("")
 
 #plots for the losses
 # losses in rotor 1
-plt.figure(figsize=(10,5) ,dpi=80)
+plt.figure(figsize=(10,5) ,dpi=140)
 plt.plot(rr,omega_overall_R1+omega_tip_R1,"b")
 plt.plot(rr,omega_profile_R1,"g")
 plt.plot(rr,omega_tip_R1,"r")
 plt.plot(rr,omega_end_R1,"c")
 plt.ylabel(r"$\omega \ [-]$")
 plt.xlabel(r"$r \  [m]$")
-plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+plt.legend(["Overall","Profile","Tip leakage", "End wall"])
 plt.title(r"Loss coefficients in Rotor 1")
 plt.grid(alpha=0.2)
 
 #losses in stator 1
-plt.figure(figsize=(10,5) ,dpi=80)
+plt.figure(figsize=(10,5) ,dpi=140)
 plt.plot(rr,omega_overall_S1+omega_tip_S1,"b")
 plt.plot(rr,omega_profile_S1,"g")
 plt.plot(rr,omega_tip_S1,"r")
 plt.plot(rr,omega_end_S1,"c")
 plt.ylabel(r"$\omega \ [-]$")
 plt.xlabel(r"$r \  [m]$")
-plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+plt.legend(["Overall","Profile","Tip leakage", "End wall"])
 plt.title("Loss coefficients in Stator 1")
 plt.grid(alpha=0.2)
 
@@ -1180,7 +1180,7 @@ plt.plot(rr2,omega_tip_R2,"r")
 plt.plot(rr2,omega_end_R2,"c")
 plt.ylabel(r"$\omega \ [-]$")
 plt.xlabel(r"$r \  [m]$")
-plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+plt.legend(["Overall ","Profile ","Tip leakage ", "End wall "])
 plt.title(r"Loss coefficients in Rotor 2")
 plt.grid(alpha=0.2)
 
@@ -1192,7 +1192,7 @@ plt.plot(rr2,omega_tip_S2,"r")
 plt.plot(rr2,omega_end_S2,"c")
 plt.ylabel(r"$\omega \ [-]$")
 plt.xlabel(r"$r \  [m]$")
-plt.legend(["Overall loss coeff.","Profile loss coeff.","Tip leakage loss coeff.", "End wall loss coeff."])
+plt.legend(["Overall ","Profile ","Tip leakage ", "End wall "])
 plt.title("Loss coefficients in Stator 2")
 plt.grid(alpha=0.2)
 
@@ -1219,17 +1219,18 @@ plt.grid(alpha=0.2)
 # plt.title("Axial Absolute Velocity")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,V_t1,"b")
-# plt.plot(rr,V_t2,"g")
-# plt.plot(rr2,V_t3,"r")
-# plt.plot(rr2,V_t4,"c")
-# plt.plot(rr2,V_t5,"m")
-# plt.ylabel(r"$V_t$ $[m/s]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Tangential Absolute Velocity")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=110)
+plt.plot(rr,V_t0,"k")
+plt.plot(rr,V_t1,"b")
+plt.plot(rr,V_t2,"g")
+plt.plot(rr2,V_t3,"r")
+plt.plot(rr2,V_t4,"c")
+plt.plot(rr2,V_t5,"m")
+plt.ylabel(r"$V_t$ $[m/s]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Deflector In", "Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Tangential Absolute Velocity")
+plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,p_0,"k")
@@ -1244,17 +1245,17 @@ plt.grid(alpha=0.2)
 # plt.title("Static Pressure")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,p_t1,"b")
-# plt.plot(rr,p_t2,"g")
-# plt.plot(rr2,p_t3,"r")
-# plt.plot(rr2,p_t4,"c")
-# plt.plot(rr2,p_t5,"m")
-# plt.ylabel(r"$p_t$ $[Pa]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Total Pressure")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=110)
+plt.plot(rr,p_t1,"b")
+plt.plot(rr,p_t2,"g")
+plt.plot(rr2,p_t3,"r")
+plt.plot(rr2,p_t4,"c")
+plt.plot(rr2,p_t5,"m")
+plt.ylabel(r"$p_t$ $[Pa]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Total Pressure")
+plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,h_t1,"b")
@@ -1280,43 +1281,43 @@ plt.grid(alpha=0.2)
 # plt.title("Static Temperature")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,rho_1,"b")
-# plt.plot(rr,rho_2,"g")
-# plt.plot(rr2,rho_3,"r")
-# plt.plot(rr2,rho_4,"c")
-# plt.plot(rr2,rho_5,"m")
-# plt.ylabel(r"$\rho$ $[kg/m^3]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Density")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=110)
+plt.plot(rr,rho_1,"b")
+plt.plot(rr,rho_2,"g")
+plt.plot(rr2,rho_3,"r")
+plt.plot(rr2,rho_4,"c")
+plt.plot(rr2,rho_5,"m")
+plt.ylabel(r"$\rho$ $[kg/m^3]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Density")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,s_0,"k")
-# plt.plot(rr,s_1,"b")
-# plt.plot(rr,s_2,"g")
-# plt.plot(rr2,s_3,"r")
-# plt.plot(rr2,s_4,"c")
-# plt.plot(rr2,s_5,"m")
-# plt.ylabel(r"$s$ $[J/K]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Entropy")
-# plt.grid(alpha=0.2)
-
-plt.figure(figsize=(6, 5), dpi=80)
-plt.plot(rr,180/np.pi * np.array(alpha_0),"k")
-plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
-plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
-plt.plot(rr2,180/np.pi * np.array(alpha_3),"r")
-plt.plot(rr2,180/np.pi * np.array(alpha_4),"c")
-plt.plot(rr2,180/np.pi * np.array(alpha_5),"m")
-plt.ylabel(r"$\alpha$ [deg]")
+plt.figure(figsize=(6, 5), dpi=110)
+plt.plot(rr,s_0,"k")
+plt.plot(rr,s_1,"b")
+plt.plot(rr,s_2,"g")
+plt.plot(rr2,s_3,"r")
+plt.plot(rr2,s_4,"c")
+plt.plot(rr2,s_5,"m")
+plt.ylabel(r"$s$ $[J/K]$")
 plt.xlabel(r"$r \  [m]$")
 plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-plt.title("Absolute Flow Angle")
+plt.title("Entropy")
 plt.grid(alpha=0.2)
+
+# plt.figure(figsize=(6, 5), dpi=110)
+# plt.plot(rr,180/np.pi * np.array(alpha_0),"k")
+# plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
+# plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
+# plt.plot(rr2,180/np.pi * np.array(alpha_3),"r")
+# plt.plot(rr2,180/np.pi * np.array(alpha_4),"c")
+# plt.plot(rr2,180/np.pi * np.array(alpha_5),"m")
+# plt.ylabel(r"$\alpha$ [deg]")
+# plt.xlabel(r"$r \  [m]$")
+# plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+# plt.title("Absolute Flow Angle")
+# plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,180/np.pi * np.array(beta_1),"b")
@@ -1331,7 +1332,7 @@ plt.grid(alpha=0.2)
 # plt.grid(alpha=0.2)
  
  
-plt.figure(figsize=(6, 5), dpi=80)
+plt.figure(figsize=(6, 5), dpi=110)
 plt.plot(rr,chi)
 plt.plot(rr2,chi_2)
 plt.ylabel(r"$\chi$")
@@ -1354,15 +1355,100 @@ print("Average Exit Total Pressure S2 = " , np.average(p_t5))
 
 
 
-plt.show()
 
 
 
 
 
 
-# VELOCITY TRIANGLES ACROSS ROTOR 1
-fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=70) # Create figure
+
+# # VELOCITY TRIANGLES ACROSS ROTOR 1
+# fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=100) # Create figure
+
+
+# j = 0 # Index used to move through the subplots
+# for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
+    
+#     # Find the index of the radius we are considering
+#     index = np.where(np.isclose(rr, i))
+#     index = (index[0])[0]
+    
+#     #Evaluate q.ties at that radius
+#     U_P   = U[index]
+#     V_a1P = V_a1[index]
+#     V_t1P = V_t1[index]
+#     W_a1P = W_a1[index]
+#     W_t1P = W_t1[index]
+#     V_a2P = V_a2[index]
+#     V_t2P = V_t2[index]
+#     W_a2P = W_a2[index]
+#     W_t2P = W_t2[index]
+
+#     # axs[j].grid(alpha=0.2) #Add grid
+    
+#     #Plot inlet and outlet triangles
+#     axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","purple","violet"])
+#     axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.0,  color=["black","green","limegreen"])
+    
+#     axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
+#     axs.flat[j].set_ylim(-5,  20 + max(V_a2[0],V_a1[-1]) )  #Set the limits for the y axis
+    
+#     axs[j].set_aspect('equal') #Equal aspect ratio axes
+#     axs[j].set_ylabel(r"Axial Component $[m/s]$")
+#     axs[j].set_xlabel(r"Tangential Component $[m/s]$")
+#     axs[j].set_title(name)
+
+#     j = j+1
+
+
+
+
+# # VELOCITY TRIANGLES ACROSS STATOR 1
+
+# fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=100) # Create figure
+
+# j = 0 # Index used to move through the subplots
+# for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
+
+#     # Find the index of the radius we are considering
+#     index = np.where(np.isclose(rr, i))
+#     index = (index[0])[0]
+
+#     #Evaluate q.ties at that radius
+#     U_P   = U[index]
+#     V_a2P = V_a2[index]
+#     V_t2P = V_t2[index]
+#     V_a3P = V_a3[index]
+#     V_t3P = V_t3[index]
+
+#     # axs[j].grid(alpha=0.2) #Add grid
+    
+#     #Plot inlet and outlet triangles
+#     axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","green"])
+#     axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.0,  color=["black","red"])
+    
+    
+#     axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
+#     axs.flat[j].set_ylim(-5, 20 + max(float(V_a2[0]), float(V_a2[-1])))  #Set the limits for the y axis
+    
+#     axs[j].set_aspect('equal') #Equal aspect ratio axes
+#     axs[j].set_ylabel(r"Axial Component $[m/s]$")
+#     axs[j].set_xlabel(r"Tangential Component $[m/s]$")
+#     axs[j].set_title(name)
+
+#     j = j+1
+
+
+
+
+#plt.show()
+
+
+
+
+# VELOCITY TRIANGLES ACROSS ROTOR 2
+
+fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=100) # Create figure
 
 
 j = 0 # Index used to move through the subplots
@@ -1374,22 +1460,22 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
     
     #Evaluate q.ties at that radius
     U_P   = U[index]
-    V_a1P = V_a1[index]
-    V_t1P = V_t1[index]
-    W_a1P = W_a1[index]
-    W_t1P = W_t1[index]
-    V_a2P = V_a2[index]
-    V_t2P = V_t2[index]
-    W_a2P = W_a2[index]
-    W_t2P = W_t2[index]
+    V_a1P = V_a3[index]
+    V_t1P = V_t3[index]
+    W_a1P = W_a3[index]
+    W_t1P = W_t3[index]
+    V_a2P = V_a4[index]
+    V_t2P = V_t4[index]
+    W_a2P = W_a4[index]
+    W_t2P = W_t4[index]
 
     # axs[j].grid(alpha=0.2) #Add grid
     
     #Plot inlet and outlet triangles
-    axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
-    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.0,  color=["black","green","green"])
+    axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","purple","violet"])
+    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.0,  color=["black","green","limegreen"])
     
-    axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
+    axs.flat[j].set_xlim(-70, 20 + U[-1]) #Set the limits for the x axis
     axs.flat[j].set_ylim(-5,  20 + max(V_a2[0],V_a1[-1]) )  #Set the limits for the y axis
     
     axs[j].set_aspect('equal') #Equal aspect ratio axes
@@ -1402,9 +1488,14 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
 
 
 
-# VELOCITY TRIANGLES ACROSS STATOR 1
 
-fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=70) # Create figure
+
+
+
+
+# VELOCITY TRIANGLES ACROSS STATOR 2
+
+fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=100) # Create figure
 
 j = 0 # Index used to move through the subplots
 for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
@@ -1414,11 +1505,11 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
     index = (index[0])[0]
 
     #Evaluate q.ties at that radius
-    U_P   = U[index]
-    V_a2P = V_a2[index]
-    V_t2P = V_t2[index]
-    V_a3P = V_a3[index]
-    V_t3P = V_t3[index]
+    U_P   = U2[index]
+    V_a2P = V_a4[index]
+    V_t2P = V_t4[index]
+    V_a3P = V_a5[index]
+    V_t3P = V_t5[index]
 
     # axs[j].grid(alpha=0.2) #Add grid
     
@@ -1439,25 +1530,4 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
 
 
 
-
-
-
-
-
-
-# VELOCITY TRIANGLES ACROSS ROTOR 2
-
-
-
-
-
-
-
-
-
-
-
-# VELOCITY TRIANGLES ACROSS STATOR 2
-
-
-# plt.show()
+plt.show()
