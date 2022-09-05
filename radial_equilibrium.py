@@ -1219,7 +1219,7 @@ plt.grid(alpha=0.2)
 # plt.title("Axial Absolute Velocity")
 # plt.grid(alpha=0.2)
 
-plt.figure(figsize=(6, 5), dpi=110)
+plt.figure(figsize=(6, 5), dpi=90)
 plt.plot(rr,V_t0,"k")
 plt.plot(rr,V_t1,"b")
 plt.plot(rr,V_t2,"g")
@@ -1245,7 +1245,7 @@ plt.grid(alpha=0.2)
 # plt.title("Static Pressure")
 # plt.grid(alpha=0.2)
 
-plt.figure(figsize=(6, 5), dpi=110)
+plt.figure(figsize=(6, 5), dpi=90)
 plt.plot(rr,p_t1,"b")
 plt.plot(rr,p_t2,"g")
 plt.plot(rr2,p_t3,"r")
@@ -1281,7 +1281,7 @@ plt.grid(alpha=0.2)
 # plt.title("Static Temperature")
 # plt.grid(alpha=0.2)
 
-plt.figure(figsize=(6, 5), dpi=110)
+plt.figure(figsize=(6, 5), dpi=90)
 plt.plot(rr,rho_1,"b")
 plt.plot(rr,rho_2,"g")
 plt.plot(rr2,rho_3,"r")
@@ -1293,7 +1293,7 @@ plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
 plt.title("Density")
 plt.grid(alpha=0.2)
 
-plt.figure(figsize=(6, 5), dpi=110)
+plt.figure(figsize=(6, 5), dpi=90)
 plt.plot(rr,s_0,"k")
 plt.plot(rr,s_1,"b")
 plt.plot(rr,s_2,"g")
@@ -1306,7 +1306,7 @@ plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "S
 plt.title("Entropy")
 plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=110)
+# plt.figure(figsize=(6, 5), dpi=90)
 # plt.plot(rr,180/np.pi * np.array(alpha_0),"k")
 # plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
 # plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
@@ -1332,7 +1332,7 @@ plt.grid(alpha=0.2)
 # plt.grid(alpha=0.2)
  
  
-plt.figure(figsize=(6, 5), dpi=110)
+plt.figure(figsize=(6, 5), dpi=90)
 plt.plot(rr,chi)
 plt.plot(rr2,chi_2)
 plt.ylabel(r"$\chi$")
@@ -1363,7 +1363,7 @@ print("Average Exit Total Pressure S2 = " , np.average(p_t5))
 
 
 # # VELOCITY TRIANGLES ACROSS ROTOR 1
-# fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=100) # Create figure
+# fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=90) # Create figure
 
 
 # j = 0 # Index used to move through the subplots
@@ -1405,7 +1405,7 @@ print("Average Exit Total Pressure S2 = " , np.average(p_t5))
 
 # # VELOCITY TRIANGLES ACROSS STATOR 1
 
-# fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=100) # Create figure
+# fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=90) # Create figure
 
 # j = 0 # Index used to move through the subplots
 # for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
@@ -1448,7 +1448,7 @@ print("Average Exit Total Pressure S2 = " , np.average(p_t5))
 
 # VELOCITY TRIANGLES ACROSS ROTOR 2
 
-fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=100) # Create figure
+fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=90) # Create figure
 
 
 j = 0 # Index used to move through the subplots
@@ -1495,7 +1495,7 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
 
 # VELOCITY TRIANGLES ACROSS STATOR 2
 
-fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=100) # Create figure
+fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=90) # Create figure
 
 j = 0 # Index used to move through the subplots
 for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):

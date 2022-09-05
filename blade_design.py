@@ -205,7 +205,7 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
     Alpha0 = np.array([alpha_0[0],alpha_0[mean_index],alpha_0[-1]]) * 180/np.pi
 
 
-    plt.figure(dpi = 100)
+    plt.figure(dpi = 80)
     
     Geom = []
     Prof_names = []
@@ -231,7 +231,7 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
         plt.axis('square')
         plt.grid(alpha=0.2)
         # plt.title(profile_name)
-        #plt.legend(["Hub","","Mean","","","Tip"])
+        plt.legend(["Hub","","Mean","","","Tip"])
         plt.ylim(-0.048,0.048)
     
 
