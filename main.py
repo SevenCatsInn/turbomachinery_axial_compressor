@@ -1,6 +1,6 @@
 ### Radial equilibrium script ###
 
-exec(open("./turboproject.py").read()) # Run mean line design
+exec(open("./MLD_1.py").read()) # Run mean line design
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -451,7 +451,7 @@ print("Rotor 1 Efficiency = " ,(np.average(T_2is)-np.average(T_1))/(np.average(T
 
 
 
-exec(open("./turboproject_S2.py").read()) # Mean line design for 2nd stage
+exec(open("./MLD_2.py").read()) # Mean line design for 2nd stage
 
 
 
@@ -1113,7 +1113,7 @@ print("--------------- OFF-DESIGN ---------------")
 
 mdot_off = 90
 #first srage
-#Tt1 and Pt1 are from the file turboproject.py (MLD)
+#Tt1 and Pt1 are from the file MLD_1.py (MLD)
 Leul1_off, beta1_off= off_design(R_m,mdot_off,beta2,rho2,Um,alpha1,rho1,gamma,efficiency_TT,cp,Tt1,b1,b2,Pt1, bladesR1, percent_th1/100,chord1, theta1[1])
 #Leul1_off, beta1_off= off_design(R_m,mdot_off,beta_2[mean_index],rho2[mean_index],U[mean_index],alpha_1[mean_index],rho1_[mean_index],gamma,efficiency_TT,cp,T_t1[mean_index],b1)
 
