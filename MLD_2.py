@@ -16,7 +16,7 @@ R = c_p * (gamma-1)/gamma # Gas constant [J/(kg K)]
 mdot=100 #mass flow rate
 Pt3=p_t3 # pressure [bar]
 Tt3=T_t3 #inlet temperature [K]
-beta=1.45/beta #compression ratio
+beta=1.457/beta #compression ratio
 
 
 
@@ -96,15 +96,13 @@ chi2=(W3_mag**2-W4_mag_new**2)/(2*L_eul)
 # Mean line design for the stator
 
 alpha4 = arctan(V4t/V4a)
-alpha5 = 20 * pi/180# Design choice
+alpha5 = 30 * pi/180# Design choice
 
 print("")
 print("Relative deflection in rotor")
 print(cos(beta3) / cos(beta4), "> 0.72 ?") 
 
-# Mean line design for the stator
-alpha2 = arctan(V2t/V2a)
-alpha3 = 30 * pi/180 # Design choice
+
 
 print("")
 print("Absolute deflection in stator")
@@ -125,6 +123,7 @@ while abs(err)>tol:
     p5=(T5is/Tt4)**(gamma/(gamma-1))*Pt4
     rho5=p5/(R*T5)
     V5a_new=mdot/(rho5*2*pi*b2*Rm)
+    V5t = V5a * tan(alpha5)
     err=abs(V5a_new-V5a)
     V5a=V5a_new
     iter=iter+1
@@ -151,7 +150,7 @@ print("\u03C7, \u03A6, \u03A8 = ", chi2, phi, psi)
 # a * R_m + b / R_m = V_t2m
 
 
-n = 0.4
+n = 0.3
 matA2 = np.array([[R_m**n, -1 / R_m], 
                   [R_m**n,  1 / R_m]])
 

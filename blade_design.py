@@ -205,14 +205,14 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
     Alpha0 = np.array([alpha_0[0],alpha_0[mean_index],alpha_0[-1]]) * 180/np.pi
 
 
-    plt.figure()
+    plt.figure(dpi = 80)
     
     Geom = []
     Prof_names = []
     
     print("")
     print("Stagger Angle Root/Mean/Tip")
-    for theta, beta, inc, color in zip(theta0, Alpha0, inc0, ['c','b','y']):
+    for theta, beta, inc, color in zip(theta0, Alpha0, inc0, ['cornflowerblue','forestgreen','orangered']):
         
         stagger =  beta - inc - theta/2
 
@@ -225,14 +225,14 @@ def printPlot_blade (alpha_0,alpha_1, deltaAlpha0, inc0, theta0, percent_th0, ch
         Prof_names.append(profile_name)
         
         # plt.plot(Xc,Yc,'-.',color='r', linewidth=1)
-        plt.plot(Ux,Uy, color)
-        plt.plot(Lx,Ly, color)
+        plt.plot(Ux,Uy, color = color)
+        plt.plot(Lx,Ly, color = color)
 
         plt.axis('square')
         plt.grid(alpha=0.2)
         # plt.title(profile_name)
-    plt.legend(["Hub","","Mean","","","Tip"])
-
+        plt.legend(["Hub","","Mean","","","Tip"])
+        plt.ylim(-0.048,0.048)
     
 
     return Geom, Prof_names

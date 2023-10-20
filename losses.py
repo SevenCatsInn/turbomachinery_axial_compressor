@@ -38,9 +38,9 @@ def   losses(radius,chord,Rm,b,Va_out,Va_in,beta_in,beta_out,alpha_in,alpha_out,
         tau=pi*delta_c*(rho_in*r_in*Va_in+rho_out*r_out*Va_out)*(r_out*Vt_out-r_in*Vt_in) #in reference book C_theta and C_m are the absolute t tangential and meridional comp
         deltaP=abs(tau/(blades*rtip*delta_c*chord*cos(stagger))) #blades is the blade number
         U_c=0.816*sqrt(2*deltaP/rho_med)/Nrow**(0.2)
-        mdot_c=rho_med*U_c*blades*delta_c*chord*cos(stagger)
+        mdot_c=abs(rho_med*U_c*blades*delta_c*chord*cos(stagger))
         deltaP_t=deltaP*mdot_c/mdot
-        omega_tip=deltaP_t/(Pt_in-p_in);
+        omega_tip= deltaP_t/(Pt_in-p_in);
     else: 
         omega_tip=0
 
@@ -62,10 +62,10 @@ def   losses(radius,chord,Rm,b,Va_out,Va_in,beta_in,beta_out,alpha_in,alpha_out,
     else :
      omega_end = 0.0146*chord/b*(cos(alpha_in)/cos(alpha_out))**2
     
-    omega_overall = omega_profile+omega_tip+omega_end
+    omega_overall = omega_profile+omega_end
 
 
-    return omega_overall
+    return omega_overall,omega_profile,omega_end
 
 
 #omega_ew=(Pt1_p1-p2_p1*Pt2_p2)/(Pt1_p1-1)

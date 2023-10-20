@@ -1,6 +1,6 @@
 ### Radial equilibrium script ###
 
-exec(open("./turboproject.py").read()) # Run mean line design
+exec(open("./MLD_1.py").read()) # Run mean line design
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -174,6 +174,11 @@ while abs(err) > tol:
     V_a1 = np.zeros(pts) # Create the list
     V_a1[mean_index] = V_a1m  # Initial value for forward integration starting from mean radius
     dV_a1 = np.zeros(pts)
+    omega_overall_D1=np.zeros(pts)
+    omega_profile_D1=np.zeros(pts)
+    #omega_tip_D1=np.zeros(pts)
+    omega_end_D1=np.zeros(pts)
+    
 
     # N.I.S.R.E. 1 numerical integration
     # --> Start from V_1m at R_m and move forwards and backwards up to R_t and R_h
@@ -212,7 +217,7 @@ while abs(err) > tol:
         chordD1=0.1
         solidityD1=1.0
 
-        tmp_staggerD1 = 25 * np.array([0.4146902837280073, 8.562112644741685, 15.346296015211571]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerD1 = 25 * np.array([0.518695359576454,8.562112644741685,15.236128293232776]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerD1 = compute_C_l(tmp_staggerD1,pts)
         staggerD1 = np.average(tmp2_staggerD1)
 
@@ -221,8 +226,8 @@ while abs(err) > tol:
         shrouded_D1=0
         statorD1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
 
-        omega_overall_D1= losses(rr[j],chordD1,R_m,b_1,V_a1[j],V_a0[j],beta_0[j],beta_1[j],alpha_0[j],alpha_1[j],V_0[j],V_1[j],W_a0[j],W_a1[j],W_0[j],W_1[j],rho_0[j],rho_1[j],staggerD1,NrowD1,bladesD1,mdot,p_t0[j],p_0[j],shrouded_D1,statorD1) # Coefficient of loss
-        p_t1[j] = p_t0[j] - omega_overall_D1 * (p_t0[j] - p_0[j])
+        omega_overall_D1[j],omega_profile_D1[j],omega_end_D1[j]= losses(rr[j],chordD1,R_m,b_1,V_a1[j],V_a0[j],beta_0[j],beta_1[j],alpha_0[j],alpha_1[j],V_0[j],V_1[j],W_a0[j],W_a1[j],W_0[j],W_1[j],rho_0[j],rho_1[j],staggerD1,NrowD1,bladesD1,mdot,p_t0[j],p_0[j],shrouded_D1,statorD1) # Coefficient of loss
+        p_t1[j] = p_t0[j] - omega_overall_D1[j] * (p_t0[j] - p_0[j])
         
         integrand_1[j] = 2 * np.pi * rr[j] * rho_1[j] * V_a1[j] 
 
@@ -245,9 +250,33 @@ while abs(err) > tol:
     print("V_a1m = "+ str(V_a1m) + " [m/s]")
     iter += 1
 
+delta_c=0.001 #clearance [m]
+r_0=Rm+b_1/2-delta_c # [m]
+r_1=Rm+b_1/2-delta_c
+r_in=rtip # [m]
+r_out=r_in
+if shrouded_D1==0:
+        rho_medD1=(rho_0[pts-1]+rho_1[pts-1])*0.5
+        Vt_0=V_a0[pts-1]*tan(alpha_0[pts-1])
+        Vt_1=V_a1[pts-1]*tan(alpha_1[pts-1])
+        tau_D1=np.pi*delta_c*(rho_0[pts-1]*r_0*V_a0[pts-1]+rho_1[pts-1]*r_1*V_a1[pts-1])*(r_1*Vt_1-r_0*Vt_0) #in reference book C_theta and C_m are the absolute t tangential and meridional comp
+        deltaPD1=abs(tau_D1/(bladesD1*rtip*delta_c*chordD1*cos(staggerD1))) #blades is the blade number
+        U_c_D1=0.816*sqrt(2*deltaPD1/rho_medD1)/NrowD1**(0.2)
+        mdot_cD1=rho_medD1*U_c_D1*bladesD1*delta_c*chordD1*cos(staggerD1)
+        deltaP_tD1=abs(deltaPD1*mdot_cD1/mdot)
+        #omega_tip_S1=deltaP_tS1/(p_t2[pts-1]-p_2[pts-1]);
+else: 
+        print("no tip leakage losses")
 
 
+deltaPt_distr_D1=np.linspace(0,b_1,pts)*2*deltaP_tD1/((b_1)**2)
+omega_tip_D1=deltaPt_distr_D1/(p_t0-p_0)
+print("deltaP_tD1,",deltaP_tD1)
+print("deltap_dist_D1",deltaPt_distr_D1)
+print("omega_tip_D1",omega_tip_D1)
 
+#add tip leakage contribution
+p_t1=p_t1-deltaPt_distr_D1
 
 
 
@@ -304,6 +333,10 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     V_a2 = list(np.zeros(pts)) # Create the list
     V_a2[mean_index] = V_a2m  # Initial value for forward integration starting from mean radius
     dV_a2 = list(np.zeros(pts))
+    omega_overall_R1=np.zeros(pts)
+    omega_profile_R1=np.zeros(pts)
+    #omega_tip_R1=np.zeros(pts)
+    omega_end_R1=np.zeros(pts)
 
     # N.I.S.R.E. 2 numerical integration 
     for j in list(range(0,mean_index)):
@@ -313,7 +346,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         
         
     # Initiate all the lists
-    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul, h_t2r = (np.zeros(pts) for t in range(16))
+    V_2 , alpha_2, W_t2, W_a2, W_2, beta_2, p_2, rho_2, M_2, M_2r, p_t2, p_t2r, integrand_2, chi, L_eul1 = (np.zeros(pts) for t in range(15))
 
     Beta = np.zeros(pts)
     for j in list(range(pts)): # Compute quantities along the radius
@@ -335,15 +368,15 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         
         Beta[j]=(T_t2[j]/T_t1[j])**(gamma/(gamma-1))
 
-        L_eul[j] = U[j] * (V_t2[j] - V_t1[j])
-        chi[j] = (W_1[j]**2 - W_2[j]**2) / (2 * L_eul[j])
+        L_eul1[j] = U[j] * (V_t2[j] - V_t1[j])
+        chi[j] = (W_1[j]**2 - W_2[j]**2) / (2 * L_eul1[j])
 
         integrand_2[j] = 2 * np.pi * rr[j] * rho_2[j] * V_a2[j] 
 
         #LOSSES across first rotor: between section 1 and 2        
         chordR1=0.1
         
-        tmp_staggerR1 = 25 * np.array([-11.676659681774582, -24.956847050581516, -47.56992271320476]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerR1 = 25 * np.array([-11.961901560367078,-25.087698929651747,-47.680067650794285]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerR1 = compute_C_l(tmp_staggerR1,pts)
         staggerR1 = np.average(tmp2_staggerR1)
         
@@ -352,8 +385,9 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         shrouded_R1 = 0
         statorR1 = 1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
         
-        omega_overall_R1= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1,NrowR1,bladesR1,mdot,p_t1r[j],p_1[j],shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
-        p_t2r[j] = p_t1r[j] - omega_overall_R1 * (p_t1r[j] - p_1[j])
+        omega_overall_R1[j],omega_profile_R1[j],omega_end_R1[j]= losses(rr[j],chordR1,R_m,b_1,V_a2[j],V_a1[j],beta_1[j],beta_2[j],alpha_1[j],alpha_2[j],V_1[j],V_2[j],W_a1[j],W_a2[j],W_1[j],W_2[j],rho_1[j],rho_2[j],staggerR1,NrowR1,bladesR1,mdot,p_t1r[j],p_1[j],shrouded_R1,statorR1) # Coefficient of loss # Coefficient of loss
+        p_t2r[j] = p_t1r[j] - omega_overall_R1[j] * (p_t1r[j] - p_1[j])
+        
         
         # ENTROPY EVALUATION
 
@@ -373,6 +407,36 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("V_a2m = " + str(V_a2m))
     print("err = "+ str(err))
     iter += 1
+    
+delta_c=0.001 #clearance [m]
+r_1=Rm+b_1/2-delta_c # [m]
+r_2=Rm+b_1/2-delta_c
+r_in=rtip # [m]
+r_out=r_in
+if shrouded_R1==0:
+        rho_medR1=(rho_1[pts-1]+rho_2[pts-1])*0.5
+        Vt_1=V_a1[pts-1]*tan(alpha_1[pts-1])
+        Vt_2=V_a2[pts-1]*tan(alpha_2[pts-1])
+        tau_R1=np.pi*delta_c*(rho_1[pts-1]*r_1*V_a1[pts-1]+rho_2[pts-1]*r_2*V_a2[pts-1])*(r_2*Vt_2-r_1*Vt_1) #in reference book C_theta and C_m are the absolute t tangential and meridional comp
+        deltaPR1=abs(tau_R1/(bladesR1*rtip*delta_c*chordR1*cos(staggerR1))) #blades is the blade number
+        U_c_R1=0.816*sqrt(2*deltaPR1/rho_medR1)/NrowR1**(0.2)
+        mdot_cR1=rho_medR1*U_c_R1*bladesR1*delta_c*chordR1*cos(staggerR1)
+        deltaP_tR1=abs(deltaPR1*mdot_cR1/mdot)
+        #omega_tip_S1=deltaP_tS1/(p_t2[pts-1]-p_2[pts-1]);
+else: 
+        print("no tip leakage losses")
+
+
+deltaPt_distr_R1=np.linspace(0,b_1,pts)*2*deltaP_tR1/((b_1)**2)
+omega_tip_R1=deltaPt_distr_R1/(p_t1r-p_1)
+print("deltaP_tR1,",deltaP_tR1)
+print("deltaPR1,",deltaPR1)
+print("deltap_dist_R1",deltaPt_distr_R1)
+# print("omega_tip_R1",omega_tip_R1)
+
+#add tip leakage contribution
+p_t2r=p_t2r-deltaPt_distr_R1
+    
 
 print("")
 
@@ -387,7 +451,7 @@ print("Rotor 1 Efficiency = " ,(np.average(T_2is)-np.average(T_1))/(np.average(T
 
 
 
-exec(open("./turboproject_S2.py").read()) # Mean line design for 2nd stage
+exec(open("./MLD_2.py").read()) # Mean line design for 2nd stage
 
 
 
@@ -436,6 +500,10 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     V_a3 = list(np.zeros(pts)) # Create the list
     V_a3[mean_index] = V_a3m  # Initial value for forward integration starting from mean radius
     dV_a3 = list(np.zeros(pts))
+    omega_overall_S1=np.zeros(pts)
+    omega_profile_S1=np.zeros(pts)
+    #omega_tip_S1=np.zeros(pts)
+    omega_end_S1=np.zeros(pts)
     
     # N.I.S.R.E at stator outlet (3)
     for j in list(range(0,mean_index)):
@@ -472,7 +540,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         #LOSSES across stator of the first stage: between section 2 and 3        
         chordS1=0.1
         
-        tmp_staggerS1 = 25 * np.array([17.465834987449313, 29.176544391755733, 46.28802243060806]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerS1 = 25 * np.array([19.502033288106308,30.186230679622014,46.978917937869895]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerS1 = compute_C_l(tmp_staggerS1,pts)
         staggerS1= np.average(tmp2_staggerS1)
 
@@ -481,10 +549,9 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         shrouded_S1=0
         statorS1=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
         
-        omega_overall_S1= losses(rr[j],chordS1,R_m,b_1,V_a3[j],V_a2[j],beta_2[j],beta_3[j],alpha_2[j],alpha_3[j],V_2[j],V_3[j],W_a2[j],W_a3[j],W_2[j],W_3[j],rho_2[j],rho_3[j],staggerS1,NrowS1,bladesS1,mdot,p_t2[j],p_2[j],shrouded_S1,statorS1) # Coefficient of loss # Coefficient of loss
+        omega_overall_S1[j],omega_profile_S1[j],omega_end_S1[j]= losses(rr[j],chordS1,R_m,b_2,V_a3[j],V_a2[j],beta_2[j],beta_3[j],alpha_2[j],alpha_3[j],V_2[j],V_3[j],W_a2[j],W_a3[j],W_2[j],W_3[j],rho_2[j],rho_3[j],staggerS1,NrowS1,bladesS1,mdot,p_t2[j],p_2[j],shrouded_S1,statorS1) # Coefficient of loss # Coefficient of loss
     
-        
-        p_t3[j] = p_t2[j] - omega_overall_S1 * (p_t2[j] - p_2[j])
+        p_t3[j] = p_t2[j] - omega_overall_S1[j] * (p_t2[j] - p_2[j])
 
         # ENTROPY EVALUATION
 
@@ -504,9 +571,39 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("V_t3m = "+ str(Vt3_check) + " [m/s]")
     print("err = "+ str(err))
     iter += 1
+    print("overall loss coefficient=",omega_overall_S1)
+    print("profile losses=",omega_profile_S1)
+    # print("tip leakage losses=",omega_tip_S1)
+    print("end wall losses=",omega_end_S1)
+    
+delta_c=0.001 #clearance [m]
+r_2=Rm+b_2/2-delta_c # [m]
+r_3=Rm+b_1/2-delta_c
+r_in=rtip # [m]
+r_out=r_in
+if shrouded_S1==0:
+        rho_medS1=(rho_2[pts-1]+rho_3[pts-1])*0.5
+        Vt_2=V_a2[pts-1]*tan(alpha_2[pts-1])
+        Vt_3=V_a3[pts-1]*tan(alpha_3[pts-1])
+        tau_S1=np.pi*delta_c*(rho_2[pts-1]*r_2*V_a2[pts-1]+rho_3[pts-1]*r_3*V_a3[pts-1])*(r_3*Vt_3-r_2*Vt_2) #in reference book C_theta and C_m are the absolute t tangential and meridional comp
+        deltaPS1=abs(tau_S1/(bladesS1*rtip*delta_c*chordS1*cos(staggerS1))) #blades is the blade number
+        U_c_S1=0.816*sqrt(2*deltaPS1/rho_medS1)/NrowS1**(0.2)
+        mdot_cS1=rho_medS1*U_c_S1*bladesS1*delta_c*chordS1*cos(staggerS1)
+        deltaP_tS1=abs(deltaPS1*mdot_cS1/mdot)
+        #omega_tip_S1=deltaP_tS1/(p_t2[pts-1]-p_2[pts-1]);
+else: 
+        print("no tip leakage losses")
 
+#write the linear distribution of deltaP that integrated gives the value of deltaP
 
+deltaPt_distr_S1=np.linspace(0,b_2,pts)*2*deltaP_tS1/((b_2)**2)
+omega_tip_S1=deltaPt_distr_S1/(p_t2-p_2)
+print("deltaP_tS1,",deltaP_tS1)
+print("deltap_dist",deltaPt_distr_S1)
+print("omega_tip_S1",omega_tip_S1)
 
+#add tip leakage contribution
+p_t3=p_t3-deltaPt_distr_S1
 
 
 
@@ -515,11 +612,9 @@ T_3is = (p_3/p_2)**((gamma-1)/gamma) * T_2
 print("Stator 1 Efficiency = ", (np.average(T_3is)-np.average(T_2))/(np.average(T_3)-np.average(T_2)))
 
 
-deltah_is_stage1 = c_p * ( np.average((p_3/p_2)**((gamma-1)/gamma) * T_2is) - np.average(T_1) )
+deltah_is_stage1 = c_p * ( np.average((p_3/p_1)**((gamma-1)/gamma)) * np.average(T_1) - np.average(T_1))
 
-print("Stage 1 Total Efficiency = " , (deltah_is_stage1 + np.average(V_3**2)/2 - np.average(V_1**2)/2)/np.average(L_eul) )
-input()
-
+print("Stage 1 Total Efficiency = " , (deltah_is_stage1 + np.average(V_3**2)/2 - np.average(V_1**2)/2)/np.average(L_eul1) )
 
 
 
@@ -574,6 +669,10 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     V_a4 = list(np.zeros(pts)) # Create the list
     V_a4[mean_index] = V_a4m  # Initial value for forward integration starting from mean radius
     dV_a4 = list(np.zeros(pts))
+    omega_overall_R2=np.zeros(pts)
+    omega_profile_R2=np.zeros(pts)
+    #omega_tip_R2=np.zeros(pts)
+    omega_end_R2=np.zeros(pts)
 
     # N.I.S.R.E. 4 numerical integration 
     for j in list(range(0,mean_index)):
@@ -582,7 +681,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
             V_a4[q + k*1] = V_a4[q] + dV_a4[q] * k * deltaR2 
 
     # Initiate all the lists
-    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi_2, L_eul = (np.zeros(pts) for t in range(15))
+    V_4 , alpha_4, W_t4, W_a4, W_4, beta_4, p_4, rho_4, M_4, M_4r, p_t4, p_t4r, integrand_4, chi_2, L_eul2 = (np.zeros(pts) for t in range(15))
 
     for j in list(range(pts)): # Compute quantities along the radius
         # Kinematics
@@ -602,15 +701,15 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         p_t4[j] = p_4[j]*(1 + (gamma-1) / 2 * M_4[j]**2 ) ** (gamma/(gamma-1))
 
 
-        L_eul[j] = U2[j] * (V_t4[j] - V_t3[j])
-        chi_2[j] = (W_3[j]**2 - W_4[j]**2) / (2 * L_eul[j])
+        L_eul2[j] = U2[j] * (V_t4[j] - V_t3[j])
+        chi_2[j] = (W_3[j]**2 - W_4[j]**2) / (2 * L_eul2[j])
 
         integrand_4[j] = 2 * np.pi * rr2[j] * rho_4[j] * V_a4[j] 
                 
         #LOSSES across rotor of the second stage: between section 3 and 4        
         chordR2=0.1
         
-        tmp_staggerR2 = 25 * np.array([-3.731720378208422, -20.285718712071258, -49.148251438192744]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerR2 = 25 * np.array([-1.5637002974433614,-18.805459731802536,-48.22212922411502]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerR2 = compute_C_l(tmp_staggerR2,pts)
         staggerR2 = np.average(tmp2_staggerR2)
 
@@ -619,8 +718,8 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         shrouded_R2=0
         b_R2=0.3
         statorR2=0 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_R2= losses(rr2[j],chordR2,R_m,b_2,V_a4[j],V_a3[j],beta_3[j],beta_4[j],alpha_3[j],alpha_4[j],V_3[j],V_4[j],W_a3[j],W_a4[j],W_3[j],W_4[j],rho_3[j],rho_4[j],staggerR2,NrowR2,bladesR2,mdot,p_t3r[j],p_3[j],shrouded_R2,statorR2) # Coefficient of loss 
-        p_t4r[j] = p_t3r[j] - omega_overall_R2 * (p_t3r[j] - p_3[j])
+        omega_overall_R2[j],omega_profile_R2[j],omega_end_R2[j]= losses(rr2[j],chordR2,R_m,b_2,V_a4[j],V_a3[j],beta_3[j],beta_4[j],alpha_3[j],alpha_4[j],V_3[j],V_4[j],W_a3[j],W_a4[j],W_3[j],W_4[j],rho_3[j],rho_4[j],staggerR2,NrowR2,bladesR2,mdot,p_t3r[j],p_3[j],shrouded_R2,statorR2) # Coefficient of loss 
+        p_t4r[j] = p_t3r[j] - omega_overall_R2[j] * (p_t3r[j] - p_3[j])
 
         # ENTROPY EVALUATION
 
@@ -642,6 +741,38 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
 print("")
 T_4is = (p_4/p_3)**((gamma-1)/gamma) * T_3
 print("Rotor 2 Efficiency = ",(np.average(T_4is)-np.average(T_3))/(np.average(T_4)-np.average(T_3)))
+
+
+
+
+delta_c=0.001 #clearance [m]
+r_3=Rm+b_2/2-delta_c # [m]
+r_4=Rm+b_2/2-delta_c
+r_in=rtip # [m]
+r_out=r_in
+if shrouded_R2==0:
+        rho_medR2=(rho_3[pts-1]+rho_4[pts-1])*0.5
+        Vt_3=V_a3[pts-1]*tan(alpha_3[pts-1])
+        Vt_4=V_a4[pts-1]*tan(alpha_4[pts-1])
+        tau_R2=np.pi*delta_c*(rho_3[pts-1]*r_3*V_a3[pts-1]+rho_4[pts-1]*r_4*V_a4[pts-1])*(r_4*Vt_4-r_3*Vt_3) #in reference book C_theta and C_m are the absolute t tangential and meridional comp
+        deltaPR2=abs(tau_R2/(bladesR2*rtip*delta_c*chordR2*cos(staggerR2))) #blades is the blade number
+        U_c_R2=0.816*sqrt(2*deltaPR2/rho_medR2)/NrowR2**(0.2)
+        mdot_cR2=rho_medR2*U_c_R2*bladesR2*delta_c*chordR2*cos(staggerR2)
+        deltaP_tR2=abs(deltaPR2*mdot_cR2/mdot)
+        #omega_tip_S1=deltaP_tS1/(p_t2[pts-1]-p_2[pts-1]);
+else: 
+        print("no tip leakage losses")
+
+
+deltaPt_distr_R2=np.linspace(0,b_1,pts)*2*deltaP_tR2/((b_1)**2)
+omega_tip_R2=deltaPt_distr_R2/(p_t3r-p_3)
+print("deltaP_tR1,",deltaP_tR2)
+print("deltaPR1,",deltaPR2)
+print("deltap_dist_R1",deltaPt_distr_R2)
+print("omega_tip_R1",omega_tip_R2)
+
+#add tip leakage contribution
+p_t4r=p_t4r-deltaPt_distr_R2
 
 
 
@@ -683,7 +814,10 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     V_a5 = list(np.zeros(pts)) # Create the list
     V_a5[mean_index] = V_a5m  # Initial value for forward integration starting from mean radius
     dV_a5 = list(np.zeros(pts))
-    
+    omega_overall_S2=np.zeros(pts)
+    omega_profile_S2=np.zeros(pts)
+    #omega_tip_S2=np.zeros(pts)
+    omega_end_S2=np.zeros(pts)
     # N.I.S.R.E at stator outlet (5)
     for j in list(range(0,mean_index)):
         for q,k in zip([mean_index + j, mean_index - j],[1,-1]):
@@ -715,7 +849,7 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         #LOSSES across stator of the second stage: between section 4 and 5        
         chordS2=0.1
         
-        tmp_staggerS2 = 25 * np.array([24.160523251671574, 32.05712108570312, 46.50612563659101]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
+        tmp_staggerS2 = 25 * np.array([25.99936542695012, 35.486743513986475, 60.110156165597175]) # Times 25 is just because we are reusing a function for computing the C_l distribution that divides by 25
         tmp2_staggerS2 = compute_C_l(tmp_staggerS2,pts)
         staggerS2 = np.average(tmp2_staggerS2)
 
@@ -723,11 +857,11 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
         bladesS2=36
         shrouded_S2=0
         statorS2=1 #flag to say if the stage is a stator or a rotor: necessary in losses function for the profile losses, check there
-        omega_overall_S2= losses(rr2[j],chordS2,R_m,b_2,V_a5[j],V_a4[j],beta_4[j],beta_5[j],alpha_4[j],alpha_5[j],V_4[j],V_5[j],W_a4[j],W_a5[j],W_4[j],W_5[j],rho_4[j],rho_5[j],staggerS2,NrowS2,bladesS2,mdot,p_t4[j],p_4[j],shrouded_S2,statorS2) # Coefficient of loss # Coefficient of loss        
+        omega_overall_S2[j],omega_profile_S2[j],omega_end_S2[j]= losses(rr2[j],chordS2,R_m,b_2,V_a5[j],V_a4[j],beta_4[j],beta_5[j],alpha_4[j],alpha_5[j],V_4[j],V_5[j],W_a4[j],W_a5[j],W_4[j],W_5[j],rho_4[j],rho_5[j],staggerS2,NrowS2,bladesS2,mdot,p_t4[j],p_4[j],shrouded_S2,statorS2) # Coefficient of loss # Coefficient of loss        
         #Evaluate the q.ties in section 1 (np.expressions) at the current radius
         # tmp = overwritten at every iteration, no need for a new array for _1 quantities
         
-        p_t5[j] = p_t4[j] - omega_loss_S * (p_t4[j] - p_4[j])
+        p_t5[j] = p_t4[j] - omega_overall_S2[j] * (p_t4[j] - p_4[j])
 
         # ENTROPY EVALUATION
 
@@ -747,15 +881,44 @@ while abs(err) > tol: # Begin loop to get mass flow convergence
     print("err = "+ str(err))
     iter += 1
 
+delta_c=0.001 #clearance [m]
+r_4=Rm+b_2/2-delta_c # [m]
+r_5=Rm+b_1/2-delta_c
+r_in=rtip # [m]
+r_out=r_in
+if shrouded_S2==0:
+        rho_medS2=(rho_4[pts-1]+rho_5[pts-1])*0.5
+        Vt_2=V_a4[pts-1]*tan(alpha_4[pts-1])
+        Vt_5=V_a5[pts-1]*tan(alpha_5[pts-1])
+        tau_S2=np.pi*delta_c*(rho_4[pts-1]*r_4*V_a4[pts-1]+rho_5[pts-1]*r_5*V_a5[pts-1])*(r_5*Vt_5-r_4*Vt_4) #in reference book C_theta and C_m are the absolute t tangential and meridional comp
+        deltaPS2=abs(tau_S2/(bladesS2*rtip*delta_c*chordS2*cos(staggerS2))) #blades is the blade number
+        U_c_S2=0.816*sqrt(2*deltaPS2/rho_medS2)/NrowS2**(0.2)
+        mdot_cS2=rho_medS2*U_c_S2*bladesS2*delta_c*chordS2*cos(staggerS2)
+        deltaP_tS2=abs(deltaPS2*mdot_cS2/mdot)
+        #omega_tip_S1=deltaP_tS1/(p_t2[pts-1]-p_2[pts-1]);
+else: 
+        print("no tip leakage losses")
+
+#write the linear distribution of deltaP that integrated gives the value of deltaP
+
+deltaPt_distr_S2=np.linspace(0,b_2,pts)*2*deltaP_tS2/((b_2)**2)
+omega_tip_S2=deltaPt_distr_S2/(p_t4-p_4)
+print("deltaP_tS2,",deltaP_tS2)
+print("deltap_dist_S2",deltaPt_distr_S2)
+print("omega_tip_S2",omega_tip_S2)
+
+#add tip leakage contribution
+p_t5=p_t5-deltaPt_distr_S2
+
 
 print("")
 T_5is = (p_5/p_4)**((gamma-1)/gamma) * T_4
 print("Stator 2 Efficiency = ",(np.average(T_5is)-np.average(T_4))/(np.average(T_5)-np.average(T_4)))
 
-deltah_is_stage2 = c_p * ( np.average((p_5/p_4)**((gamma-1)/gamma) * T_4is) - np.average(T_3) )
+deltah_is_stage2 = c_p * ( np.average((p_5/p_3)**((gamma-1)/gamma)) * np.average(T_3) - np.average(T_3) )
 
-print("Stage 2 Total Efficiency = " , (deltah_is_stage2 + np.average(V_5**2)/2 - np.average(V_3**2)/2)/np.average(L_eul) )
-input()
+print("Stage 2 Total Efficiency = " , (deltah_is_stage2 + np.average(V_5**2)/2 - np.average(V_3**2)/2)/np.average(L_eul2) )
+
 
 
 
@@ -768,7 +931,7 @@ print("--------------- BLADE DESIGN ---------------" )
 percent_th0 = 10               # [%] Max thickness WRT chord of blade profile 
 chord0      = 0.1             # [m] Starting point from reference procedure
 solidity0   = 1.0              # [ ] ! Initial assumption at midspan
-theta0 = [-0.8, -16, -28.3]
+theta0 = [-1, -16, -28.1]
 
 alpha_0 = np.zeros(pts)
 
@@ -797,7 +960,7 @@ stress_Y = 472e6               # [Pa]   Material Yield stress (Annealed 4340 ste
 percent_th1 = 10               # [%] Max thickness WRT chord of blade profile 
 chord1      = 0.1              # [m] Starting point from reference procedure
 solidity1   = 1.3              # [ ] ! Initial assumption at midspan
-theta1 = [26.7, 15.8, -3.4]
+theta1 = [26.1, 15.4, -3.8]
 
 print("")
 print("###### STAGE 1 ROTOR BLADE DESIGN ######")
@@ -841,8 +1004,8 @@ print("Safety Factor =", stress_Y/stress_tot1)
 
 percent_th2 = 10               # [%] Max thickness WRT chord of blade profile 
 chord2      = 0.1             # [m] Starting point from reference procedure
-solidity2   = 1.5              # [ ] ! Initial assumption at midspan
-theta2 = [9, 7, 35]
+solidity2   = 1.4              # [ ] ! Initial assumption at midspan
+theta2 = [5.9, 5.7, 37.1]
 
 print("")
 print("###### STAGE 1 STATOR BLADE DESIGN ######")
@@ -862,7 +1025,7 @@ plt.title("Stator Stage 1 ")
 percent_th3 = 10               # [%] Max thickness WRT chord of blade profile 
 chord3      = 0.1              # [m] Starting point from reference procedure
 solidity3   = 1.3              # [ ] ! Initial assumption at midspan
-theta3 = [27.5, 17.3, -7.5]
+theta3 = [26, 16.7, -7.1]
 
 print("")
 print("###### STAGE 2 ROTOR BLADE DESIGN ######")
@@ -913,8 +1076,8 @@ print("Safety Factor =", stress_Y/stress_tot3)
 
 percent_th4 = 10               # [%] Max thickness WRT chord of blade profile 
 chord4      = 0.1             # [m] Starting point from reference procedure
-solidity4   = 1.8              # [ ] ! Initial assumption at midspan
-theta4 = [14.5, 19.5, 48 ]
+solidity4   = 1.5              # [ ] ! Initial assumption at midspan
+theta4 = [13.8, 14.5, 21.5 ]
 
 print("")
 print("###### STAGE 2 STATOR BLADE DESIGN ######")
@@ -950,11 +1113,11 @@ print("--------------- OFF-DESIGN ---------------")
 
 mdot_off = 90
 #first srage
-#Tt1 and Pt1 are from the file turboproject.py (MLD)
-Leul1_off, beta1_off= off_design(R_m,mdot_off,beta2,rho2,Um,alpha1,rho1,gamma,efficiency_TT,cp,Tt1,b1,Pt1, bladesR1, percent_th1*100,chord1, theta1[1])
+#Tt1 and Pt1 are from the file MLD_1.py (MLD)
+Leul1_off, beta1_off= off_design(R_m,mdot_off,beta2,rho2,Um,alpha1,rho1,gamma,efficiency_TT,cp,Tt1,b1,b2,Pt1, bladesR1, percent_th1/100,chord1, theta1[1])
 #Leul1_off, beta1_off= off_design(R_m,mdot_off,beta_2[mean_index],rho2[mean_index],U[mean_index],alpha_1[mean_index],rho1_[mean_index],gamma,efficiency_TT,cp,T_t1[mean_index],b1)
 
-Leul2_off, beta2_off = off_design(R_m,mdot_off,beta4,rho4,Um,alpha3,rho3,gamma,efficiency_TT,cp,Tt3,b2,Pt3, bladesR2, percent_th3*100,chord3, theta3[1])
+Leul2_off, beta2_off = off_design(R_m,mdot_off,beta4,rho4,Um,alpha3,rho3,gamma,efficiency_TT,cp,Tt3,b2,b2,Pt3, bladesR2, percent_th3/100,chord3, theta3[1])
 #Leul2_off, beta2_off= off_design(rr[mean_index],mdot_off,beta_4[mean_index],rho_4[mean_index],U[mean_index],alpha_3[mean_index],rho_3[mean_index],gamma,efficiency_TT,cp,T_t3[mean_index],b2)
 
 print("Leul1_off=", Leul1_off)
@@ -980,12 +1143,58 @@ print("beta_off_overall=",beta_off_overall)
 
 
 
-
 print("")
 
 
 ############################ PLOTS BELOW ############################
 
+#plots for the losses
+# losses in rotor 1
+plt.figure(figsize=(10,5) ,dpi=140)
+plt.plot(rr,omega_overall_R1+omega_tip_R1,"b")
+plt.plot(rr,omega_profile_R1,"g")
+plt.plot(rr,omega_tip_R1,"r")
+plt.plot(rr,omega_end_R1,"c")
+plt.ylabel(r"$\omega \ [-]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Overall","Profile","Tip leakage", "End wall"])
+plt.title(r"Loss coefficients in Rotor 1")
+plt.grid(alpha=0.2)
+
+#losses in stator 1
+plt.figure(figsize=(10,5) ,dpi=140)
+plt.plot(rr,omega_overall_S1+omega_tip_S1,"b")
+plt.plot(rr,omega_profile_S1,"g")
+plt.plot(rr,omega_tip_S1,"r")
+plt.plot(rr,omega_end_S1,"c")
+plt.ylabel(r"$\omega \ [-]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Overall","Profile","Tip leakage", "End wall"])
+plt.title("Loss coefficients in Stator 1")
+plt.grid(alpha=0.2)
+
+plt.figure(figsize=(10,5) ,dpi=80)
+plt.plot(rr2,omega_overall_R2+omega_tip_R2,"b")
+plt.plot(rr2,omega_profile_R2,"g")
+plt.plot(rr2,omega_tip_R2,"r")
+plt.plot(rr2,omega_end_R2,"c")
+plt.ylabel(r"$\omega \ [-]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Overall ","Profile ","Tip leakage ", "End wall "])
+plt.title(r"Loss coefficients in Rotor 2")
+plt.grid(alpha=0.2)
+
+#losses in stator 1
+plt.figure(figsize=(10,5) ,dpi=80)
+plt.plot(rr2,omega_overall_S2+omega_tip_S2,"b")
+plt.plot(rr2,omega_profile_S2,"g")
+plt.plot(rr2,omega_tip_S2,"r")
+plt.plot(rr2,omega_end_S2,"c")
+plt.ylabel(r"$\omega \ [-]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Overall ","Profile ","Tip leakage ", "End wall "])
+plt.title("Loss coefficients in Stator 2")
+plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,W_1,"b")
@@ -1010,17 +1219,18 @@ print("")
 # plt.title("Axial Absolute Velocity")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,V_t1,"b")
-# plt.plot(rr,V_t2,"g")
-# plt.plot(rr2,V_t3,"r")
-# plt.plot(rr2,V_t4,"c")
-# plt.plot(rr2,V_t5,"m")
-# plt.ylabel(r"$V_t$ $[m/s]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Tangential Absolute Velocity")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=90)
+plt.plot(rr,V_t0,"k")
+plt.plot(rr,V_t1,"b")
+plt.plot(rr,V_t2,"g")
+plt.plot(rr2,V_t3,"r")
+plt.plot(rr2,V_t4,"c")
+plt.plot(rr2,V_t5,"m")
+plt.ylabel(r"$V_t$ $[m/s]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Deflector In", "Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Tangential Absolute Velocity")
+plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,p_0,"k")
@@ -1035,17 +1245,17 @@ print("")
 # plt.title("Static Pressure")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,p_t1,"b")
-# plt.plot(rr,p_t2,"g")
-# plt.plot(rr2,p_t3,"r")
-# plt.plot(rr2,p_t4,"c")
-# plt.plot(rr2,p_t5,"m")
-# plt.ylabel(r"$p_t$ $[Pa]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Total Pressure")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=90)
+plt.plot(rr,p_t1,"b")
+plt.plot(rr,p_t2,"g")
+plt.plot(rr2,p_t3,"r")
+plt.plot(rr2,p_t4,"c")
+plt.plot(rr2,p_t5,"m")
+plt.ylabel(r"$p_t$ $[Pa]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Total Pressure")
+plt.grid(alpha=0.2)
 
 # plt.figure(figsize=(6, 5), dpi=80)
 # plt.plot(rr,h_t1,"b")
@@ -1071,32 +1281,32 @@ print("")
 # plt.title("Static Temperature")
 # plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,rho_1,"b")
-# plt.plot(rr,rho_2,"g")
-# plt.plot(rr2,rho_3,"r")
-# plt.plot(rr2,rho_4,"c")
-# plt.plot(rr2,rho_5,"m")
-# plt.ylabel(r"$\rho$ $[kg/m^3]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Density")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=90)
+plt.plot(rr,rho_1,"b")
+plt.plot(rr,rho_2,"g")
+plt.plot(rr2,rho_3,"r")
+plt.plot(rr2,rho_4,"c")
+plt.plot(rr2,rho_5,"m")
+plt.ylabel(r"$\rho$ $[kg/m^3]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Density")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,s_0,"k")
-# plt.plot(rr,s_1,"b")
-# plt.plot(rr,s_2,"g")
-# plt.plot(rr2,s_3,"r")
-# plt.plot(rr2,s_4,"c")
-# plt.plot(rr2,s_5,"m")
-# plt.ylabel(r"$s$ $[J/K]$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
-# plt.title("Entropy")
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=90)
+plt.plot(rr,s_0,"k")
+plt.plot(rr,s_1,"b")
+plt.plot(rr,s_2,"g")
+plt.plot(rr2,s_3,"r")
+plt.plot(rr2,s_4,"c")
+plt.plot(rr2,s_5,"m")
+plt.ylabel(r"$s$ $[J/K]$")
+plt.xlabel(r"$r \  [m]$")
+plt.legend(["Deflector In","Rotor In","Rotor Out","Stator Out","Rotor 2 Out", "Stator 2 Out"])
+plt.title("Entropy")
+plt.grid(alpha=0.2)
 
-# plt.figure(figsize=(6, 5), dpi=80)
+# plt.figure(figsize=(6, 5), dpi=90)
 # plt.plot(rr,180/np.pi * np.array(alpha_0),"k")
 # plt.plot(rr,180/np.pi * np.array(alpha_1),"b")
 # plt.plot(rr,180/np.pi * np.array(alpha_2),"g")
@@ -1122,14 +1332,14 @@ print("")
 # plt.grid(alpha=0.2)
  
  
-# plt.figure(figsize=(6, 5), dpi=80)
-# plt.plot(rr,chi)
-# plt.plot(rr2,chi_2)
-# plt.ylabel(r"$\chi$")
-# plt.xlabel(r"$r \  [m]$")
-# plt.title("Reaction Degree")
-# plt.legend(["Stage 1","Stage 2"])
-# plt.grid(alpha=0.2)
+plt.figure(figsize=(6, 5), dpi=90)
+plt.plot(rr,chi)
+plt.plot(rr2,chi_2)
+plt.ylabel(r"$\chi$")
+plt.xlabel(r"$r \  [m]$")
+plt.title("Reaction Degree")
+plt.legend(["Stage 1","Stage 2"])
+plt.grid(alpha=0.2)
 
 # This should be constant if a free vortex distribution is used
 # plt.figure(figsize=(6, 5), dpi=80)
@@ -1145,15 +1355,100 @@ print("Average Exit Total Pressure S2 = " , np.average(p_t5))
 
 
 
-# plt.show()
 
 
 
 
 
 
-# VELOCITY TRIANGLES ACROSS ROTOR 1
-fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=70) # Create figure
+
+# # VELOCITY TRIANGLES ACROSS ROTOR 1
+# fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=90) # Create figure
+
+
+# j = 0 # Index used to move through the subplots
+# for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
+    
+#     # Find the index of the radius we are considering
+#     index = np.where(np.isclose(rr, i))
+#     index = (index[0])[0]
+    
+#     #Evaluate q.ties at that radius
+#     U_P   = U[index]
+#     V_a1P = V_a1[index]
+#     V_t1P = V_t1[index]
+#     W_a1P = W_a1[index]
+#     W_t1P = W_t1[index]
+#     V_a2P = V_a2[index]
+#     V_t2P = V_t2[index]
+#     W_a2P = W_a2[index]
+#     W_t2P = W_t2[index]
+
+#     # axs[j].grid(alpha=0.2) #Add grid
+    
+#     #Plot inlet and outlet triangles
+#     axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","purple","violet"])
+#     axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.0,  color=["black","green","limegreen"])
+    
+#     axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
+#     axs.flat[j].set_ylim(-5,  20 + max(V_a2[0],V_a1[-1]) )  #Set the limits for the y axis
+    
+#     axs[j].set_aspect('equal') #Equal aspect ratio axes
+#     axs[j].set_ylabel(r"Axial Component $[m/s]$")
+#     axs[j].set_xlabel(r"Tangential Component $[m/s]$")
+#     axs[j].set_title(name)
+
+#     j = j+1
+
+
+
+
+# # VELOCITY TRIANGLES ACROSS STATOR 1
+
+# fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=90) # Create figure
+
+# j = 0 # Index used to move through the subplots
+# for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
+
+#     # Find the index of the radius we are considering
+#     index = np.where(np.isclose(rr, i))
+#     index = (index[0])[0]
+
+#     #Evaluate q.ties at that radius
+#     U_P   = U[index]
+#     V_a2P = V_a2[index]
+#     V_t2P = V_t2[index]
+#     V_a3P = V_a3[index]
+#     V_t3P = V_t3[index]
+
+#     # axs[j].grid(alpha=0.2) #Add grid
+    
+#     #Plot inlet and outlet triangles
+#     axs[j].quiver([0,U_P - V_t2P] , [0,V_a2P] , [U_P,V_t2P] , [0,-V_a2P] , angles='xy',scale_units='xy', scale=1.0, color=["black","green"])
+#     axs[j].quiver([0,U_P - V_t3P] , [0,V_a3P] , [U_P,V_t3P] , [0,-V_a3P] , angles='xy',scale_units='xy', scale=1.0,  color=["black","red"])
+    
+    
+#     axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
+#     axs.flat[j].set_ylim(-5, 20 + max(float(V_a2[0]), float(V_a2[-1])))  #Set the limits for the y axis
+    
+#     axs[j].set_aspect('equal') #Equal aspect ratio axes
+#     axs[j].set_ylabel(r"Axial Component $[m/s]$")
+#     axs[j].set_xlabel(r"Tangential Component $[m/s]$")
+#     axs[j].set_title(name)
+
+#     j = j+1
+
+
+
+
+#plt.show()
+
+
+
+
+# VELOCITY TRIANGLES ACROSS ROTOR 2
+
+fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=90) # Create figure
 
 
 j = 0 # Index used to move through the subplots
@@ -1165,22 +1460,22 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
     
     #Evaluate q.ties at that radius
     U_P   = U[index]
-    V_a1P = V_a1[index]
-    V_t1P = V_t1[index]
-    W_a1P = W_a1[index]
-    W_t1P = W_t1[index]
-    V_a2P = V_a2[index]
-    V_t2P = V_t2[index]
-    W_a2P = W_a2[index]
-    W_t2P = W_t2[index]
+    V_a1P = V_a3[index]
+    V_t1P = V_t3[index]
+    W_a1P = W_a3[index]
+    W_t1P = W_t3[index]
+    V_a2P = V_a4[index]
+    V_t2P = V_t4[index]
+    W_a2P = W_a4[index]
+    W_t2P = W_t4[index]
 
     # axs[j].grid(alpha=0.2) #Add grid
     
     #Plot inlet and outlet triangles
-    axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","blue","blue"])
-    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.0,  color=["black","green","green"])
+    axs[j].quiver([0,U_P - V_t1P, U_P - V_t1P] , [0,V_a1P,V_a1P] , [U_P,V_t1P,W_t1P] , [0,-V_a1P,-W_a1P] , angles='xy',scale_units='xy', scale=1.0, color=["black","purple","violet"])
+    axs[j].quiver([0,U_P - V_t2P, U_P - V_t2P] , [0,V_a2P,V_a2P] , [U_P,V_t2P,W_t2P] , [0,-V_a2P,-W_a2P] , angles='xy',scale_units='xy', scale=1.0,  color=["black","green","limegreen"])
     
-    axs.flat[j].set_xlim(-50, 20 + U[-1]) #Set the limits for the x axis
+    axs.flat[j].set_xlim(-70, 20 + U[-1]) #Set the limits for the x axis
     axs.flat[j].set_ylim(-5,  20 + max(V_a2[0],V_a1[-1]) )  #Set the limits for the y axis
     
     axs[j].set_aspect('equal') #Equal aspect ratio axes
@@ -1193,9 +1488,14 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
 
 
 
-# VELOCITY TRIANGLES ACROSS STATOR 1
 
-fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=70) # Create figure
+
+
+
+
+# VELOCITY TRIANGLES ACROSS STATOR 2
+
+fig, axs = plt.subplots(1,3, sharey = False,  figsize=(13, 5), dpi=90) # Create figure
 
 j = 0 # Index used to move through the subplots
 for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
@@ -1205,11 +1505,11 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
     index = (index[0])[0]
 
     #Evaluate q.ties at that radius
-    U_P   = U[index]
-    V_a2P = V_a2[index]
-    V_t2P = V_t2[index]
-    V_a3P = V_a3[index]
-    V_t3P = V_t3[index]
+    U_P   = U2[index]
+    V_a2P = V_a4[index]
+    V_t2P = V_t4[index]
+    V_a3P = V_a5[index]
+    V_t3P = V_t5[index]
 
     # axs[j].grid(alpha=0.2) #Add grid
     
@@ -1228,29 +1528,6 @@ for i, name in zip([R_h, R_m, R_t], ["Hub", "Mean", "Tip"]):
 
     j = j+1
 
-
-
-
-
-
-
-
-
-
-
-# VELOCITY TRIANGLES ACROSS ROTOR 2
-
-
-
-
-
-
-
-
-
-
-
-# VELOCITY TRIANGLES ACROSS STATOR 2
 
 
 plt.show()
